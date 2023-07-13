@@ -1,1 +1,3 @@
-import './test2'
+import './style.css'
+import './config'
+import './game'

@@ -4,58 +4,11 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simple AABB Physics</title>
+  <title>Super Mario Browser</title>
 </head>
 <body>
   <section id="game">
-
-  </section>
-  <section style="position:absolute; top:0px; right:0px; margin:10px; display:flex; flex-direction:column; align-items:end; gap: 10px;">
-    <div>
-      <button id="tools-toggle" style="font-weight:bold;">tools</button>
-      <button id="info-toggle" style="font-weight:bold;">?</button>
-    </div>
-    <div id="info" style="color:#fff; display:none; background-color: #aaffaa44; border-radius:10px; padding:10px;">
-      WASD to move player
-      <br>
-      Arrow keys to move camera
-      <br>
-      TFGH to move ray
-      <br>
-      R to reset position
-    </div>
-    <div id="tools" style="padding:10px; display:none; flex-direction:column; align-items:end; gap: 10px; background-color: #ff55aa44; border-radius:10px;">
-      <button id="sprite-toggle" style="font-weight:bold;">Toggle Sprite</button>
-      <fieldset style="color:white;">
-        <legend style="color:white;">Select a bgm:</legend>
-        <div>
-          <input type="radio" id="phys" name="music" value="phys" checked>
-          <label for="phys" style="color:white;">Physics</label>
-        </div>
-    
-        <div>
-          <input type="radio" id="rayman" name="music" value="rayman">
-          <label for="rayman" style="color:white;">Rocky Peaks</label>
-        </div>
-    
-        <div>
-          <input type="radio" id="silence" name="music" value="silence">
-          <label for="silence" style="color:white;">Silence</label>
-        </div>
-      </fieldset>
-      <label for="master-volume" style="color:white;">
-        Master volume
-      </label>
-      <input type="range" id="master-volume" min="0" max="1" value="0.9" step="any">
-      <label for="music-volume" style="color:white;">
-        Music volume
-      </label>
-      <input type="range" id="music-volume" min="0" max="1" value="0.5" step="any">
-      <label for="sound-volume" style="color:white;">
-        Sound volume
-      </label>
-      <input type="range" id="sound-volume" min="0" max="1" value="0.70" step="any">
-    </div>
+    <section id="display"></section>
   </section>
 </body>
 </html>
