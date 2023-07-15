@@ -82,6 +82,7 @@ export default class Vec2d implements Vec2dData {
     return this.dot(b.unit());
   }
 
+  /** x = r, y = theta */
   toPolar() {
     return new Vec2d(this.length(), Math.atan2(this.y, this.x));
   }
