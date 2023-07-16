@@ -249,22 +249,34 @@ class Display {
   clamp(l: number, t: number, w: number, h: number) {
     // Ensure camera is within given bounds by chaging pivot and scale
 
-    const wcomp = w > this.boundingBox.w;
-    const hcomp = h > this.boundingBox.h;
+    const wbigger = w > this.boundingBox.w;
+    const hbigger = h > this.boundingBox.h;
 
-    if (wcomp && hcomp) {
+    if (wbigger && hbigger) {
       // if bounding box is smaller than given rect just ensure that it is within rect
       if (this.boundingBox.l < l) this.pivotx = l + this.boundingBox.w * 0.5;
       if (this.boundingBox.r > l + w) this.pivotx = l + w - this.boundingBox.w * 0.5;
       if (this.boundingBox.t < t) this.pivoty = t + this.boundingBox.h * 0.5;
       if (this.boundingBox.t > t + h) this.pivoty = t + h - this.boundingBox.h * 0.5;
     } else {
-      // if bounding box is larger, first move to center of given rect, then scale until smaller or equal
-      this.pivotx = l + w * 0.5;
-      this.pivoty = t + h * 0.5;
-
-      const ratio = Math.max(this.boundingBox.w / w, this.boundingBox.h / h);
-      this.setScale(this.scale * ratio);
+      // if bounding box is larger, first move to center of dimensions where overlap occures,
+      // then scale until smaller or equal
+      if (!wbigger && !hbigger) {
+        this.pivotx = l + w * 0.5;
+        this.pivoty = t + h * 0.5;
+        const ratio = Math.max(this.boundingBox.w / w, this.boundingBox.h / h);
+        this.setScale(this.scale * ratio);
+      } else if (!wbigger) {
+        this.pivotx = l + w * 0.5;
+        if (this.boundingBox.t < t) this.pivoty = t + this.boundingBox.h * 0.5;
+        if (this.boundingBox.t > t + h) this.pivoty = t + h - this.boundingBox.h * 0.5;
+        this.setScale(this.scale * this.boundingBox.w / w);
+      } else {
+        this.pivoty = t + h * 0.5;
+        if (this.boundingBox.l < l) this.pivotx = l + this.boundingBox.w * 0.5;
+        if (this.boundingBox.r > l + w) this.pivotx = l + w - this.boundingBox.w * 0.5;
+        this.setScale(this.scale * this.boundingBox.h / h);
+      }
     }
     this.setCenter(this.pivotx, this.pivoty);
   }
