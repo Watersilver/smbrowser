@@ -1,11 +1,7 @@
-import {Sprite, AnimatedSprite, autoDetectRenderer, Container, Graphics, Filter, DisplayObject, Texture, BaseTexture} from "pixi.js";
+import {autoDetectRenderer, Color, Container, DisplayObject} from "pixi.js"
+import { pointVsRect, rectVsRect } from "./engine/aabb"
 
-// Debug
-import loadPlayerSpritesheet from "./assets/load-player-spritesheet"
-import { Input } from "./engine";
-import { pointVsRect, rectVsRect } from "./engine/aabb";
-const graphics = new Graphics();
-const input = new Input();
+type TransformEffect = Generator<{x?: number; y?: number; angle?: number; scale?: number}, void, void>;
 
 class Display {
   readonly baseWidth = 1280;
@@ -24,6 +20,8 @@ class Display {
   private boundingBox = {l:0,t:0,r:0,b:0,w:0,h:0};
   private boundingBoxRectData = {pos: {x: 0, y: 0}, size: {x: 0, y: 0}};
 
+  private transformEffects: Set<TransformEffect> = new Set();
+
   changeResolution(newWidth: number) {
     const scale = newWidth / this.baseWidth;
     this.stage.scale.set(scale);
@@ -34,18 +32,27 @@ class Display {
   private renderer = autoDetectRenderer({
     width: this.baseWidth,
     height: this.baseHeight,
-    backgroundColor: "#0f0f00"
+    backgroundColor: "#900C3F"
   });
   private stage = new Container();
   private effects = new Container();
   private view = new Container();
 
   constructor() {
+    this.view.eventMode = 'none';
+
+    // Keep following in mind if I want to implement split screen
+    // Also it seems cloning the render tree is the only way
+    // const mask = new Graphics();
+    // mask.beginFill();
+    // mask.drawRect(0, 0, 111, 111);
+    // mask.endFill();
+    // this.view.mask = mask; // Note that mask is influenced by scale
+
     this.view.position.set(this.baseWidth / 2, this.baseHeight / 2);
 
     const view = this.renderer.view;
     if (!(view instanceof HTMLCanvasElement)) return;
-    view.style.aspectRatio = `${this.baseWidth} / ${this.baseHeight}`;
 
     const display = document.getElementById('display');
     if (!display) return;
@@ -54,6 +61,7 @@ class Display {
     this.stage.addChild(this.effects);
     this.effects.addChild(this.view);
 
+    // Track changes to canvas width and height as well as padding
     new ResizeObserver(e => {
       for (const entry of e) {
         const w = entry.contentRect.width;
@@ -70,9 +78,12 @@ class Display {
         this.px = (w - this.width) * 0.5;
         this.py = (h - this.height) * 0.5;
       }
-      this.calculateBoundingBox();
+
+      // Height changed so recompute bounding box
+      this.computeBoundingBox();
     }).observe(view);
 
+    // Track mouse position relative to canvas
     view.addEventListener('mousemove', e => {
       if (e.offsetX > this.px + this.width) return;
       if (e.offsetY > this.py + this.height) return;
@@ -87,64 +98,24 @@ class Display {
       this.mousey = y / this.height;
     });
 
-    this.calculateBoundingBox();
+    // initialize bounding box
+    this.computeBoundingBox();
+  }
 
-    // Debug
-    this.view.addChild(graphics);
-    let sprite = new Sprite();
-    loadPlayerSpritesheet().then(([plSheet]) => {
-      const idleTex = plSheet.textures['smallIdle'];
-      if (idleTex) {
-        sprite = new Sprite(idleTex);
-        this.add(sprite);
-        sprite.position.set(50, 50);
-        sprite.anchor.set(0.5);
-      }
-    });
-    this.setScale(2);
-    this.setCenter(11, 11);
+  setBGColor(c: Color) {
+    this.renderer.background.backgroundColor.setValue(c);
+  }
 
-    const draw = () => {
-      input.update();
-
-      if (input.isHeld('KeyA')) this.setAngle(this.angle - 0.1);
-      if (input.isHeld('KeyD')) this.setAngle(this.angle + 0.1);
-      sprite.position.set(
-        ...this.getMousePos()
-      );
-
-      graphics.clear();
-      graphics.lineStyle(1, 0xff0000, 1);
-      graphics.beginFill(0, 0);
-      graphics.drawRect(50, 50, 22, 22);
-      graphics.endFill();
-      const [mx, my] = this.getMousePos();
-      graphics.lineStyle(1, 0xff0000, 1);
-      graphics.beginFill(0, 0);
-      graphics.drawCircle(mx, my, 2);
-      graphics.endFill();
-
-      graphics.lineStyle(1, 0xff0000, 1);
-      graphics.beginFill(0, 0);
-      graphics.drawCircle(-160, -90, 2);
-      graphics.endFill();
-
-      graphics.lineStyle(1, 0xff0000, 1);
-      graphics.beginFill(0, 0);
-      graphics.drawCircle(0, 0, 2);
-      graphics.endFill();
-
-      this.render();
-      requestAnimationFrame(draw);
-    }
-    draw();
+  setBGAlpha(alpha: number) {
+    this.renderer.background.alpha = alpha;
   }
 
   toViewport(x: number, y: number): [viewportX: number, viewportY: number] {
+    // following x, y are world coordinates
+    // given:
     // x = pivx + x0 * cos + y0 * sin
     // y = pivy + y0 * cos - x0 * sin
-
-    // given: (tan + 1 / tan) = 1 / sincos
+    // (tan + 1 / tan) = 1 / sincos
 
     // Find viewportX:
     // x / sin = y0 + pivx / sin + x0 / tan
@@ -212,14 +183,18 @@ class Display {
   setScale(s: number) {
     this.scale = s;
     this.view.scale.set(s, s);
-    this.calculateBoundingBox();
+
+    // Scale changed so recompute bounding box
+    this.computeBoundingBox();
   }
 
   /** radians */
   setAngle(a: number) {
     this.angle = a;
     this.view.rotation = a;
-    this.calculateBoundingBox();
+
+    // Angle changed so recompute bounding box
+    this.computeBoundingBox();
   }
 
   /** radians */
@@ -229,7 +204,7 @@ class Display {
     this.view.addChild(o);
   }
 
-  private calculateBoundingBox() {
+  private computeBoundingBox() {
     const [x1, y1] = this.fromViewport(0, 0);
     const [x2, y2] = this.fromViewport(this.width, 0);
     const [x3, y3] = this.fromViewport(this.width, this.height);
@@ -294,13 +269,32 @@ class Display {
     this.setCenter(this.pivotx, this.pivoty);
   }
 
+  pushEffect(e: TransformEffect) {
+    this.transformEffects.add(e);
+  }
+
   render() {
+    this.effects.position.set(0);
+    this.effects.scale.set(1);
+    this.effects.rotation = 0;
+
+    for (const e of this.transformEffects) {
+      const v = e.next();
+      if (v.done) this.transformEffects.delete(e);
+      else {
+        if (v.value.x) this.effects.position.x += v.value.x;
+        if (v.value.y) this.effects.position.y += v.value.y;
+        if (v.value.angle) this.effects.rotation += v.value.angle;
+        if (v.value.scale) {
+          this.effects.scale.x += v.value.scale;
+          this.effects.scale.y += v.value.scale;
+        }
+      }
+    }
+
     this.renderer.render(this.stage);
   }
 };
 
 const display = new Display();
-
-(window as any).display = display;
-
 export default display;
