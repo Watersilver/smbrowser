@@ -464,8 +464,8 @@ class MainLoop extends Loop {
             u.userData.vel
             ? d.userData.vel.sub(u.userData.vel).abs().elementwiseMul(col.normal).mul(1-col.time)
             : d.userData.vel.abs().elementwiseMul(col.normal).mul(1-col.time);
-            d.userData.vel.x += correction.x;
-            d.userData.vel.y += correction.y;
+          d.userData.vel.x += correction.x;
+          d.userData.vel.y += correction.y;
         }
       }
     }

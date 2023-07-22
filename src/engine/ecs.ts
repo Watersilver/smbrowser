@@ -8,6 +8,11 @@ type View<Entity> = {
   entToIndex: Map<Entity, number>;
 }
 
+// Design problems:
+// - Iterating but always checking if component exists is annoying
+// - OnDeleting getting called after component is gone cause problems because info for cleanup is deleted
+
+
 export default class Ecs<Entity extends {
   [componentName: string | symbol]: unknown;
 }> {
