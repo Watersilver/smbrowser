@@ -1,5 +1,4 @@
-import { Vec2d } from "../engine";
-import entities, { Entity } from "../entities";
+import entities from "../entities";
 
 export default function marioMovement(dt: number) {
   for (const e of entities.view([
@@ -15,17 +14,29 @@ export default function marioMovement(dt: number) {
     const upBlocked = !!e.touchingUp?.length;
     const leftBlocked = !!e.touchingLeft?.length;
     const rightBlocked = !!e.touchingRight?.length;
-    const grounded = !!e.touchingDown?.length;
+    const downBlocked = !!e.touchingDown?.length;
 
     if (config && mi && dynamic && mario) {
       const i = mi.inputs;
+      const jumped = downBlocked && i.jump && !upBlocked && !mario.jumpCooldown;
+      const grounded = downBlocked && !jumped && !mario.jumpCooldown;
+      e.gravity = e.gravity || config.initFallGravity;
+
+      if (mario.jumpCooldown) {
+        mario.jumpCooldown -= dt;
+        if (mario.jumpCooldown <= 0) mario.jumpCooldown = 0;
+      }
+
+      const dir = Math.sign(dynamic.velocity.x);
+      let speed = Math.abs(dynamic.velocity.x);
+
+      const side = i.left ? -1 : i.right ? 1 : 0;
+
       if (grounded) {
-        const side = i.left ? -1 : i.right ? 1 : 0;
+        mario.maxAirSpeed = undefined;
+        mario.jumped = !!mario.jumpCooldown;
         const running = !!i.run;
         const underwater = !!e.underwater;
-
-        const dir = Math.sign(dynamic.velocity.x);
-        let speed = Math.abs(dynamic.velocity.x);
         const speedCloseToZero = speed < 1;
 
         const keepSkidDecel = mario.skidDecel && !mi.anyPressed;
@@ -38,7 +49,7 @@ export default function marioMovement(dt: number) {
           mario.facing = side;
 
           // Be sure to block movement if blocked
-          const blocked = (side === 1 && rightBlocked) || leftBlocked;
+          const blocked = (side === 1 && rightBlocked) || (side === - 1 && leftBlocked);
           if (blocked) return;
 
           let acc = 0;
@@ -82,6 +93,35 @@ export default function marioMovement(dt: number) {
           }
 
           dynamic.acceleration.x = - decc * dir;
+        }
+      } else {
+        if (!mario.maxAirSpeed) {
+          mario.maxAirSpeed = speed >= config.maxWalkSpeed ? config.maxRunSpeed : config.maxWalkSpeed;
+        }
+
+        if (jumped) {
+          mario.jumpCooldown = 5 / 60;
+          dynamic.acceleration.y = -222 / dt;
+        }
+
+        if (side) {
+          let acc = 0;
+
+          if (side === mario.facing) {
+            acc = speed >= config.maxWalkSpeed ? config.jumpFastAccel : config.jumpSlowAccel;
+          } else {
+            acc = speed >= config.maxWalkSpeed ? config.jumpFastDecel : speed >= config.jumpBackwardsDecelThreshold ? config.jumpNormalDecel : config.jumpSlowDecel;
+          }
+
+          // Speed might or might not be capped when moving backwards in the air but we cap it here anyway
+          if (dir === side) {
+            if (speed + acc * dt >= mario.maxAirSpeed) {
+              const ds = mario.maxAirSpeed + acc * dt - speed;
+              acc = ds / dt;
+            }
+          }
+
+          dynamic.acceleration.x = acc * side;
         }
       }
     }

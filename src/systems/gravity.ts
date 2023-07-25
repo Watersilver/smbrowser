@@ -1,10 +1,11 @@
 import entities from "../entities";
 
-export default function gravity(magnitude: number, dt: number) {
-  for (const e of entities.view(['dynamic'])) {
+export default function gravity() {
+  for (const e of entities.view(['dynamic', 'gravity'])) {
     const d = e.dynamic;
-    if (d) {
-      d.acceleration.y += magnitude;
+    const g = e.gravity;
+    if (d && g) {
+      d.acceleration.y += g;
     }
   }
 }

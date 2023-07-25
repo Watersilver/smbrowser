@@ -7,8 +7,8 @@ const collider = {pos: new Vec2d(0, 0), size: new Vec2d(0, 0), dr: new Vec2d(0, 
 const collidee = {pos: new Vec2d(0, 0), size: new Vec2d(0, 0)};
 
 const checkSide = (check: "touchingDown" | "touchingUp" | "touchingRight" | "touchingLeft") => {
-  collider.dr.x = check === "touchingLeft" ? -1 : check === "touchingRight" ? 1 : 0;
-  collider.dr.y = check === "touchingUp" ? -1 : check === "touchingDown" ? 1 : 0;
+  collider.dr.x = check === "touchingLeft" ? -.1 : check === "touchingRight" ? .1 : 0;
+  collider.dr.y = check === "touchingUp" ? -.1 : check === "touchingDown" ? .1 : 0;
   for (const ent of entities.view([check])) {
     const c = ent[check];
     if (!c) continue;

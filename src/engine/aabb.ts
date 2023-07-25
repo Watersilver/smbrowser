@@ -107,8 +107,31 @@ export function dynamicRectVsRect(rect1: DynamicRect, rect2: RectData):
   }, expandedRect);
 
   if (res[0]) {
+    const acceptableNegativeTime = -3e-12;
+
+    // if (res[1].edginess < 3) {
+    //   // Vector from center to collistion point
+    //   const v = res[1].point.sub(rect2.pos).add(new Vec2d(rect2.size.x, rect2.size.y).mul(0.5)).unit();
+
+    //   // if (res[1].time >= acceptableNegativeTime && res[1].time < 1 && !(res[1].time >= 0 && res[1].time < 1))
+    //   //   console.log(res[1], rect1.dr.unit().dot(v));
+
+    //   // https://chortle.ccsu.edu/vectorlessons/vch09/vch09_6.html
+    //   if (rect1.dr.unit().dot(v) < -0.866) {
+    //     // Angle is bigger than 150 degs
+    //     if (res[1].time >= acceptableNegativeTime && res[1].time < 1) return res;
+    //   } else {
+    //     // Make the less strict comparison if direction isn't towards edge
+    //     if (res[1].time >= 0 && res[1].time < 1) return res;
+    //   }
+    //   return [false, null];
+    // }
+
+    // if (res[1].time >= acceptableNegativeTime && res[1].time < 1 && !(res[1].time >= 0 && res[1].time < 1))
+    //   console.log(res[1]);
+
     // adjustment: accept small negative times, because otherwise I've noticed there is failure to collide sometimes
-    if (res[1].time >= -1.1 && res[1].time < 1) return res;
+    if (res[1].time >= acceptableNegativeTime && res[1].time < 1) return res;
     return [false, null];
   }
 

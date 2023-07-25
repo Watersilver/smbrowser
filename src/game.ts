@@ -52,7 +52,7 @@ class Test extends State<string, Game> {
 
     // Apply accelerations
     marioMovement(dt);
-    gravity(100, dt);
+    gravity();
 
     // Modification of velocities
     acceleration(dt);
@@ -99,17 +99,6 @@ class Test extends State<string, Game> {
     player: true,
     marioInput: {inputs: {}},
     marioMovementConfig: {
-      // minWalkSpeed: 0x00130,
-      // maxWalkSpeed: 0x01900,
-      // walkAccel: 0x00098,
-      // maxWalkSpeedUnderwater: 0x01100,
-      // cutsceneWalkSpeed: 0x00D00,
-      // maxRunSpeed: 0x02900,
-      // runAccel: 0x000E4,
-      // releaseDeccel: 0x000D0,
-      // skidDeccel: 0x001A0,
-      // skidTurnaround: 0x00900
-
       minWalkSpeed: 0x00130 * 60 / 0x01000,
       maxWalkSpeed: 0x01900 * 60 / 0x01000,
       walkAccel: 0x00098 * 60 * 60 / 0x01000,
@@ -119,11 +108,31 @@ class Test extends State<string, Game> {
       runAccel: 0x000E4 * 60 * 60 / 0x01000,
       releaseDecel: 0x000D0 * 60 * 60 / 0x01000,
       skidDecel: 0x001A0 * 60 * 60 / 0x01000,
-      skidTurnaround: 0x00900 * 60 / 0x01000
+      skidTurnaround: 0x00900 * 60 / 0x01000,
+      jumpBackwardsDecelThreshold: 0x01D00 * 60 / 0x01000,
+      jumpFastAccel: 0x000E4 * 60 * 60 / 0x01000,
+      jumpSlowAccel: 0x00098 * 60 * 60 / 0x01000,
+      jumpFastDecel: 0x000E4 * 60 * 60 / 0x01000,
+      jumpNormalDecel: 0x000D0 * 60 * 60 / 0x01000,
+      jumpSlowDecel: 0x00098 * 60 * 60 / 0x01000,
+      initFallGravity: 0x00280 * 60 * 60 / 0x01000,
+      initJumpGravity: 0x00280 * 60 * 60 / 0x01000,
+      walkGravitySpeed: 0x01000 * 60 / 0x01000,
+      walkJump: 0x04000 * 60 / 0x01000,
+      walkFallGravity: 0x00700 * 60 * 60 / 0x01000,
+      walkJumpGravity: 0x00200 * 60 * 60 / 0x01000,
+      midGravitySpeed: 0x024FF * 60 / 0x01000,
+      midJump: 0x04000 * 60 / 0x01000,
+      midFallGravity: 0x00600 * 60 * 60 / 0x01000,
+      midJumpGravity: 0x001E0 * 60 * 60 / 0x01000,
+      runJump: 0x05000 * 60 / 0x01000,
+      runFallGravity: 0x00900 * 60 * 60 / 0x01000,
+      runJumpGravity: 0x00280 * 60 * 60 / 0x01000
     },
     mario: {
       facing: 1
-    }
+    },
+    gravity: 0
   }));
   override onStart(i: Game): void {
     this.g = i;
@@ -132,9 +141,21 @@ class Test extends State<string, Game> {
     const cr = (x: number, y: number) => entities.createEntity(newEntity({
       position: new Vec2d(x, y), size: new Vec2d(16, 16), static: true
     }));
-    for (let i = -10; i < 20; i++) {
+    for (let i = -30; i < 20; i++) {
       cr(i * 16, 100);
     }
+    cr(-9 * 16, 100 - 16);
+    cr(-19 * 16, 100 - 16);
+    cr(-19 * 16, 100 - 16 * 2);
+    cr(-19 * 16, 100 - 16 * 3);
+    cr(-19 * 16, 100 - 16 * 4);
+    cr(-19 * 16, 100 - 16 * 5);
+    cr(20 * 16, 100 - 16);
+    // entities.createEntity(newEntity({
+    //   position: new Vec2d(-10, 100),
+    //   static: true,
+    //   size: new Vec2d(30 * 16, 32)
+    // }))
   }
 
   override onEnd(): [undefined, string] {
@@ -162,7 +183,10 @@ class Game extends Loop {
   protected override onFrameDraw(): void {
     this.input.update();
 
-    this.smUpdate(this.dt);
+    // Ensure no funky stuff happens due to spikes
+    const clampedDT = Math.min(1 / 24, Math.max(this.dt, 1 / 120));
+
+    this.smUpdate(clampedDT);
 
     display.render();
   }

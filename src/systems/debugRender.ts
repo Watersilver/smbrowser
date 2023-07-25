@@ -12,6 +12,16 @@ export default function debugRender(graphics: Graphics) {
     .drawCircle(ent.position.x, ent.position.y, 2)
     .endFill();
 
+    // Render facing
+    if (ent.mario?.facing) {
+      graphics
+      .lineStyle(2, col, 1)
+      .beginFill(0, 0)
+      .moveTo(ent.position.x, ent.position.y)
+      .lineTo(ent.position.x + ent.mario.facing * 10, ent.position.y)
+      .endFill();
+    }
+
     // Render bounding box
     graphics
     .lineStyle(2, col, 1)
@@ -31,6 +41,15 @@ export default function debugRender(graphics: Graphics) {
       .lineTo(ent.position.x + ent.size.x * 0.5, ent.position.y + ent.size.y * 0.5)
       .endFill();
     }
+    if (ent.touchingUp?.length) {
+      const l = ent.touchingUp.length;
+      graphics
+      .lineStyle(2, l === 1 ? 0xff0000 : l === 2 ? 0xff00ff : 0xffffff)
+      .beginFill(0, 0)
+      .moveTo(ent.position.x - ent.size.x * 0.5, ent.position.y - ent.size.y * 0.5)
+      .lineTo(ent.position.x + ent.size.x * 0.5, ent.position.y - ent.size.y * 0.5)
+      .endFill();
+    }
     if (ent.touchingLeft?.length) {
       const l = ent.touchingLeft.length;
       graphics
@@ -38,6 +57,15 @@ export default function debugRender(graphics: Graphics) {
       .beginFill(0, 0)
       .moveTo(ent.position.x - ent.size.x * 0.5, ent.position.y - ent.size.y * 0.5)
       .lineTo(ent.position.x - ent.size.x * 0.5, ent.position.y + ent.size.y * 0.5)
+      .endFill();
+    }
+    if (ent.touchingRight?.length) {
+      const l = ent.touchingRight.length;
+      graphics
+      .lineStyle(2, l === 1 ? 0xff0000 : l === 2 ? 0xff00ff : 0xffffff)
+      .beginFill(0, 0)
+      .moveTo(ent.position.x + ent.size.x * 0.5, ent.position.y - ent.size.y * 0.5)
+      .lineTo(ent.position.x + ent.size.x * 0.5, ent.position.y + ent.size.y * 0.5)
       .endFill();
     }
   }

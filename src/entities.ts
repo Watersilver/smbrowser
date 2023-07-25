@@ -36,6 +36,25 @@ export type Entity = {
     releaseDecel: number;
     skidDecel: number;
     skidTurnaround: number;
+    jumpBackwardsDecelThreshold: number;
+    jumpFastAccel: number;
+    jumpSlowAccel: number;
+    jumpFastDecel: number;
+    jumpNormalDecel: number;
+    jumpSlowDecel: number;
+    initFallGravity: number;
+    initJumpGravity: number;
+    walkGravitySpeed: number;
+    walkJump: number;
+    walkFallGravity: number;
+    walkJumpGravity: number;
+    midGravitySpeed: number;
+    midJump: number;
+    midFallGravity: number;
+    midJumpGravity: number;
+    runJump: number;
+    runFallGravity: number;
+    runJumpGravity: number;
   };
   mario?: {
     running?: boolean;
@@ -43,7 +62,10 @@ export type Entity = {
     skidDecel?: boolean;
     facing: 1 | -1;
     jumped?: boolean;
+    jumpCooldown?: number;
+    maxAirSpeed?: number;
   };
+  gravity?: number;
   underwater?: boolean;
   dynamicIndex: number;
   kinematicIndex: number;
