@@ -7,4 +7,10 @@ export default function acceleration(dt: number) {
       d.velocity = d.velocity.add(d.acceleration.mul(dt));
     }
   }
+  for (const e of entities.view(['kinematic'])) {
+    const k = e.kinematic;
+    if (k) {
+      k.velocity = k.velocity.add(k.acceleration.mul(dt));
+    }
+  }
 }

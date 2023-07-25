@@ -12,31 +12,39 @@ export type Entity = {
   kinematic?: {
     velocity: Vec2d;
     acceleration: Vec2d;
-  },
-  dynamicVelocityComponents?: {
-    [id: string]: Vec2d;
-  },
+  };
   player?: boolean;
   marioInput?: {
-    jump?: boolean;
-    jumping?: boolean;
-    left?: boolean;
-    right?: boolean;
-    attack?: boolean;
-    run?: boolean;
-  },
-  marioMovementConfig?: {
-    minWalkSpeed: number,
-    maxWalkSpeed: number,
-    maxWalkSpeedUnderwater: number,
-    cutsceneWalkSpeed: number,
-    walkAccel: number,
-    maxRunSpeed: number,
-    runAccel: number,
-    releaseDeccel: number,
-    skidDeccel: number,
-    skidTurnaround: number
+    inputs: {
+      jump?: boolean;
+      jumping?: boolean;
+      left?: boolean;
+      right?: boolean;
+      attack?: boolean;
+      run?: number;
+    }
+    anyPressed?: boolean;
   };
+  marioMovementConfig?: {
+    minWalkSpeed: number;
+    maxWalkSpeed: number;
+    maxWalkSpeedUnderwater: number;
+    cutsceneWalkSpeed: number;
+    walkAccel: number;
+    maxRunSpeed: number;
+    runAccel: number;
+    releaseDecel: number;
+    skidDecel: number;
+    skidTurnaround: number;
+  };
+  mario?: {
+    running?: boolean;
+    skidding?: boolean;
+    skidDecel?: boolean;
+    facing: 1 | -1;
+    jumped?: boolean;
+  };
+  underwater?: boolean;
   dynamicIndex: number;
   kinematicIndex: number;
   staticIndex: number;
@@ -55,7 +63,7 @@ export function newEntity(init?: Partial<Entity>): Entity {
     size: new Vec2d(0, 0),
     dynamicIndex: -1,
     staticIndex: -1,
-    kinematicIndex: -1
+    kinematicIndex: -1,
   };
   Object.assign(newEnt, init);
   return newEnt;

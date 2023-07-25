@@ -11,9 +11,9 @@ import gravity from "./systems/gravity";
 import storePrevPos from "./systems/storePrevPos";
 import physics from "./systems/physics";
 import marioPlayerInput from "./systems/marioPlayerInput";
-import clearHitsAndTouched from "./systems/clearHitsAndTouched";
+import resetStuff from "./systems/resetStuff";
 import detectTouching from "./systems/detectTouching";
-import addDynamicVelocityComponents from "./systems/addDynamicVelocityComponents";
+import marioMovement from "./systems/marioMovement";
 
 class Loading extends State<'test', Game | null, Game | null> {
   g: Game | null = null;
@@ -48,12 +48,14 @@ class Test extends State<string, Game> {
     detectTouching();
 
     // Inputs
-    marioPlayerInput(this.g.input);
+    marioPlayerInput(this.g.input, dt);
+
+    // Apply accelerations
+    marioMovement(dt);
+    gravity(100, dt);
 
     // Modification of velocities
     acceleration(dt);
-    gravity(100, dt);
-    addDynamicVelocityComponents();
 
     // Limiting velocities
     speedLimit();
@@ -69,7 +71,7 @@ class Test extends State<string, Game> {
     debugRender(this.graphics);
 
     // Cleanup
-    clearHitsAndTouched();
+    resetStuff();
 
     return true;
   }
@@ -83,6 +85,7 @@ class Test extends State<string, Game> {
   t = 0;
   ent = entities.createEntity(newEntity({
     position: new Vec2d(1, 0),
+    touchingUp: [],
     touchingDown: [],
     touchingLeft: [],
     touchingRight: [],
@@ -94,18 +97,32 @@ class Test extends State<string, Game> {
       grounded: false,
     },
     player: true,
-    marioInput: {},
+    marioInput: {inputs: {}},
     marioMovementConfig: {
-      minWalkSpeed: 0x00130 * 60,
-      maxWalkSpeed: 0x01900 * 60,
-      walkAccel: 0x00098 * 60,
-      maxWalkSpeedUnderwater: 0x01100 * 60,
-      cutsceneWalkSpeed: 0x00D00 * 60,
-      maxRunSpeed: 0x02900 * 60,
-      runAccel: 0x000E4 * 60,
-      releaseDeccel: 0x000D0 * 60,
-      skidDeccel: 0x001A0 * 60,
-      skidTurnaround: 0x00900 * 60
+      // minWalkSpeed: 0x00130,
+      // maxWalkSpeed: 0x01900,
+      // walkAccel: 0x00098,
+      // maxWalkSpeedUnderwater: 0x01100,
+      // cutsceneWalkSpeed: 0x00D00,
+      // maxRunSpeed: 0x02900,
+      // runAccel: 0x000E4,
+      // releaseDeccel: 0x000D0,
+      // skidDeccel: 0x001A0,
+      // skidTurnaround: 0x00900
+
+      minWalkSpeed: 0x00130 * 60 / 0x01000,
+      maxWalkSpeed: 0x01900 * 60 / 0x01000,
+      walkAccel: 0x00098 * 60 * 60 / 0x01000,
+      maxWalkSpeedUnderwater: 0x01100 * 60 / 0x01000,
+      cutsceneWalkSpeed: 0x00D00 * 60 / 0x01000,
+      maxRunSpeed: 0x02900 * 60 / 0x01000,
+      runAccel: 0x000E4 * 60 * 60 / 0x01000,
+      releaseDecel: 0x000D0 * 60 * 60 / 0x01000,
+      skidDecel: 0x001A0 * 60 * 60 / 0x01000,
+      skidTurnaround: 0x00900 * 60 / 0x01000
+    },
+    mario: {
+      facing: 1
     }
   }));
   override onStart(i: Game): void {
@@ -115,7 +132,7 @@ class Test extends State<string, Game> {
     const cr = (x: number, y: number) => entities.createEntity(newEntity({
       position: new Vec2d(x, y), size: new Vec2d(16, 16), static: true
     }));
-    for (let i = 0; i < 10; i++) {
+    for (let i = -10; i < 20; i++) {
       cr(i * 16, 100);
     }
   }
