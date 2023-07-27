@@ -62,6 +62,7 @@ export type Entity = {
     skidDecel?: boolean;
     facing: 1 | -1;
     jumped?: boolean;
+    jumping?: boolean;
     jumpCooldown?: number;
     maxAirSpeed?: number;
   };

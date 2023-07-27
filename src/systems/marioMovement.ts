@@ -22,6 +22,8 @@ export default function marioMovement(dt: number) {
       const grounded = downBlocked && !jumped && !mario.jumpCooldown;
       e.gravity = e.gravity || config.initFallGravity;
 
+      mario.jumped = false;
+
       if (mario.jumpCooldown) {
         mario.jumpCooldown -= dt;
         if (mario.jumpCooldown <= 0) mario.jumpCooldown = 0;
@@ -34,7 +36,7 @@ export default function marioMovement(dt: number) {
 
       if (grounded) {
         mario.maxAirSpeed = undefined;
-        mario.jumped = !!mario.jumpCooldown;
+        mario.jumping = !!mario.jumpCooldown;
         const running = !!i.run;
         const underwater = !!e.underwater;
         const speedCloseToZero = speed < 1;
@@ -64,11 +66,10 @@ export default function marioMovement(dt: number) {
           if (max === config.maxRunSpeed) mario.running = true;
 
           if (speed + acc * dt >= max) {
-            const ds = max + acc * dt - speed;
-            acc = ds / dt;
+            acc = (max - speed) / dt
           }
 
-          dynamic.acceleration.x = acc * side;
+          dynamic.acceleration.x += acc * side;
         } else {
           // Be sure to block movement if blocked
           const blocked = (dir === 1 && rightBlocked) || (dir === -1 && leftBlocked);
@@ -92,16 +93,18 @@ export default function marioMovement(dt: number) {
             decc = speed / dt;
           }
 
-          dynamic.acceleration.x = - decc * dir;
+          dynamic.acceleration.x += - decc * dir;
         }
       } else {
         if (!mario.maxAirSpeed) {
-          mario.maxAirSpeed = speed >= config.maxWalkSpeed ? config.maxRunSpeed : config.maxWalkSpeed;
+          mario.maxAirSpeed = speed > config.maxWalkSpeed + Number.EPSILON ? config.maxRunSpeed : config.maxWalkSpeed;
         }
 
         if (jumped) {
+          mario.jumped = true;
+          mario.jumping = true;
           mario.jumpCooldown = 5 / 60;
-          dynamic.acceleration.y = -222 / dt;
+          dynamic.acceleration.y = - (222 + dynamic.velocity.y) / dt;
         }
 
         if (side) {
@@ -116,12 +119,11 @@ export default function marioMovement(dt: number) {
           // Speed might or might not be capped when moving backwards in the air but we cap it here anyway
           if (dir === side) {
             if (speed + acc * dt >= mario.maxAirSpeed) {
-              const ds = mario.maxAirSpeed + acc * dt - speed;
-              acc = ds / dt;
+              acc = (mario.maxAirSpeed - speed) / dt
             }
           }
 
-          dynamic.acceleration.x = acc * side;
+          dynamic.acceleration.x += acc * side;
         }
       }
     }

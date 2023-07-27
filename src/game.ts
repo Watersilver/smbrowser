@@ -51,8 +51,8 @@ class Test extends State<string, Game> {
     marioPlayerInput(this.g.input, dt);
 
     // Apply accelerations
-    marioMovement(dt);
     gravity();
+    marioMovement(dt);
 
     // Modification of velocities
     acceleration(dt);
