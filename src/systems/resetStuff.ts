@@ -1,10 +1,6 @@
 import entities from "../entities";
 
 export default function resetStuff() {
-  for (const ent of entities.view(['hits'])) {
-    if (ent.hits) ent.hits.length = 0;
-  }
-
   for (const ent of entities.view(['touchingUp'])) {
     if (ent.touchingUp) ent.touchingUp.length = 0;
   }

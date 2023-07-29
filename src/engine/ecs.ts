@@ -171,6 +171,11 @@ export default class Ecs<Entity extends {
     const self = this;
     const entity = new Proxy(target, {
       deleteProperty: (t, p) => {
+        const handler = self.propChangeHandlers.get(p);
+        if (handler) {
+          const prev = t[p];
+          handler({...t}, prev);
+        }
         const removed = delete t[p];
         const e = self.targetToProxy.get(t);
         if (removed && e) self.hadCompsRemoved.add(e);
@@ -188,6 +193,11 @@ export default class Ecs<Entity extends {
           // current exists, prev did not
           if (e) self.hadCompsAdded.add(e);
         }
+        const handler = self.propChangeHandlers.get(property);
+        if (handler) {
+          const prev = t[property];
+          handler({...t}, prev);
+        }
         return true;
       },
     });
@@ -196,6 +206,11 @@ export default class Ecs<Entity extends {
     this.toBeAdded.add(entity);
 
     return entity;
+  }
+
+  private propChangeHandlers: Map<any, (e: Entity, prev: any) => void> = new Map();
+  onPropChange<P extends keyof Entity>(prop: P, handler: (components: Entity, prev: Entity[P] | undefined) => void) {
+    this.propChangeHandlers.set(prop, handler);
   }
 
   entityExists(e: Entity) {

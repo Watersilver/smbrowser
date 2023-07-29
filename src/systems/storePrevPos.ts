@@ -3,6 +3,8 @@ import entities from "../entities";
 entities.onAdding([], e => {
   e.positionPrev.x = e.position.x;
   e.positionPrev.y = e.position.y;
+  e.positionStart.x = e.position.x;
+  e.positionStart.y = e.position.y;
 });
 
 export default function storePrevPos() {

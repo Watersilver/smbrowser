@@ -6,9 +6,11 @@ import worldGrid from "../world-grid";
 const collider = {pos: new Vec2d(0, 0), size: new Vec2d(0, 0), dr: new Vec2d(0, 0)};
 const collidee = {pos: new Vec2d(0, 0), size: new Vec2d(0, 0)};
 
+const touchDistance = .1;
+
 const checkSide = (check: "touchingDown" | "touchingUp" | "touchingRight" | "touchingLeft") => {
-  collider.dr.x = check === "touchingLeft" ? -.1 : check === "touchingRight" ? .1 : 0;
-  collider.dr.y = check === "touchingUp" ? -.1 : check === "touchingDown" ? .1 : 0;
+  collider.dr.x = check === "touchingLeft" ? -touchDistance : check === "touchingRight" ? touchDistance : 0;
+  collider.dr.y = check === "touchingUp" ? -touchDistance : check === "touchingDown" ? touchDistance : 0;
   for (const ent of entities.view([check])) {
     const c = ent[check];
     if (!c) continue;
@@ -35,8 +37,8 @@ const checkSide = (check: "touchingDown" | "touchingUp" | "touchingRight" | "tou
     for (const u of worldGrid.kinematics.findNear(collider.pos.x + collider.dr.x, collider.pos.y + collider.dr.y, collider.size.x, collider.size.y)) {
       if (u.userData === ent) continue;
 
-      collidee.pos.x = u.l;
-      collidee.pos.y = u.t;
+      collidee.pos.x = u.userData.position.x - 0.5 * u.userData.size.x;
+      collidee.pos.y = u.userData.position.y - 0.5 * u.userData.size.y;
       collidee.size.x = u.w;
       collidee.size.y = u.h;
       const [hit] = dynamicRectVsRect(collider, collidee);

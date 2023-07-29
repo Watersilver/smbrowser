@@ -1,6 +1,8 @@
 import { Ecs, Vec2d } from "./engine"
+import type { getMarioSmb1Sprites } from "./sprites";
 
 export type Entity = {
+  positionStart: Vec2d;
   positionPrev: Vec2d;
   position: Vec2d;
   size: Vec2d;
@@ -55,6 +57,15 @@ export type Entity = {
     runJump: number;
     runFallGravity: number;
     runJumpGravity: number;
+    swimJump: number;
+    swimFallGravity: number;
+    swimJumpGravity: number;
+    whirlpoolJump: number;
+    whirlpoolFallGravity: number;
+    whirlpoolJumpGravity: number;
+    surfaceJump: number;
+    surfaceFallGravity: number;
+    surfaceJumpGravity: number;
   };
   mario?: {
     running?: boolean;
@@ -65,6 +76,15 @@ export type Entity = {
     jumping?: boolean;
     jumpCooldown?: number;
     maxAirSpeed?: number;
+    jumpSpeed?: number;
+    jumpGravity?: number;
+    fallGravity?: number;
+    whirlpool?: boolean;
+    surface?: boolean;
+    big?: boolean;
+
+    // Use same mechanism for wind and whirlpools
+    wind?: number;
   };
   gravity?: number;
   underwater?: boolean;
@@ -72,15 +92,20 @@ export type Entity = {
   kinematicIndex: number;
   staticIndex: number;
   static?: boolean;
+  prevHits?: {e: Entity; normal: Vec2d; point: Vec2d;}[];
   hits?: {e: Entity; normal: Vec2d; point: Vec2d;}[];
   touchingUp?: Entity[];
   touchingRight?: Entity[];
   touchingDown?: Entity[];
   touchingLeft?: Entity[];
+  floorSpeed?: number;
+  floorSpeedY?: number;
+  smb1MarioAnimations?: ReturnType<typeof getMarioSmb1Sprites>;
 }
 
 export function newEntity(init?: Partial<Entity>): Entity {
   const newEnt: Entity = {
+    positionStart: new Vec2d(0, 0),
     positionPrev: new Vec2d(0, 0),
     position: new Vec2d(0, 0),
     size: new Vec2d(0, 0),

@@ -2,6 +2,7 @@ import { Vec2d } from "../engine";
 import { dynamicRectVsDynamicRect, dynamicRectVsRect } from "../engine/aabb";
 import entities, { Entity } from "../entities";
 import worldGrid from "../world-grid";
+import storePrevHits from "./storePrevHits";
 
 const collider = {pos: new Vec2d(0, 0), size: new Vec2d(0, 0), dr: new Vec2d(0, 0)};
 const collidee = {pos: new Vec2d(0, 0), size: new Vec2d(0, 0), dr: new Vec2d(0, 0)};
@@ -40,6 +41,8 @@ addRemoveToSHT('static');
 const kinematicList = addRemoveToSHT('kinematic');
 
 export default function physics(dt: number) {
+  storePrevHits();
+
   for (const k of kinematicList) {
     if (!k.userData.kinematic) continue;
 
@@ -154,6 +157,8 @@ export default function physics(dt: number) {
           d.userData.dynamic.velocity.y += correction.y;
           // collisionVelCorrection.x += correction.x;
           // collisionVelCorrection.y += correction.y;
+          if (d.userData.hits) d.userData.hits.push({e: u.userData, normal: col.normal, point: col.point});
+          if (u.userData.hits) u.userData.hits.push({e: u.userData, normal: col.normal, point: col.point});
         }
       } else {
         collidee.pos.x = u.l;

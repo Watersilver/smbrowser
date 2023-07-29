@@ -1,6 +1,6 @@
 import entities from "../entities";
 
-export default function marioMovement(dt: number) {
+export default function marioMovement(dt: number, parameters?: {conservationOfMomentum?: boolean}) {
   for (const e of entities.view([
     'marioInput',
     'marioMovementConfig',
@@ -11,14 +11,15 @@ export default function marioMovement(dt: number) {
     const mi = e.marioInput;
     const dynamic = e.dynamic;
     const mario = e.mario;
-    const upBlocked = !!e.touchingUp?.length;
+    // const upBlocked = !!e.touchingUp?.length;
     const leftBlocked = !!e.touchingLeft?.length;
     const rightBlocked = !!e.touchingRight?.length;
     const downBlocked = !!e.touchingDown?.length;
 
     if (config && mi && dynamic && mario) {
+      const underwater = !!e.underwater;
       const i = mi.inputs;
-      const jumped = downBlocked && i.jump && !upBlocked && !mario.jumpCooldown;
+      const jumped = (underwater || downBlocked) && i.jump && !mario.jumpCooldown;
       const grounded = downBlocked && !jumped && !mario.jumpCooldown;
       e.gravity = e.gravity || config.initFallGravity;
 
@@ -38,7 +39,6 @@ export default function marioMovement(dt: number) {
         mario.maxAirSpeed = undefined;
         mario.jumping = !!mario.jumpCooldown;
         const running = !!i.run;
-        const underwater = !!e.underwater;
         const speedCloseToZero = speed < 1;
 
         const keepSkidDecel = mario.skidDecel && !mi.anyPressed;
@@ -52,59 +52,130 @@ export default function marioMovement(dt: number) {
 
           // Be sure to block movement if blocked
           const blocked = (side === 1 && rightBlocked) || (side === - 1 && leftBlocked);
-          if (blocked) return;
+          if (!blocked) {
+            let acc = 0;
 
-          let acc = 0;
+            // Moving towards current direction
+            if (speed < config.minWalkSpeed) {
+              acc = config.minWalkSpeed / dt;
+            } else {
+              acc = running ? config.runAccel : config.walkAccel;
+            }
+            const max = underwater ? config.maxWalkSpeedUnderwater : running ? config.maxRunSpeed : config.maxWalkSpeed;
+            if (max === config.maxRunSpeed) mario.running = true;
 
-          // Moving towards current direction
-          if (speed < config.minWalkSpeed) {
-            acc = config.minWalkSpeed / dt;
-          } else {
-            acc = running ? config.runAccel : config.walkAccel;
+            if (speed + acc * dt >= max) {
+              acc = (max - speed) / dt
+            }
+
+            dynamic.acceleration.x += acc * side;
           }
-          const max = underwater ? config.maxWalkSpeedUnderwater : running ? config.maxRunSpeed : config.maxWalkSpeed;
-          if (max === config.maxRunSpeed) mario.running = true;
-
-          if (speed + acc * dt >= max) {
-            acc = (max - speed) / dt
-          }
-
-          dynamic.acceleration.x += acc * side;
         } else {
           // Be sure to block movement if blocked
           const blocked = (dir === 1 && rightBlocked) || (dir === -1 && leftBlocked);
-          if (blocked) return;
-
-          let decc = 0;
-
-          // Skidding or Released
-          if (side) {
-            mario.skidDecel = true;
-            mario.skidding = true;
-            if (speed <= config.skidTurnaround) {
-              mario.facing = side;
-              mario.skidding = false;
+          if (!blocked) {
+            let decc = 0;
+  
+            // Skidding or Released
+            if (side) {
+              mario.skidDecel = true;
+              mario.skidding = true;
+              if (speed <= config.skidTurnaround) {
+                mario.facing = side;
+                mario.skidding = false;
+              }
             }
+  
+            decc = mario.skidDecel ? config.skidDecel : config.releaseDecel;
+  
+            if (speed <= decc * dt) {
+              decc = speed / dt;
+            }
+  
+            dynamic.acceleration.x += - decc * dir;
           }
-
-          decc = mario.skidDecel ? config.skidDecel : config.releaseDecel;
-
-          if (speed <= decc * dt) {
-            decc = speed / dt;
-          }
-
-          dynamic.acceleration.x += - decc * dir;
         }
       } else {
-        if (!mario.maxAirSpeed) {
+        if (jumped || !mario.maxAirSpeed) {
           mario.maxAirSpeed = speed > config.maxWalkSpeed + Number.EPSILON ? config.maxRunSpeed : config.maxWalkSpeed;
+
+          if (underwater) {
+            mario.jumpSpeed =
+              mario.whirlpool
+              ? config.whirlpoolJump
+              : mario.surface
+              ? config.surfaceJump
+              : config.swimJump;
+
+            mario.jumpGravity =
+              mario.whirlpool
+              ? config.whirlpoolJumpGravity
+              : config.swimJumpGravity;
+
+            mario.fallGravity =
+              mario.whirlpool
+              ? config.whirlpoolFallGravity
+              : config.swimFallGravity;
+          } else {
+            mario.jumpSpeed =
+              speed < config.walkGravitySpeed
+              ? config.walkJump
+              : speed < config.midGravitySpeed
+              ? config.midJump
+              : config.runJump;
+
+            mario.jumpGravity =
+              speed < config.walkGravitySpeed
+              ? config.walkJumpGravity
+              : speed < config.midGravitySpeed
+              ? config.midJumpGravity
+              : config.runJumpGravity;
+
+            mario.fallGravity =
+              speed < config.walkGravitySpeed
+              ? config.walkFallGravity
+              : speed < config.midGravitySpeed
+              ? config.midFallGravity
+              : config.runFallGravity;
+          }
+        }
+
+        e.gravity =
+          i.jumping && dynamic.velocity.y <= 0
+          ? mario.jumpGravity
+          : mario.fallGravity;
+
+        if (underwater) {
+          if (mario.surface) {
+            e.gravity =
+              i.jumping && dynamic.velocity.y <= 0
+              ? config.surfaceJumpGravity
+              : config.surfaceFallGravity;
+          }
+
+          if (e.gravity) e.gravity += 0x00100 * 60 * 60 / 0x01000;
+
+          if (side && side !== mario.facing) {
+            if (speed <= config.skidTurnaround) {
+              mario.facing = side;
+            }
+          }
         }
 
         if (jumped) {
           mario.jumped = true;
           mario.jumping = true;
           mario.jumpCooldown = 5 / 60;
-          dynamic.acceleration.y = - (222 + dynamic.velocity.y) / dt;
+          dynamic.acceleration.y = - ((mario.jumpSpeed ?? 0) + dynamic.velocity.y) / dt;
+
+          if (parameters?.conservationOfMomentum) {
+            if (e.floorSpeed) {
+              dynamic.acceleration.x += e.floorSpeed / dt;
+            }
+            if (e.floorSpeedY) {
+              dynamic.acceleration.y += e.floorSpeedY / dt;
+            }
+          }
         }
 
         if (side) {
@@ -119,13 +190,20 @@ export default function marioMovement(dt: number) {
           // Speed might or might not be capped when moving backwards in the air but we cap it here anyway
           if (dir === side) {
             if (speed + acc * dt >= mario.maxAirSpeed) {
-              acc = (mario.maxAirSpeed - speed) / dt
+              acc = (mario.maxAirSpeed - speed) / dt;
             }
           }
 
           dynamic.acceleration.x += acc * side;
         }
       }
+
+      // TODO:
+      // Figure out how to do constant speeds, like floor speed, whirlpool and wind
+      // also do all that without messing up facing and animation speed
+      // if (underwater && mario.whirlpool) {
+      //   dynamic.acceleration.x += mario.whirlpool * 60 / dt;
+      // }
     }
   }
 }

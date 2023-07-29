@@ -1,3 +1,4 @@
+import './config'
 import { Graphics } from "pixi.js";
 import display from "./display"
 import { Input, Loop, Vec2d } from "./engine"
@@ -14,6 +15,14 @@ import marioPlayerInput from "./systems/marioPlayerInput";
 import resetStuff from "./systems/resetStuff";
 import detectTouching from "./systems/detectTouching";
 import marioMovement from "./systems/marioMovement";
+import addSpeedComponents from "./systems/addSpeedComponents";
+import removeSpeedComponents from "./systems/removeSpeedComponents";
+import detectFloorSpeed from "./systems/detectFloorSpeed";
+import { getSmb1Audio } from "./audio";
+import marioSmb1Sounds from "./systems/marioSmb1Sounds";
+import { getMarioSmb1Sprites } from './sprites';
+
+const audio = getSmb1Audio();
 
 class Loading extends State<'test', Game | null, Game | null> {
   g: Game | null = null;
@@ -22,7 +31,7 @@ class Loading extends State<'test', Game | null, Game | null> {
   }
 
   override onUpdate(dt: number): boolean {
-    return false;
+    return audio.controller.getloadingProgress() !== 1;
   }
 
   override onEnd(): [Game | null, 'test'] {
@@ -32,20 +41,29 @@ class Loading extends State<'test', Game | null, Game | null> {
 
 class Test extends State<string, Game> {
   override onUpdate(dt: number): boolean {
+    if (!this.g) return false;
     entities.update();
 
     this.t += dt;
     while (this.t > Math.PI * 2) this.t -= Math.PI * 2;
-    const xmod = Math.sin(this.t) * 33;
-    const ymod = Math.sin(this.t) * 33;
+    const xdis = Math.sin(this.t) * 33;
+    const ydis = Math.sin(this.t) * 33;
+    const xstart = this.platform.positionStart.x;
+    const ystart = this.platform.positionStart.y;
+    const x = xstart + xdis;
+    const y = ystart + ydis;
+    if (this.platform.kinematic) {
+      const dx = x - this.platform.position.x;
+      const dy = y - this.platform.position.y;
+      this.platform.kinematic.velocity.x = dx / dt;
+      this.platform.kinematic.velocity.y = dy / dt;
+    }
+
     this.graphics.clear();
-    this.graphics.lineStyle(3, 0x00ff00, 1);
-    this.graphics.beginFill(0, 0);
-    this.graphics.drawRect(this.x + xmod, this.y + ymod, this.w, this.h);
-    this.graphics.endFill();
 
     // Sensors
     detectTouching();
+    detectFloorSpeed();
 
     // Inputs
     marioPlayerInput(this.g.input, dt);
@@ -56,6 +74,7 @@ class Test extends State<string, Game> {
 
     // Modification of velocities
     acceleration(dt);
+    addSpeedComponents();
 
     // Limiting velocities
     speedLimit();
@@ -67,8 +86,12 @@ class Test extends State<string, Game> {
     storePrevPos();
     velocity(dt);
 
+    // Reset volocities to state before components were added
+    removeSpeedComponents();
+
     // Render
     debugRender(this.graphics);
+    marioSmb1Sounds();
 
     // Cleanup
     resetStuff();
@@ -76,13 +99,17 @@ class Test extends State<string, Game> {
     return true;
   }
 
-  g!: Game;
+  g?: Game;
   graphics = new Graphics();
-  x = 44;
-  y = 44;
-  w = 22;
-  h = 22;
   t = 0;
+  platform = entities.createEntity(newEntity({
+    position: new Vec2d(144, 22),
+    size: new Vec2d(22, 6),
+    kinematic: {
+      velocity: new Vec2d(0, 0),
+      acceleration: new Vec2d(0, 0)
+    }
+  }));
   ent = entities.createEntity(newEntity({
     position: new Vec2d(1, 0),
     touchingUp: [],
@@ -90,6 +117,7 @@ class Test extends State<string, Game> {
     touchingLeft: [],
     touchingRight: [],
     hits: [],
+    prevHits: [],
     size: new Vec2d(16, 16),
     dynamic: {
       velocity: new Vec2d(0, 0),
@@ -127,12 +155,23 @@ class Test extends State<string, Game> {
       midJumpGravity: 0x001E0 * 60 * 60 / 0x01000,
       runJump: 0x05000 * 60 / 0x01000,
       runFallGravity: 0x00900 * 60 * 60 / 0x01000,
-      runJumpGravity: 0x00280 * 60 * 60 / 0x01000
+      runJumpGravity: 0x00280 * 60 * 60 / 0x01000,
+      swimJump: 0x01800 * 60 / 0x01000,
+      swimFallGravity: 0x000A0 * 60 * 60 / 0x01000,
+      swimJumpGravity: 0x000D0 * 60 * 60 / 0x01000,
+      whirlpoolJump: 0x01000 * 60 / 0x01000,
+      whirlpoolFallGravity: 0x00090 * 60 * 60 / 0x01000,
+      whirlpoolJumpGravity: 0x00040 * 60 * 60 / 0x01000,
+      surfaceJump: 0x01800 * 60 / 0x01000,
+      surfaceFallGravity: 0x00180 * 60 * 60 / 0x01000,
+      surfaceJumpGravity: 0x00180 * 60 * 60 / 0x01000
     },
     mario: {
-      facing: 1
+      facing: 1,
     },
-    gravity: 0
+    floorSpeed: 0,
+    gravity: 0,
+    smb1MarioAnimations: getMarioSmb1Sprites()
   }));
   override onStart(i: Game): void {
     this.g = i;
@@ -151,11 +190,7 @@ class Test extends State<string, Game> {
     cr(-19 * 16, 100 - 16 * 4);
     cr(-19 * 16, 100 - 16 * 5);
     cr(20 * 16, 100 - 16);
-    // entities.createEntity(newEntity({
-    //   position: new Vec2d(-10, 100),
-    //   static: true,
-    //   size: new Vec2d(30 * 16, 32)
-    // }))
+    cr(-16, 100 - 16 * 3);
   }
 
   override onEnd(): [undefined, string] {
