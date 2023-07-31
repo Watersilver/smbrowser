@@ -100,9 +100,10 @@ export function dynamicRectVsRect(rect1: DynamicRect, rect2: RectData):
   const pos = rect1.size.mul(-0.5).add(rect2.pos);
   const size = rect1.size.add(rect2.size);
   const expandedRect = {pos, size};
+  const origin = rect1.pos.add(rect1.size.div(2));
 
   const res = rayVsRect({
-    origin: rect1.pos.add(rect1.size.div(2)),
+    origin,
     direction: rect1.dr
   }, expandedRect);
 
@@ -129,6 +130,39 @@ export function dynamicRectVsRect(rect1: DynamicRect, rect2: RectData):
 
     // if (res[1].time >= acceptableNegativeTime && res[1].time < 1 && !(res[1].time >= 0 && res[1].time < 1))
     //   console.log(res[1]);
+
+    // Following code fixes a bug:
+    // When running leftwards toward a wall of blocks,
+    // if you skid at the last moment collide with the wall and try to jump
+    // you will hit the corner of the block above the one you collided with
+    // even though previous collision should prevent you from hitting it.
+    // Solve but checking if we hit an edge exactly, and check if we are
+    // not moving towards it. If not, collision can be safely ignored.
+    if (res[1].edginess === 0) {
+      const exRectCenter = expandedRect.pos.add(expandedRect.size.div(2));
+      const diff = origin.sub(exRectCenter);
+      if (diff.x > 0) {
+        if (diff.y > 0) {
+          // we're at block's bottom right
+          // Therefore ignore collision if not moving towards top left
+          if (rect1.dr.x >= 0 || rect1.dr.y >= 0) return [false, null];
+        } else {
+          // we're at block's top right
+          // Therefore ignore collision if not moving towards bottom left
+          if (rect1.dr.x >= 0 || rect1.dr.y <= 0) return [false, null];
+        }
+      } else {
+        if (diff.y > 0) {
+          // we're at block's bottom left
+          // Therefore ignore collision if not moving towards top right
+          if (rect1.dr.x <= 0 || rect1.dr.y >= 0) return [false, null];
+        } else {
+          // we're at block's top left
+          // Therefore ignore collision if not moving towards bottom right
+          if (rect1.dr.x <= 0 || rect1.dr.y <= 0) return [false, null];
+        }
+      }
+    }
 
     // adjustment: accept small negative times, because otherwise I've noticed there is failure to collide sometimes
     if (res[1].time >= acceptableNegativeTime && res[1].time < 1) return res;

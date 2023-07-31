@@ -1,3 +1,4 @@
+import { Graphics } from "pixi.js";
 import { Vec2d } from "../engine";
 import { dynamicRectVsRect } from "../engine/aabb";
 import entities from "../entities";
@@ -16,16 +17,15 @@ export default function marioSizeHandler() {
       if (mario.big && !mario.ducking) {
         if (ent.size.y === 32) continue;
 
+        collider.pos.x = ent.position.x - ent.size.x * 0.5;
+        collider.pos.y = ent.position.y - ent.size.y * 0.5;
+        collider.size.x = ent.size.x;
+        collider.size.y = ent.size.y;
+
         const l = ent.position.x - ent.size.x * 0.5;
-        const t = ent.position.y - ent.size.y * 0.5;
+        const t = ent.position.y - ent.size.y * 0.5 - 16;
         const w = ent.size.x;
         const h = ent.size.y;
-
-        collider.pos.x = l;
-        collider.pos.y = t;
-        collider.size.x = w;
-        collider.size.y = h;
-        collider.dr.y -= 16;
 
         let clear = true;
 

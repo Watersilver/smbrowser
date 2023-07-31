@@ -155,8 +155,8 @@ export default function physics(dt: number) {
           d.userData.dynamic.velocity.y += correction.y;
           // collisionVelCorrection.x += correction.x;
           // collisionVelCorrection.y += correction.y;
-          if (d.userData.hits) d.userData.hits.push({e: u.userData, normal: col.normal, point: col.point});
-          if (u.userData.hits) u.userData.hits.push({e: u.userData, normal: col.normal, point: col.point});
+          if (d.userData.hits) d.userData.hits.push({e: u.userData, ...col});
+          if (u.userData.hits) u.userData.hits.push({e: u.userData, ...col});
         }
       } else {
         collidee.pos.x = u.l;
@@ -170,11 +170,12 @@ export default function physics(dt: number) {
           d.userData.dynamic.velocity.y += correction.y;
           // collisionVelCorrection.x += correction.x;
           // collisionVelCorrection.y += correction.y;
-          if (d.userData.hits) d.userData.hits.push({e: u.userData, normal: col.normal, point: col.point});
-          if (u.userData.hits) u.userData.hits.push({e: u.userData, normal: col.normal, point: col.point});
+          if (d.userData.hits) d.userData.hits.push({e: u.userData, ...col});
+          if (u.userData.hits) u.userData.hits.push({e: u.userData, ...col});
         }
       }
     }
+
     // if (store correction maybe) {
     //   d.userData.dynamicVelocityComponents['collisionCorrection'] = collisionVelCorrection;
     // }

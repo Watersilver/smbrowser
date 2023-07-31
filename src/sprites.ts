@@ -178,6 +178,16 @@ const marioSmb1Json = {
       frame: {x:154,y:8,w:16,h:16},
       sourceSize: {w:16,h:16},
     },
+    bigClimb1:
+    {
+      frame: {x:136,y:32,w:16,h:32},
+      sourceSize: {w:16,h:32},
+    },
+    bigClimb2:
+    {
+      frame: {x:154,y:32,w:16,h:32},
+      sourceSize: {w:16,h:32},
+    },
     smallSwim1:
     {
       frame: {x:174,y:8,w:16,h:16},
@@ -208,14 +218,47 @@ const marioSmb1Json = {
       frame: {x:264,y:8,w:16,h:16},
       sourceSize: {w:16,h:16},
     },
+    bigSwim1:
+    {
+      frame: {x:174,y:32,w:16,h:32},
+      sourceSize: {w:16,h:32},
+    },
+    bigSwim2:
+    {
+      frame: {x:192,y:32,w:16,h:32},
+      sourceSize: {w:16,h:32},
+    },
+    bigSwim3:
+    {
+      frame: {x:210,y:32,w:16,h:32},
+      sourceSize: {w:16,h:32},
+    },
+    bigSwim4:
+    {
+      frame: {x:228,y:32,w:16,h:32},
+      sourceSize: {w:16,h:32},
+    },
+    bigSwim5:
+    {
+      frame: {x:246,y:32,w:16,h:32},
+      sourceSize: {w:16,h:32},
+    },
+    bigSwim6:
+    {
+      frame: {x:264,y:32,w:16,h:32},
+      sourceSize: {w:16,h:32},
+    },
   },
 
   animations: {
     smallWalk: ["smallWalk1","smallWalk2","smallWalk3"],
     bigWalk: ["bigWalk1","bigWalk2","bigWalk3"],
     smallClimb: ["smallClimb1","smallClimb2"],
+    bigClimb: ["bigClimb1","bigClimb2"],
     smallSwimStroke: ["smallSwim1","smallSwim2","smallSwim3","smallSwim4","smallSwim5","smallSwim6"],
+    bigSwimStroke: ["bigSwim1","bigSwim2","bigSwim3","bigSwim4","bigSwim5","bigSwim6"],
     smallSwim: ["smallSwim1","smallSwim2"],
+    bigSwim: ["bigSwim1","bigSwim2"],
     smallIdle: ["smallIdle"],
     bigIdle: ["bigIdle"],
     smallJump: ["smallJump"],
@@ -264,7 +307,9 @@ function createMarioSmb1Sprites(s: Spritesheet) {
   const smallWalk = s.animations['smallWalk'] ?? [];
   const bigWalk = s.animations['bigWalk'] ?? [];
   const smallClimb = s.animations['smallClimb'] ?? [];
+  const bigClimb = s.animations['bigClimb'] ?? [];
   const smallSwim = s.animations['smallSwim'] ?? [];
+  const bigSwim = s.animations['bigSwim'] ?? [];
   const smallIdle = s.animations['smallIdle'] ?? [];
   const bigIdle = s.animations['bigIdle'] ?? [];
   const smallJump = s.animations['smallJump'] ?? [];
@@ -274,6 +319,7 @@ function createMarioSmb1Sprites(s: Spritesheet) {
   const smallDie = s.animations['smallDie'] ?? [];
   const bigDuck = s.animations['bigDuck'] ?? [];
   const smallSwimStroke = s.animations['smallSwimStroke'] ?? [];
+  const bigSwimStroke = s.animations['bigSwimStroke'] ?? [];
 
   const marioSprites = new Animations({
     smallWalk,
@@ -288,7 +334,10 @@ function createMarioSmb1Sprites(s: Spritesheet) {
     smallSwimStroke,
     bigIdle,
     bigSkid,
-    bigDuck
+    bigDuck,
+    bigClimb,
+    bigSwim,
+    bigSwimStroke
   }, 'smallIdle');
   marioSprites.setAnimationAnchor('bigJump', {x: 0.5, y: 0.55});
   marioSprites.setAnimationAnchor('bigDuck', {x: 0.5, y: 0.64});

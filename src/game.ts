@@ -65,7 +65,15 @@ class Test extends State<string, Game> {
     }
 
     if (this.g.input.isPressed('KeyH')) {
-      if (this.ent.mario) this.ent.mario.big = !this.ent.mario.big;
+      if (this.ent.mario) {
+        this.ent.mario.big = !this.ent.mario.big;
+        this.ent.mario.changedSize = true;
+      }
+    }
+    if (this.g.input.isPressed('KeyU')) {
+      if (this.ent.mario) {
+        this.ent.underwater = !this.ent.underwater;
+      }
     }
 
     this.graphics.clear();
@@ -183,7 +191,7 @@ class Test extends State<string, Game> {
     },
     floorSpeed: 0,
     gravity: 0,
-    smb1MarioAnimations: getMarioSmb1Sprites()
+    smb1MarioAnimations: getMarioSmb1Sprites(),
   }));
   override onStart(i: Game): void {
     this.g = i;

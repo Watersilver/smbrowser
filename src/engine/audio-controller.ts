@@ -219,7 +219,7 @@ class SoundPlayer<T extends string> extends AudioContainer<T> {
 
   private activeSound?: AudioBufferSourceNode;
   private readonly cached: Set<string> = new Set();
-  private readonly playing: Map<AudioBufferSourceNode, {volume: GainNode}> = new Map();
+  private readonly playing: Map<AudioBufferSourceNode, {volume: GainNode, name: string}> = new Map();
   private volume = 1;
 
   private getFinalVolume() {
@@ -245,10 +245,10 @@ class SoundPlayer<T extends string> extends AudioContainer<T> {
 
   /**
    * @param name name of sound to be played. Ignore to play no sound
-   * @param options.stopPrev stops currently playing sound. Either immediatelly when provided true, or after seconds given by timeout.
+   * @param options.stopPrev stops currently playing sound. Either immediatelly when provided true, or after seconds given by timeout. If same is true, only stops prev if it is the same sound.
    * @param options.sleep prevents the same sound from being played again for given seconds
    */
-  play(name?: T | null, options?: {stopPrev?: boolean | {timeout: number}, sleep?: number}) {
+  play(name?: T | null, options?: {stopPrev?: boolean | {timeout?: number, same?: boolean}, sleep?: number}) {
     // Only allow a particular sound to be played once per task
     if (name) {
       if (this.cached.has(name)) return;
@@ -265,12 +265,32 @@ class SoundPlayer<T extends string> extends AudioContainer<T> {
         prev.onended = null;
         this.playing.delete(prev);
       } else {
-        setTimeout(() => {
-          prev.stop();
-          prev.disconnect();
-          prev.onended = null;
-          this.playing.delete(prev);
-        }, stopPrev.timeout * 1000);
+        const timeout = stopPrev.timeout;
+        let stop = true;
+        if (stopPrev.same) {
+          stop = false;
+          for (const p of this.playing.values()) {
+            if (p.name === name) {
+              stop = true;
+              break;
+            }
+          }
+        }
+        if (stop) {
+          if (timeout !== undefined) {
+            setTimeout(() => {
+              prev.stop();
+              prev.disconnect();
+              prev.onended = null;
+              this.playing.delete(prev);
+            }, timeout * 1000);
+          } else {
+            prev.stop();
+            prev.disconnect();
+            prev.onended = null;
+            this.playing.delete(prev);
+          }
+        }
       }
     }
 
@@ -283,7 +303,7 @@ class SoundPlayer<T extends string> extends AudioContainer<T> {
     const volume = this.context.createGain();
     volume.gain.value = this.getFinalVolume();
     connectNodes(newActiveSound, volume, this.context.destination);
-    this.playing.set(newActiveSound, {volume});
+    this.playing.set(newActiveSound, {volume, name});
     newActiveSound.onended = () => {
       this.playing.delete(newActiveSound);
       newActiveSound.disconnect();

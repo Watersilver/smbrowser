@@ -36,15 +36,30 @@ export default function renderSmb1Mario(dt: number) {
       if (!mario.grounded && e.underwater) {
         a.loopsPerSecond = 3;
         if (mario.jumped) {
-          a.setAnimation('smallSwimStroke');
+          if (mario.big) {
+            a.setAnimation('bigSwimStroke');
+          } else {
+            a.setAnimation('smallSwimStroke');
+          }
           mario.swimLoops = 2;
         } else {
           if (mario.swimLoops) {
             if (a.didLoop()) {
               mario.swimLoops -= 1;
             }
+            if (mario.changedSize) {
+              if (mario.big) {
+                a.setAnimation('bigSwimStroke');
+              } else {
+                a.setAnimation('smallSwimStroke');
+              }
+            }
           } else {
-            a.setAnimation('smallSwim');
+            if (mario.big) {
+              a.setAnimation('bigSwim');
+            } else {
+              a.setAnimation('smallSwim');
+            }
           }
         }
       } else {

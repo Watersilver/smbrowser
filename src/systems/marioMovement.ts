@@ -81,14 +81,14 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
           const keepSkidDecel = mario.skidDecel && !mi.anyPressed;
           mario.skidDecel = !speedCloseToZero && keepSkidDecel;
           const wasSkidding = mario.skidding;
-          mario.skidding = mario.skidDecel;
+          mario.skidding = mario.skidding && !speedCloseToZero;
 
           // Be sure to block movement if blocked
           const blocked = (dir === 1 && rightBlocked) || (dir === -1 && leftBlocked);
           if (!blocked) {
             let decc = 0;
   
-            // Skidding or Released
+            // Decelerate
             if (ducking) {
               mario.skidDecel = false;
               mario.skidding = false;
@@ -101,13 +101,18 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
                 mario.skidding = false;
               }
             } else {
-              // speed <= config.skidTurnaround
-              if (!speedCloseToZero) {
+              if (speed > config.skidTurnaround) {
                 mario.facing = (mario.skidding || !dir) ? mario.facing : dir < 0 ? -1 : 1;
+              } else if (wasSkidding && speedCloseToZero) {
+                mario.facing = mario.facing === 1 ? - 1 : 1;
               }
-              else {
-                mario.facing = !wasSkidding ? mario.facing : mario.facing === 1 ? - 1 : 1;
-              }
+              // speed <= config.skidTurnaround
+              // if (!speedCloseToZero) {
+              //   mario.facing = (mario.skidding || !dir) ? mario.facing : dir < 0 ? -1 : 1;
+              // }
+              // else {
+              //   mario.facing = !wasSkidding ? mario.facing : mario.facing === 1 ? - 1 : 1;
+              // }
             }
   
             decc = mario.skidDecel ? config.skidDecel : config.releaseDecel;
@@ -173,6 +178,8 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
           : mario.fallGravity;
 
         if (underwater) {
+          mario.ducking = false;
+
           if (mario.surface) {
             e.gravity =
               i.jumping && dynamic.velocity.y <= 0
@@ -204,7 +211,7 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
             }
           }
         } else {
-          mario.ducking = false;
+          if (!mario.jumping) mario.ducking = false;
           if (mario.prevGrounded && speed > config.maxRunSpeed * 0.98) {
             dynamic.acceleration.y = - (10 + dynamic.velocity.y) / dt;
   
@@ -238,13 +245,6 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
           dynamic.acceleration.x += acc * side;
         }
       }
-
-      // TODO:
-      // Figure out how to do constant speeds, like floor speed, whirlpool and wind
-      // also do all that without messing up facing and animation speed
-      // if (underwater && mario.whirlpool) {
-      //   dynamic.acceleration.x += mario.whirlpool * 60 / dt;
-      // }
     }
   }
 }

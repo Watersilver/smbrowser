@@ -24,6 +24,12 @@ export default function resetStuff() {
     }
   }
 
+  for (const ent of entities.view(['mario'])) {
+    if (ent.mario) {
+      ent.mario.changedSize = false;
+    }
+  }
+
   for (const ent of entities.view(['kinematic'])) {
     if (ent.kinematic) {
       ent.kinematic.acceleration.x = 0;

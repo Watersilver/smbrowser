@@ -3,7 +3,7 @@ import entities from "../entities";
 
 const audio = getSmb1Audio();
 
-const swimSoundOptions = {stopPrev: true};
+const swimSoundOptions = {stopPrev: {same: true}};
 
 export default function marioSmb1Sounds() {
   for (const e of entities.view(['mario'])) {
@@ -18,6 +18,14 @@ export default function marioSmb1Sounds() {
           } else {
             audio.sounds.play('jumpSmall');
           }
+        }
+      }
+
+      if (m.changedSize) {
+        if (m.big) {
+          audio.sounds.play('powerup');
+        } else {
+          audio.sounds.play('pipe');
         }
       }
     }

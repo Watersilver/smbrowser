@@ -83,6 +83,7 @@ export type Entity = {
     whirlpool?: boolean;
     surface?: boolean;
     big?: boolean;
+    changedSize?: boolean;
     ducking?: boolean;
     forcedDucking?: boolean;
     grounded?: boolean;
