@@ -21,6 +21,11 @@ import detectFloorSpeed from "./systems/detectFloorSpeed";
 import { getSmb1Audio } from "./audio";
 import marioSmb1Sounds from "./systems/marioSmb1Sounds";
 import { getMarioSmb1Sprites } from './sprites';
+import renderSmb1Mario from './systems/renderSmb1Mario';
+import marioSizeHandler from './systems/marioSizeHandler';
+
+display.setBGColor('#9290FF');
+display.showFps();
 
 const audio = getSmb1Audio();
 
@@ -59,6 +64,10 @@ class Test extends State<string, Game> {
       this.platform.kinematic.velocity.y = dy / dt;
     }
 
+    if (this.g.input.isPressed('KeyH')) {
+      if (this.ent.mario) this.ent.mario.big = !this.ent.mario.big;
+    }
+
     this.graphics.clear();
 
     // Sensors
@@ -86,11 +95,14 @@ class Test extends State<string, Game> {
     storePrevPos();
     velocity(dt);
 
+    marioSizeHandler();
+
     // Reset volocities to state before components were added
     removeSpeedComponents();
 
     // Render
     debugRender(this.graphics);
+    renderSmb1Mario(dt);
     marioSmb1Sounds();
 
     // Cleanup
@@ -118,7 +130,7 @@ class Test extends State<string, Game> {
     touchingRight: [],
     hits: [],
     prevHits: [],
-    size: new Vec2d(16, 16),
+    size: new Vec2d(14, 16),
     dynamic: {
       velocity: new Vec2d(0, 0),
       acceleration: new Vec2d(0, 0),
@@ -176,12 +188,13 @@ class Test extends State<string, Game> {
   override onStart(i: Game): void {
     this.g = i;
     display.add(this.graphics);
+    this.graphics.zIndex = -1;
 
     const cr = (x: number, y: number) => entities.createEntity(newEntity({
       position: new Vec2d(x, y), size: new Vec2d(16, 16), static: true
     }));
     for (let i = -30; i < 20; i++) {
-      cr(i * 16, 100);
+      if (i !== 14) cr(i * 16, 100);
     }
     cr(-9 * 16, 100 - 16);
     cr(-19 * 16, 100 - 16);
@@ -191,9 +204,11 @@ class Test extends State<string, Game> {
     cr(-19 * 16, 100 - 16 * 5);
     cr(20 * 16, 100 - 16);
     cr(-16, 100 - 16 * 3);
+    cr(-16 * 4, 100 - 16 * 2);
   }
 
   override onEnd(): [undefined, string] {
+    this.graphics.removeFromParent();
     return [undefined, "string"];
   }
 }

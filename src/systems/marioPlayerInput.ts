@@ -20,17 +20,22 @@ export default function marioPlayerInput(keyboard: Input, dt: number) {
         mi.anyPressed = true;
         i.left = true;
       }
+      if (keyboard.isHeld("ArrowLeft")) i.left = true;
       if (keyboard.isPressed("ArrowRight")) {
         mi.anyPressed = true;
         i.right = true;
       }
-
-      if (keyboard.isHeld("ArrowLeft")) i.left = true;
       if (keyboard.isHeld("ArrowRight")) i.right = true;
       if (i.right && i.left) {
         i.right = false;
         i.left = false;
       }
+      if (keyboard.isPressed("ArrowDown")) {
+        mi.anyPressed = true;
+        i.ducking = true;
+      }
+      if (keyboard.isHeld("ArrowDown")) i.ducking = true;
+
       if (keyboard.isHeld("KeyC")) i.run = 1 / 6;
       if (keyboard.isPressed("KeyC")) {
         i.attack = true;

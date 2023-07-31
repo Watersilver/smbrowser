@@ -34,20 +34,27 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
       let speed = Math.abs(dynamic.velocity.x);
 
       const side = i.left ? -1 : i.right ? 1 : 0;
+      
+      mario.prevGrounded = mario.grounded;
 
+      // If this is check isn't here, getting up while holding directional key moves us a little
+      // Desirable if we want to get into tight spaces without first gathering momentum
+      // Could be good for avoiding softlocks
+      const wasDucking = mario.ducking;
       if (grounded) {
+        mario.ducking = i.ducking && mario.big;
+        const ducking = mario.forcedDucking || mario.ducking || wasDucking;
         mario.maxAirSpeed = undefined;
         mario.jumping = !!mario.jumpCooldown;
+        mario.grounded = !mario.jumpCooldown;
         const running = !!i.run;
         const speedCloseToZero = speed < 1;
 
-        const keepSkidDecel = mario.skidDecel && !mi.anyPressed;
-
         mario.running = false;
-        mario.skidding = !speedCloseToZero && keepSkidDecel;
-        mario.skidDecel = keepSkidDecel;
 
-        if (side && (speedCloseToZero || side === dir)) {
+        if (!ducking && side && (speedCloseToZero || side === dir)) {
+          mario.skidDecel = false;
+          mario.skidding = false;
           mario.facing = side;
 
           // Be sure to block movement if blocked
@@ -71,18 +78,35 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
             dynamic.acceleration.x += acc * side;
           }
         } else {
+          const keepSkidDecel = mario.skidDecel && !mi.anyPressed;
+          mario.skidDecel = !speedCloseToZero && keepSkidDecel;
+          const wasSkidding = mario.skidding;
+          mario.skidding = mario.skidDecel;
+
           // Be sure to block movement if blocked
           const blocked = (dir === 1 && rightBlocked) || (dir === -1 && leftBlocked);
           if (!blocked) {
             let decc = 0;
   
             // Skidding or Released
-            if (side) {
+            if (ducking) {
+              mario.skidDecel = false;
+              mario.skidding = false;
+              if (side && speedCloseToZero) mario.facing = side;
+            } else if (side) {
               mario.skidDecel = true;
               mario.skidding = true;
               if (speed <= config.skidTurnaround) {
                 mario.facing = side;
                 mario.skidding = false;
+              }
+            } else {
+              // speed <= config.skidTurnaround
+              if (!speedCloseToZero) {
+                mario.facing = (mario.skidding || !dir) ? mario.facing : dir < 0 ? -1 : 1;
+              }
+              else {
+                mario.facing = !wasSkidding ? mario.facing : mario.facing === 1 ? - 1 : 1;
               }
             }
   
@@ -96,6 +120,9 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
           }
         }
       } else {
+        mario.grounded = false;
+        mario.skidding = false;
+        mario.skidDecel = false;
         if (jumped || !mario.maxAirSpeed) {
           mario.maxAirSpeed = speed > config.maxWalkSpeed + Number.EPSILON ? config.maxRunSpeed : config.maxWalkSpeed;
 
@@ -174,6 +201,20 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
             }
             if (e.floorSpeedY) {
               dynamic.acceleration.y += e.floorSpeedY / dt;
+            }
+          }
+        } else {
+          mario.ducking = false;
+          if (mario.prevGrounded && speed > config.maxRunSpeed * 0.98) {
+            dynamic.acceleration.y = - (10 + dynamic.velocity.y) / dt;
+  
+            if (parameters?.conservationOfMomentum) {
+              if (e.floorSpeed) {
+                dynamic.acceleration.x += e.floorSpeed / dt;
+              }
+              if (e.floorSpeedY) {
+                dynamic.acceleration.y += e.floorSpeedY / dt;
+              }
             }
           }
         }

@@ -24,6 +24,7 @@ export type Entity = {
       right?: boolean;
       attack?: boolean;
       run?: number;
+      ducking?: boolean;
     }
     anyPressed?: boolean;
   };
@@ -82,6 +83,11 @@ export type Entity = {
     whirlpool?: boolean;
     surface?: boolean;
     big?: boolean;
+    ducking?: boolean;
+    forcedDucking?: boolean;
+    grounded?: boolean;
+    swimLoops?: number;
+    prevGrounded?: boolean;
 
     // Use same mechanism for wind and whirlpools
     wind?: number;

@@ -38,8 +38,55 @@ class Display {
   private effects = new Container();
   private view = new Container();
 
+  private biggestFPS = 0;
+  private smallestFPS = Infinity;
+  private biggestFPSView = this.biggestFPS;
+  private smallestFPSView = this.biggestFPS;
+  private fpsInterval?: number;
+  private fpsDisplay?: HTMLDivElement;
+  private prev = performance.now();
+
+  private updateFps(dt: number) {
+    const fps = Math.floor(1 / dt);
+    if (this.smallestFPS > fps) this.smallestFPS = fps;
+    if (this.biggestFPS < fps) this.biggestFPS = fps;
+    if (this.fpsDisplay) this.fpsDisplay.innerHTML = "fps: " + fps + "<br>max-fps: " + this.biggestFPSView + "<br>min-fps: " + this.smallestFPSView;
+    if (this.fpsInterval !== undefined) requestAnimationFrame(timestamp => {
+      const dt = (timestamp - this.prev) / 1000;
+      this.prev = timestamp;
+      this.updateFps(dt);
+    });
+  }
+
+  showFps() {
+    if (this.fpsInterval !== undefined) return;
+    this.fpsInterval = window.setInterval(() => {
+      this.biggestFPSView = this.biggestFPS;
+      this.biggestFPS = 0;
+      this.smallestFPSView = this.smallestFPS;
+      this.smallestFPS = Infinity;
+    }, 1000);
+    this.updateFps(Infinity);
+    this.fpsDisplay = document.createElement('div');
+    this.fpsDisplay.style.color = "red";
+    this.fpsDisplay.style.position = "fixed";
+    this.fpsDisplay.style.left = "0px";
+    this.fpsDisplay.style.top = "0px";
+
+    const display = document.getElementById('display');
+    if (!display) return;
+    display.append(this.fpsDisplay);
+  }
+
+  hideFps() {
+    clearInterval(this.fpsInterval);
+    this.fpsInterval = undefined;
+    this.fpsDisplay?.remove();
+  }
+
   constructor() {
     this.view.eventMode = 'none';
+    this.view.sortableChildren = true;
 
     // Keep following in mind if I want to implement split screen
     // Also it seems cloning the render tree is the only way
@@ -102,7 +149,7 @@ class Display {
     this.computeBoundingBox();
   }
 
-  setBGColor(c: Color) {
+  setBGColor(c: any) {
     this.renderer.background.backgroundColor.setValue(c);
   }
 

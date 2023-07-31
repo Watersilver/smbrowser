@@ -169,6 +169,15 @@ export default class Ecs<Entity extends {
   createEntity(components: Entity) {
     const target = {...components};
     const self = this;
+
+    for (const component of Object.keys(components)) {
+      const handler = self.propChangeHandlers.get(component);
+      if (handler) {
+        const prev = target[component];
+        handler({...target}, prev);
+      }
+    }
+
     const entity = new Proxy(target, {
       deleteProperty: (t, p) => {
         const handler = self.propChangeHandlers.get(p);

@@ -46,24 +46,22 @@ export default function physics(dt: number) {
   for (const k of kinematicList) {
     if (!k.userData.kinematic) continue;
 
-    if (!k.userData.kinematic.velocity.isNull) {
-      const pos = k.userData.position;
-      const size = k.userData.size;
-      const dr = k.userData.kinematic.velocity.mul(dt);
+    const pos = k.userData.position;
+    const size = k.userData.size;
+    const dr = k.userData.kinematic.velocity.mul(dt);
 
-      k.l = pos.x - size.x * 0.5;
-      k.t = pos.y - size.y * 0.5;
-      k.w = size.x;
-      k.h = size.y;
+    k.l = pos.x - size.x * 0.5;
+    k.t = pos.y - size.y * 0.5;
+    k.w = size.x;
+    k.h = size.y;
 
-      // Compute bounding box that contains rect both before and after movement
-      k.l = dr.x < 0 ? k.l + dr.x : k.l;
-      k.t = dr.y < 0 ? k.t + dr.y : k.t;
-      k.w = dr.x < 0 ? k.w - dr.x : k.w + dr.x;
-      k.h = dr.y < 0 ? k.h - dr.y : k.h + dr.y;
+    // Compute bounding box that contains rect both before and after movement
+    k.l = dr.x < 0 ? k.l + dr.x : k.l;
+    k.t = dr.y < 0 ? k.t + dr.y : k.t;
+    k.w = dr.x < 0 ? k.w - dr.x : k.w + dr.x;
+    k.h = dr.y < 0 ? k.h - dr.y : k.h + dr.y;
 
-      worldGrid.kinematics.update(k);
-    }
+    worldGrid.kinematics.update(k);
   }
 
   for (const d of dynamicsList) {
