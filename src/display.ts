@@ -29,7 +29,7 @@ class Display {
     this.renderer.resize(newWidth, newHeight);
   }
 
-  private renderer = autoDetectRenderer({
+  readonly renderer = autoDetectRenderer({
     width: this.baseWidth,
     height: this.baseHeight,
     backgroundColor: "#900C3F"

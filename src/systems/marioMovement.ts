@@ -41,9 +41,9 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
       // Desirable if we want to get into tight spaces without first gathering momentum
       // Could be good for avoiding softlocks
       const wasDucking = mario.ducking;
+      const ducking = mario.forcedDucking || mario.ducking || wasDucking;
       if (grounded) {
         mario.ducking = i.ducking && mario.big;
-        const ducking = mario.forcedDucking || mario.ducking || wasDucking;
         mario.maxAirSpeed = undefined;
         mario.jumping = !!mario.jumpCooldown;
         mario.grounded = !mario.jumpCooldown;
@@ -102,17 +102,14 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
               }
             } else {
               if (speed > config.skidTurnaround) {
+                const prevFacing = mario.facing;
                 mario.facing = (mario.skidding || !dir) ? mario.facing : dir < 0 ? -1 : 1;
+                if (dir && dir !== prevFacing) {
+                  mario.skidding = true;
+                }
               } else if (wasSkidding && speedCloseToZero) {
                 mario.facing = mario.facing === 1 ? - 1 : 1;
               }
-              // speed <= config.skidTurnaround
-              // if (!speedCloseToZero) {
-              //   mario.facing = (mario.skidding || !dir) ? mario.facing : dir < 0 ? -1 : 1;
-              // }
-              // else {
-              //   mario.facing = !wasSkidding ? mario.facing : mario.facing === 1 ? - 1 : 1;
-              // }
             }
   
             decc = mario.skidDecel ? config.skidDecel : config.releaseDecel;
@@ -245,6 +242,17 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
           dynamic.acceleration.x += acc * side;
         }
       }
+
+      if (mario.shooting) {
+        mario.shooting -= dt;
+        if (mario.shooting <= 0) mario.shooting = 0;
+      }
+      if (mario.powerup === "fire") {
+        if (i.attack && !mario.shooting && !ducking) {
+          mario.shooting = 1/10;
+        }
+      }
     }
+
   }
 }

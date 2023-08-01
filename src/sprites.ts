@@ -1,4 +1,4 @@
-import { BaseTexture, Container, Filter, Resource, Sprite, Spritesheet, Texture } from "pixi.js"
+import { BaseTexture, Container, Filter, Resource, Sprite, Spritesheet, Texture, autoDetectRenderer } from "pixi.js"
 import image from "./assets/NES - Super Mario Bros - Mario & Luigi.png"
 
 const dummyTex = new Texture(new BaseTexture());
@@ -248,11 +248,42 @@ const marioSmb1Json = {
       frame: {x:264,y:32,w:16,h:32},
       sourceSize: {w:16,h:32},
     },
+    bigShootIdle:
+    {
+      frame: {x:136,y:72,w:16,h:32},
+      sourceSize: {w:16,h:32},
+    },
+    bigShootWalk1:
+    {
+      frame: {x:190,y:72,w:16,h:32},
+      sourceSize: {w:16,h:32},
+    },
+    bigShootWalk2:
+    {
+      frame: {x:154,y:72,w:16,h:32},
+      sourceSize: {w:16,h:32},
+    },
+    bigShootWalk3:
+    {
+      frame: {x:172,y:72,w:16,h:32},
+      sourceSize: {w:16,h:32},
+    },
+    bigShootSkid:
+    {
+      frame: {x:208,y:72,w:16,h:32},
+      sourceSize: {w:16,h:32},
+    },
+    bigShootJump:
+    {
+      frame: {x:244,y:72,w:16,h:32},
+      sourceSize: {w:16,h:32},
+    }
   },
 
   animations: {
     smallWalk: ["smallWalk1","smallWalk2","smallWalk3"],
     bigWalk: ["bigWalk1","bigWalk2","bigWalk3"],
+    bigShootWalk: ["bigShootWalk1","bigShootWalk2","bigShootWalk3"],
     smallClimb: ["smallClimb1","smallClimb2"],
     bigClimb: ["bigClimb1","bigClimb2"],
     smallSwimStroke: ["smallSwim1","smallSwim2","smallSwim3","smallSwim4","smallSwim5","smallSwim6"],
@@ -261,10 +292,13 @@ const marioSmb1Json = {
     bigSwim: ["bigSwim1","bigSwim2"],
     smallIdle: ["smallIdle"],
     bigIdle: ["bigIdle"],
+    bigShootIdle: ["bigShootIdle"],
     smallJump: ["smallJump"],
     bigJump: ["bigJump"],
+    bigShootJump: ["bigShootJump"],
     smallSkid: ["smallSkid"],
     bigSkid: ["bigSkid"],
+    bigShootSkid: ["bigShootSkid"],
     smallDie: ["smallDie"],
     bigDuck: ["bigDuck"]
   },
@@ -275,8 +309,6 @@ const marioSmb1Json = {
   }
 }
 
-const t = new BaseTexture(image);
-const marioSmb1Spritesheet = new Spritesheet(t, marioSmb1Json);
 
 const marioTransparencyFilter = new Filter(undefined, `
 varying vec2 vTextureCoord;
@@ -296,6 +328,17 @@ void main(void)
 }
 `);
 
+const t = new BaseTexture(image);
+const marioSmb1Spritesheet = new Spritesheet(t, marioSmb1Json);
+
+// const renderTexture = RenderTexture.create({
+//   width: marioSmb1Spritesheet.baseTexture.width,
+//   height: marioSmb1Spritesheet.baseTexture.height
+// });
+// const s = Sprite.from(marioSmb1Spritesheet.baseTexture);
+// s.filters = [marioTransparencyFilter];
+// display.renderer.render(s, {renderTexture});
+
 let smb1MarioParsed = false;
 async function parseMarioSmb1Spritesheet() {
   await marioSmb1Spritesheet.parse();
@@ -306,16 +349,20 @@ async function parseMarioSmb1Spritesheet() {
 function createMarioSmb1Sprites(s: Spritesheet) {
   const smallWalk = s.animations['smallWalk'] ?? [];
   const bigWalk = s.animations['bigWalk'] ?? [];
+  const bigShootWalk = s.animations['bigShootWalk'] ?? [];
   const smallClimb = s.animations['smallClimb'] ?? [];
   const bigClimb = s.animations['bigClimb'] ?? [];
   const smallSwim = s.animations['smallSwim'] ?? [];
   const bigSwim = s.animations['bigSwim'] ?? [];
   const smallIdle = s.animations['smallIdle'] ?? [];
   const bigIdle = s.animations['bigIdle'] ?? [];
+  const bigShootIdle = s.animations['bigShootIdle'] ?? [];
   const smallJump = s.animations['smallJump'] ?? [];
   const bigJump = s.animations['bigJump'] ?? [];
+  const bigShootJump = s.animations['bigShootJump'] ?? [];
   const smallSkid = s.animations['smallSkid'] ?? [];
   const bigSkid = s.animations['bigSkid'] ?? [];
+  const bigShootSkid = s.animations['bigShootSkid'] ?? [];
   const smallDie = s.animations['smallDie'] ?? [];
   const bigDuck = s.animations['bigDuck'] ?? [];
   const smallSwimStroke = s.animations['smallSwimStroke'] ?? [];
@@ -337,15 +384,23 @@ function createMarioSmb1Sprites(s: Spritesheet) {
     bigDuck,
     bigClimb,
     bigSwim,
-    bigSwimStroke
+    bigSwimStroke,
+    bigShootWalk,
+    bigShootIdle,
+    bigShootJump,
+    bigShootSkid
   }, 'smallIdle');
-  marioSprites.setAnimationAnchor('bigJump', {x: 0.5, y: 0.55});
-  marioSprites.setAnimationAnchor('bigDuck', {x: 0.5, y: 0.64});
+  marioSprites.setAnimationAnchor('bigJump', {x: 0.5, y: 0.57});
+  marioSprites.setAnimationAnchor('bigShootJump', {x: 0.5, y: 0.57});
+  marioSprites.setAnimationAnchor('bigDuck', {x: 0.5, y: 0.62});
 
-  marioSprites.container.filters = [marioTransparencyFilter];
+  // marioSprites.container.filters = [marioTransparencyFilter];
 
   return marioSprites;
 }
+
+// underwater filter: displacement
+// https://filters.pixijs.download/main/docs/index.html
 
 export function getMarioSmb1Sprites() {
   const a = createMarioSmb1Sprites(marioSmb1Spritesheet);

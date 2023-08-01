@@ -23,8 +23,10 @@ import marioSmb1Sounds from "./systems/marioSmb1Sounds";
 import { getMarioSmb1Sprites } from './sprites';
 import renderSmb1Mario from './systems/renderSmb1Mario';
 import marioSizeHandler from './systems/marioSizeHandler';
+import newMario from './entityFactories/newMario';
 
 display.setBGColor('#9290FF');
+display.setBGColor('#044');
 display.showFps();
 
 const audio = getSmb1Audio();
@@ -130,69 +132,7 @@ class Test extends State<string, Game> {
       acceleration: new Vec2d(0, 0)
     }
   }));
-  ent = entities.createEntity(newEntity({
-    position: new Vec2d(1, 0),
-    touchingUp: [],
-    touchingDown: [],
-    touchingLeft: [],
-    touchingRight: [],
-    hits: [],
-    prevHits: [],
-    size: new Vec2d(14, 16),
-    dynamic: {
-      velocity: new Vec2d(0, 0),
-      acceleration: new Vec2d(0, 0),
-      grounded: false,
-    },
-    player: true,
-    marioInput: {inputs: {}},
-    marioMovementConfig: {
-      minWalkSpeed: 0x00130 * 60 / 0x01000,
-      maxWalkSpeed: 0x01900 * 60 / 0x01000,
-      walkAccel: 0x00098 * 60 * 60 / 0x01000,
-      maxWalkSpeedUnderwater: 0x01100 * 60 / 0x01000,
-      cutsceneWalkSpeed: 0x00D00 * 60 / 0x01000,
-      maxRunSpeed: 0x02900 * 60 / 0x01000,
-      runAccel: 0x000E4 * 60 * 60 / 0x01000,
-      releaseDecel: 0x000D0 * 60 * 60 / 0x01000,
-      skidDecel: 0x001A0 * 60 * 60 / 0x01000,
-      skidTurnaround: 0x00900 * 60 / 0x01000,
-      jumpBackwardsDecelThreshold: 0x01D00 * 60 / 0x01000,
-      jumpFastAccel: 0x000E4 * 60 * 60 / 0x01000,
-      jumpSlowAccel: 0x00098 * 60 * 60 / 0x01000,
-      jumpFastDecel: 0x000E4 * 60 * 60 / 0x01000,
-      jumpNormalDecel: 0x000D0 * 60 * 60 / 0x01000,
-      jumpSlowDecel: 0x00098 * 60 * 60 / 0x01000,
-      initFallGravity: 0x00280 * 60 * 60 / 0x01000,
-      initJumpGravity: 0x00280 * 60 * 60 / 0x01000,
-      walkGravitySpeed: 0x01000 * 60 / 0x01000,
-      walkJump: 0x04000 * 60 / 0x01000,
-      walkFallGravity: 0x00700 * 60 * 60 / 0x01000,
-      walkJumpGravity: 0x00200 * 60 * 60 / 0x01000,
-      midGravitySpeed: 0x024FF * 60 / 0x01000,
-      midJump: 0x04000 * 60 / 0x01000,
-      midFallGravity: 0x00600 * 60 * 60 / 0x01000,
-      midJumpGravity: 0x001E0 * 60 * 60 / 0x01000,
-      runJump: 0x05000 * 60 / 0x01000,
-      runFallGravity: 0x00900 * 60 * 60 / 0x01000,
-      runJumpGravity: 0x00280 * 60 * 60 / 0x01000,
-      swimJump: 0x01800 * 60 / 0x01000,
-      swimFallGravity: 0x000A0 * 60 * 60 / 0x01000,
-      swimJumpGravity: 0x000D0 * 60 * 60 / 0x01000,
-      whirlpoolJump: 0x01000 * 60 / 0x01000,
-      whirlpoolFallGravity: 0x00090 * 60 * 60 / 0x01000,
-      whirlpoolJumpGravity: 0x00040 * 60 * 60 / 0x01000,
-      surfaceJump: 0x01800 * 60 / 0x01000,
-      surfaceFallGravity: 0x00180 * 60 * 60 / 0x01000,
-      surfaceJumpGravity: 0x00180 * 60 * 60 / 0x01000
-    },
-    mario: {
-      facing: 1,
-    },
-    floorSpeed: 0,
-    gravity: 0,
-    smb1MarioAnimations: getMarioSmb1Sprites(),
-  }));
+  ent = newMario(1, 0);
   override onStart(i: Game): void {
     this.g = i;
     display.add(this.graphics);

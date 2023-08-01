@@ -4,7 +4,10 @@ import { dynamicRectVsRect } from "../engine/aabb";
 import entities from "../entities";
 import worldGrid from "../world-grid";
 
-const collider = {pos: new Vec2d(0, 0), size: new Vec2d(0, 0), dr: new Vec2d(0, -16)};
+const small = 15;
+const big = small * 2;
+
+const collider = {pos: new Vec2d(0, 0), size: new Vec2d(0, 0), dr: new Vec2d(0, -small)};
 const collidee = {pos: new Vec2d(0, 0), size: new Vec2d(0, 0)};
 
 export default function marioSizeHandler() {
@@ -15,7 +18,7 @@ export default function marioSizeHandler() {
     if (mario && d) {
       mario.forcedDucking = false;
       if (mario.big && !mario.ducking) {
-        if (ent.size.y === 32) continue;
+        if (ent.size.y === big) continue;
 
         collider.pos.x = ent.position.x - ent.size.x * 0.5;
         collider.pos.y = ent.position.y - ent.size.y * 0.5;
@@ -23,7 +26,7 @@ export default function marioSizeHandler() {
         collider.size.y = ent.size.y;
 
         const l = ent.position.x - ent.size.x * 0.5;
-        const t = ent.position.y - ent.size.y * 0.5 - 16;
+        const t = ent.position.y - ent.size.y * 0.5 - small;
         const w = ent.size.x;
         const h = ent.size.y;
 
@@ -57,7 +60,7 @@ export default function marioSizeHandler() {
 
         if (clear) {
           const prevSy = ent.size.y;
-          ent.size.y = 32;
+          ent.size.y = big;
           const diff = prevSy - ent.size.y;
           if (diff) {
             ent.position.y += diff / 2;
@@ -66,9 +69,9 @@ export default function marioSizeHandler() {
           mario.forcedDucking = true;
         }
       } else {
-        if (ent.size.y === 16) continue;
+        if (ent.size.y === small) continue;
         const prevSy = ent.size.y;
-        ent.size.y = 16;
+        ent.size.y = small;
         const diff = prevSy - ent.size.y;
         if (diff) {
           ent.position.y += diff / 2;

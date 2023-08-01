@@ -89,6 +89,8 @@ export type Entity = {
     grounded?: boolean;
     swimLoops?: number;
     prevGrounded?: boolean;
+    shooting?: number;
+    powerup?: "fire";
 
     // Use same mechanism for wind and whirlpools
     wind?: number;

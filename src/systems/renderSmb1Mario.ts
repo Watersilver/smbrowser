@@ -37,7 +37,11 @@ export default function renderSmb1Mario(dt: number) {
         a.loopsPerSecond = 3;
         if (mario.jumped) {
           if (mario.big) {
-            a.setAnimation('bigSwimStroke');
+            if (mario.shooting) {
+              a.setAnimation('bigShootIdle');
+            } else {
+              a.setAnimation('bigSwimStroke');
+            }
           } else {
             a.setAnimation('smallSwimStroke');
           }
@@ -47,16 +51,22 @@ export default function renderSmb1Mario(dt: number) {
             if (a.didLoop()) {
               mario.swimLoops -= 1;
             }
-            if (mario.changedSize) {
-              if (mario.big) {
-                a.setAnimation('bigSwimStroke');
+            if (mario.big) {
+              if (mario.shooting) {
+                a.setAnimation('bigShootIdle');
               } else {
-                a.setAnimation('smallSwimStroke');
+                a.setAnimation('bigSwimStroke');
               }
+            } else {
+              a.setAnimation('smallSwimStroke');
             }
           } else {
             if (mario.big) {
-              a.setAnimation('bigSwim');
+              if (mario.shooting) {
+                a.setAnimation('bigShootIdle');
+              } else {
+                a.setAnimation('bigSwim');
+              }
             } else {
               a.setAnimation('smallSwim');
             }
@@ -68,24 +78,47 @@ export default function renderSmb1Mario(dt: number) {
           a.setAnimation('bigDuck');
         } else if (mario.jumping) {
           if (mario.big) {
-            a.setAnimation('bigJump');
+            if (mario.shooting) {
+              a.setAnimation('bigShootJump');
+            } else {
+              a.setAnimation('bigJump');
+            }
           } else {
             a.setAnimation('smallJump');
           }
         } else if (mario.skidding) {
           if (mario.big) {
-            a.setAnimation('bigSkid');
+            if (mario.shooting) {
+              a.setAnimation('bigShootSkid');
+            } else {
+              a.setAnimation('bigSkid');
+            }
           } else {
             a.setAnimation('smallSkid');
           }
           a.container.scale.x = -mario.facing;
         } else {
           if (!isIdle || !mario.grounded) {
-            const changed = mario.big ? a.setAnimation('bigWalk') : a.setAnimation('smallWalk');
-            if (changed) a.setFrame(0.8);
+            const prev = a.getAnimation();
+            if (!(prev === 'bigWalk' || prev === 'bigShootWalk' || prev === 'smallWalk')) {
+              a.setFrame(0.8);
+            }
+            if (mario.big) {
+              if (mario.shooting) {
+                a.setAnimation('bigShootWalk');
+              } else {
+                a.setAnimation('bigWalk');
+              }
+            } else {
+              a.setAnimation('smallWalk');
+            }
           } else {
             if (mario.big) {
-              a.setAnimation('bigIdle');
+              if (mario.shooting) {
+                a.setAnimation('bigShootIdle');
+              } else {
+                a.setAnimation('bigIdle');
+              }
             } else {
               a.setAnimation('smallIdle');
             }
@@ -97,6 +130,6 @@ export default function renderSmb1Mario(dt: number) {
     }
 
     display.setScale(3);
-    display.setCenter(e.position.x, e.position.y);
+    display.setCenter(e.position.x, 0);
   }
 }
