@@ -1,6 +1,6 @@
 import { Vec2d } from "../engine";
 import entities, { newEntity } from "../entities";
-import { getMarioSmb1Sprites } from "../sprites";
+import { smb1Sprites } from "../sprites/smb";
 
 export default function newMario(x: number, y: number) {
   return entities.createEntity(newEntity({
@@ -64,6 +64,6 @@ export default function newMario(x: number, y: number) {
     },
     floorSpeed: 0,
     gravity: 0,
-    smb1MarioAnimations: getMarioSmb1Sprites(),
+    smb1MarioAnimations: smb1Sprites.getMario()
   }))
 }

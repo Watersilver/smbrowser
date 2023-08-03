@@ -24,7 +24,6 @@ export default function renderSmb1Mario(dt: number) {
     if (a && mario) {
       a.container.position.x = e.position.x;
       a.container.position.y = e.position.y;
-      const prevFacing = a.container.scale.x;
       a.container.scale.x = mario.facing;
 
       if (mario.grounded) {

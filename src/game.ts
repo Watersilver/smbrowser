@@ -20,7 +20,6 @@ import removeSpeedComponents from "./systems/removeSpeedComponents";
 import detectFloorSpeed from "./systems/detectFloorSpeed";
 import { getSmb1Audio } from "./audio";
 import marioSmb1Sounds from "./systems/marioSmb1Sounds";
-import { getMarioSmb1Sprites } from './sprites';
 import renderSmb1Mario from './systems/renderSmb1Mario';
 import marioSizeHandler from './systems/marioSizeHandler';
 import newMario from './entityFactories/newMario';

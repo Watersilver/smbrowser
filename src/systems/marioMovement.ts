@@ -122,6 +122,12 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
           }
         }
       } else {
+        const wasSkidding = mario.skidding;
+
+        if (wasSkidding && !jumped) {
+          mario.facing = mario.facing === 1 ? -1 : 1;
+        }
+
         mario.grounded = false;
         mario.skidding = false;
         mario.skidDecel = false;

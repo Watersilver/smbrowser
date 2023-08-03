@@ -1,5 +1,5 @@
 import { Ecs, Vec2d } from "./engine"
-import type { getMarioSmb1Sprites } from "./sprites";
+import type { Smb1MarioSprites } from "./sprites/smb";
 
 export type Entity = {
   positionStart: Vec2d;
@@ -109,7 +109,7 @@ export type Entity = {
   touchingLeft?: Entity[];
   floorSpeed?: number;
   floorSpeedY?: number;
-  smb1MarioAnimations?: ReturnType<typeof getMarioSmb1Sprites>;
+  smb1MarioAnimations?: Smb1MarioSprites;
 }
 
 export function newEntity(init?: Partial<Entity>): Entity {
