@@ -121,7 +121,6 @@ export default class Ecs<Entity extends {
 
     // Remove entities from world
     for (const [e, v] of this.toBeRemovedIterator()) {
-      console.log(e);
       this.removeFromView(e, v ?? undefined);
     }
 
@@ -235,15 +234,22 @@ export default class Ecs<Entity extends {
 
     const last = entities.length - 1;
 
-    const temp = entities[last];
+    const lastEnt = entities[last];
 
-    if (!temp) return false;
+    if (!lastEnt) return false;
 
     entities[last] = entity;
-    entities[i] = temp;
+    entities[i] = lastEnt;
+    entToIndex.set(lastEnt, i);
     entities.pop();
 
     return true;
+  }
+
+  clear() {
+    for (const e of this.entities) {
+      this.remove(e);
+    }
   }
 
   remove(entity: Entity) {
