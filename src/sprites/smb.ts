@@ -1,16 +1,13 @@
 import { UnwrapLazyLoader } from "../spriteUtils/lazy-loader"
-import marioLoader from "./loaders/smb1/mario"
+import newMarioLoader from "./loaders/smb1/mario"
 
-export type Smb1MarioSprites = UnwrapLazyLoader<typeof marioLoader>;
+export type Smb1MarioSprites = UnwrapLazyLoader<ReturnType<typeof newMarioLoader>>;
 
 let loadCalled = false;
+let newMarioCalled = false;
 let marioLoaded = false;
 let readyResolve = () => {};
 const marioPromise = new Promise<void>(res => readyResolve = res);
-marioLoader.whenReady().then(() => {
-  marioLoaded = true;
-  readyResolve();
-});
 
 // Filters:
 // https://filters.pixijs.download/main/docs/index.html
@@ -21,10 +18,21 @@ export const smb1Sprites = {
   async loadAll() {
     if (loadCalled) return;
     loadCalled = true;
+    const marioLoader = newMarioLoader();
     marioLoader.get();
+    if (!newMarioCalled) marioLoader.whenReady().then(() => {
+      marioLoaded = true;
+      readyResolve();
+    });
   },
 
-  getMario() {
+  newMario() {
+    const marioLoader = newMarioLoader();
+    if (!(newMarioCalled || loadCalled)) marioLoader.whenReady().then(() => {
+      marioLoaded = true;
+      readyResolve();
+    });
+    newMarioCalled = true;
     return marioLoader.get();
   },
 

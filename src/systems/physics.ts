@@ -26,7 +26,7 @@ function addRemoveToSHT(type: "dynamic" | "static" | "kinematic") {
 
     const last = list.at(-1);
     list.pop();
-    if (last) {
+    if (last && list.length > 0) {
       list[e[indexType]] = last;
       last.userData[indexType] = e[indexType];
     };

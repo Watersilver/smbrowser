@@ -38,6 +38,7 @@ class Display {
   private effects = new Container();
   private view = new Container();
 
+  private currentFPS = 0;
   private biggestFPS = 0;
   private smallestFPS = Infinity;
   private biggestFPSView = this.biggestFPS;
@@ -48,6 +49,7 @@ class Display {
 
   private updateFps(dt: number) {
     const fps = Math.floor(1 / dt);
+    this.currentFPS = fps;
     if (this.smallestFPS > fps) this.smallestFPS = fps;
     if (this.biggestFPS < fps) this.biggestFPS = fps;
     if (this.fpsDisplay) this.fpsDisplay.innerHTML = "fps: " + fps + "<br>max-fps: " + this.biggestFPSView + "<br>min-fps: " + this.smallestFPSView;
@@ -58,15 +60,21 @@ class Display {
     });
   }
 
+  getFps() {
+    return this.currentFPS;
+  }
+
+  /** Max fps last second */
+  getMaxFps() {
+    return this.biggestFPSView;
+  }
+
+  /** Min fps last second */
+  getMinFps() {
+    return this.smallestFPSView;
+  }
+
   showFps() {
-    if (this.fpsInterval !== undefined) return;
-    this.fpsInterval = window.setInterval(() => {
-      this.biggestFPSView = this.biggestFPS;
-      this.biggestFPS = 0;
-      this.smallestFPSView = this.smallestFPS;
-      this.smallestFPS = Infinity;
-    }, 1000);
-    this.updateFps(Infinity);
     this.fpsDisplay = document.createElement('div');
     this.fpsDisplay.style.color = "red";
     this.fpsDisplay.style.position = "fixed";
@@ -79,9 +87,24 @@ class Display {
   }
 
   hideFps() {
+    this.fpsDisplay?.remove();
+    this.fpsDisplay = undefined;
+  }
+
+  countFps() {
+    if (this.fpsInterval !== undefined) return;
+    this.fpsInterval = window.setInterval(() => {
+      this.biggestFPSView = this.biggestFPS;
+      this.biggestFPS = 0;
+      this.smallestFPSView = this.smallestFPS;
+      this.smallestFPS = Infinity;
+    }, 1000);
+    this.updateFps(Infinity);
+  }
+
+  stopFpsCount() {
     clearInterval(this.fpsInterval);
     this.fpsInterval = undefined;
-    this.fpsDisplay?.remove();
   }
 
   constructor() {
@@ -149,6 +172,12 @@ class Display {
     this.computeBoundingBox();
   }
 
+  getCanvas() {
+    const view = this.renderer.view;
+    if (!(view instanceof HTMLCanvasElement)) return;
+    return view;
+  }
+
   setBGColor(c: any) {
     this.renderer.background.backgroundColor.setValue(c);
   }
@@ -210,6 +239,10 @@ class Display {
 
   getMousePos(): [x: number, y: number] {
     return this.fromViewport(this.mousex * this.width, this.mousey * this.height);
+  }
+
+  getMouseViewportPos(): [x: number, y: number] {
+    return [this.mousex * this.width, this.mousey * this.height];
   }
 
   getCenterX() { return this.pivotx; }
@@ -357,3 +390,5 @@ class Display {
 
 const display = new Display();
 export default display;
+
+export type {Display};

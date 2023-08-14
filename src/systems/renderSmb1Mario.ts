@@ -127,8 +127,5 @@ export default function renderSmb1Mario(dt: number) {
 
       a.update(dt);
     }
-
-    display.setScale(3);
-    display.setCenter(e.position.x, 0);
   }
 }

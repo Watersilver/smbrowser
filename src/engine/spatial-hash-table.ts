@@ -20,7 +20,15 @@ export default class SpatialHashTable<UserData> {
     this.size = size;
   }
 
-  readonly cells: Map<string, Cell<UserData>> = new Map();
+  private readonly cells: Map<string, Cell<UserData>> = new Map();
+
+  getCells(): ReadonlyMap<string, Cell<UserData>> {
+    return this.cells;
+  }
+
+  clear() {
+    return this.cells.clear();
+  }
 
   private initCell(i: number, j: number) {
     const cell: Cell<UserData> = [];

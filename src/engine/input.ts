@@ -104,16 +104,30 @@ type KeyCode =
 | "Insert"
 | "Delete"
 
+type MouseButton =
+| "MouseMain"
+| "MouseAuxiliary"
+| "MouseSecondary"
+
 export default class Input {
   private prev: Set<string> = new Set();
   private current: Set<string> = new Set();
   private held: Set<string> = new Set();
 
+  private nextWheel?: WheelEvent;
+  private wheel?: WheelEvent;
+
   private stopper: () => void = () => {};
 
   private isRunning = false;
 
-  constructor() {
+  private mouseTarget?: HTMLElement;
+
+  constructor(mouseTarget?: HTMLElement) {
+    this.mouseTarget = mouseTarget;
+    if (this.mouseTarget) {
+      this.mouseTarget.addEventListener('contextmenu', e => e.preventDefault());
+    }
     this.start();
   }
 
@@ -122,34 +136,72 @@ export default class Input {
     for (const b of this.current) this.prev.add(b);
     this.current.clear();
     for (const b of this.held) this.current.add(b);
+    this.wheel = this.nextWheel;
+    this.nextWheel = undefined;
   }
 
-  isPressed(key: KeyCode) {
-    return this.current.has(key) && !this.prev.has(key);
+  getWheel() {
+    return this.wheel;
   }
 
-  isHeld(key: KeyCode) {
-    return this.current.has(key) && this.prev.has(key);
+  isPressed(button: KeyCode | MouseButton) {
+    return this.current.has(button) && !this.prev.has(button);
   }
 
-  isReleased(key: KeyCode) {
-    return !this.current.has(key) && this.prev.has(key);
+  isHeld(button: KeyCode | MouseButton) {
+    return this.current.has(button) && this.prev.has(button);
+  }
+
+  isReleased(button: KeyCode | MouseButton) {
+    return !this.current.has(button) && this.prev.has(button);
   }
 
   start() {
+    this.isRunning = true;
+
+    const wheelHandler = (e: WheelEvent) => this.nextWheel = e;
+    const mousedownHandler = (e: MouseEvent) => {
+      const button: MouseButton =
+        e.button === 1
+        ? "MouseAuxiliary"
+        : e.button === 2
+        ? "MouseSecondary"
+        : "MouseMain";
+      this.held.add(button);
+    }
+    const mouseupHandler = (e: MouseEvent) => {
+      const button: MouseButton =
+        e.button === 1
+        ? "MouseAuxiliary"
+        : e.button === 2
+        ? "MouseSecondary"
+        : "MouseMain";
+      this.held.delete(button);
+    }
     const keydownHandler = (e: KeyboardEvent) => {
       this.held.add(e.code);
     };
     const keyupHandler = (e: KeyboardEvent) => {
       this.held.delete(e.code);
     };
-    this.isRunning = true;
+
     addEventListener('keydown', keydownHandler);
     addEventListener('keyup', keyupHandler);
+    if (this.mouseTarget) {
+      this.mouseTarget.addEventListener('mousedown', mousedownHandler);
+      this.mouseTarget.addEventListener('mouseup', mouseupHandler);
+      this.mouseTarget.addEventListener('wheel', wheelHandler);
+    }
+
     this.stopper = () => {
       this.isRunning = false;
       removeEventListener('keydown', keydownHandler);
       removeEventListener('keyup', keyupHandler);
+      if (this.mouseTarget) {
+        this.mouseTarget.removeEventListener('mousedown', mousedownHandler);
+        this.mouseTarget.removeEventListener('mouseup', mouseupHandler);
+        this.mouseTarget.addEventListener('wheel', wheelHandler);
+      }
     };
   }
 

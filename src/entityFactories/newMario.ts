@@ -64,6 +64,6 @@ export default function newMario(x: number, y: number) {
     },
     floorSpeed: 0,
     gravity: 0,
-    smb1MarioAnimations: smb1Sprites.getMario()
+    smb1MarioAnimations: smb1Sprites.newMario()
   }))
 }

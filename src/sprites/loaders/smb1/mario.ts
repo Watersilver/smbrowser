@@ -74,7 +74,7 @@ const marioSmb1Json = {
 
 const mSS = new SpritesheetWrapper(image, marioSmb1Json);
 
-const marioLoader = new LazyLoader(() => {
+const newMarioLoader = () => new LazyLoader(() => {
   const marioSprites = AnimationsGroup.from(
     mSS,
     mSS.getAnimations(),
@@ -86,4 +86,4 @@ const marioLoader = new LazyLoader(() => {
   return marioSprites;
 });
 
-export default marioLoader;
+export default newMarioLoader;
