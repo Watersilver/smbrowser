@@ -87,9 +87,11 @@ export default class SpritesheetWrapper<T extends {
     }
   }
 
+  private unparsed = true;
   async parse() {
     if (this.ready) return;
-    this.ready = true;
+    if (!this.unparsed) return await this.readyPromise;
+    this.unparsed = false;
 
     // Load base image
     const texture = await Assets.load(this.src);
@@ -118,6 +120,7 @@ export default class SpritesheetWrapper<T extends {
     await this.sheet.parse();
     utils.clearTextureCache();
 
+    this.ready = true;
     this.resolveReady();
   }
 

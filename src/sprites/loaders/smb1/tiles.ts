@@ -1,7 +1,7 @@
 import SpritesheetWrapper from "../../../spriteUtils/spritesheet-wrapper"
-import image from '../../../assets/NES - Super Mario Bros - Mario & Luigi.png'
-import { LazyLoader } from "../../../spriteUtils/lazy-loader";
+import image from '../../../assets/smb1tileset.png'
 import SpritesGroup from "../../../spriteUtils/sprites-group";
+import SpriteWrapperFactory from "../spritewrapper-factory";
 
 const tilesSmb1Json = {
   frames: {
@@ -16,16 +16,22 @@ const tilesSmb1Json = {
 
 const tSS = new SpritesheetWrapper(image, tilesSmb1Json);
 
-const newTilesLoader = () => new LazyLoader(() => {
-  const tilesSprites = SpritesGroup.from(
-    tSS,
-    tSS.getFrames(),
-    'block'
-  );
-  // tilesSprites.setFrameAnchor('bigJump', {x: 0.5, y: 0.57});
-  // tilesSprites.setFrameAnchor('bigShootJump', {x: 0.5, y: 0.57});
-  // tilesSprites.setFrameAnchor('bigDuck', {x: 0.5, y: 0.62});
-  return tilesSprites;
-});
+export type Smb1TilesSprites = SpritesGroup<{readonly [frame in typeof tSS['frames'][number]]: any}>;
 
-export default newTilesLoader;
+class Smb1TilesFactory extends SpriteWrapperFactory<typeof tSS, Smb1TilesSprites> {
+  protected override produce() {
+    const tileSprites = SpritesGroup.from(
+      tSS,
+      tSS.getFrames(),
+      'block'
+    );
+    // tilesSprites.setFrameAnchor('bigJump', {x: 0.5, y: 0.57});
+    // tilesSprites.setFrameAnchor('bigShootJump', {x: 0.5, y: 0.57});
+    // tilesSprites.setFrameAnchor('bigDuck', {x: 0.5, y: 0.62});
+    return tileSprites;
+  }
+}
+
+const smb1tilesFactory = new Smb1TilesFactory(tSS);
+
+export default smb1tilesFactory;

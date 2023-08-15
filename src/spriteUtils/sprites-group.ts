@@ -22,14 +22,14 @@ export default class SpritesGroup<T extends {[frame: string]: Texture<Resource>}
       frames.forEach(a => textures[a] = sw.getFrame(a));
       return new SpritesGroup(textures, init);
     } else {
-      const ag = new SpritesGroup(textures, init);
-      ag.ready = false;
-      ag.readyPromise = sw.parse().then(() => {
+      const sg = new SpritesGroup(textures, init);
+      sg.ready = false;
+      sg.readyPromise = sw.parse().then(() => {
         frames.forEach(a => textures[a] = sw.getFrame(a));
-        ag.load(textures);
-        ag.ready = true;
+        sg.load(textures);
+        sg.ready = true;
       });
-      return ag;
+      return sg;
     }
   }
 
@@ -38,20 +38,24 @@ export default class SpritesGroup<T extends {[frame: string]: Texture<Resource>}
       (this.textures as any)[k] = v;
     }
     // Force texture refresh by changing current frame to an invalid one
-    const anim = this.frame;
-    this.frame = anim.toString() + "s";
-    this.setFrame(this.frame);
+    this.forceSetFrame(this.frame);
   }
 
   constructor(textures: T, init: keyof T) {
     super();
     this.textures = textures;
     this.frame = init;
-    this.setFrame(init);
+    this.forceSetFrame(this.frame);
   }
 
   setFrameAnchor(frame: keyof T, anchor: {x: number, y: number}) {
     this.anchors.set(frame, anchor);
+  }
+
+  private forceSetFrame(frame: keyof T) {
+    // Force texture refresh by changing current frame to an invalid/different one
+    this.frame = frame.toString() + "s";
+    this.setFrame(frame);
   }
 
   /**

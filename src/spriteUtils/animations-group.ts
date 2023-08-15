@@ -42,21 +42,24 @@ export default class AnimationsGroup<T extends {[animation: string]: Texture<Res
     for (const [k, v] of Object.entries(textures)) {
       (this.textures as any)[k] = v;
     }
-    // Force animation to refresh by changing current animation to an invalid one
-    const anim = this.animation;
-    this.animation = anim.toString() + "s";
-    this.setAnimation(this.animation);
+    this.forceSetAnimation(this.animation);
   }
 
   constructor(textures: T, init: keyof T) {
     super();
     this.textures = textures;
     this.animation = init;
-    this.setAnimation(init);
+    this.forceSetAnimation(this.animation);
   }
 
   setAnimationAnchor(animation: keyof T, anchor: {x: number, y: number}) {
     this.anchors.set(animation, anchor);
+  }
+
+  private forceSetAnimation(animation: keyof T) {
+    // Force animation to refresh by changing current animation to an invalid one
+    this.animation = animation.toString() + "s";
+    this.setAnimation(animation);
   }
 
   /**

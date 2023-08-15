@@ -3,12 +3,18 @@ import entities from "../entities";
 
 entities.onPropChange('smb1MarioAnimations', (e, a) => {
   if (a?.container.parent) a?.container.removeFromParent();
-  if (e.smb1MarioAnimations?.container) display.add(e.smb1MarioAnimations.container);
+  if (e.smb1MarioAnimations?.container) {
+    if (a) {
+      a.container.position.x = e.position.x;
+      a.container.position.y = e.position.y;
+    }
+    display.add(e.smb1MarioAnimations.container);
+  }
 });
 
 entities.onRemoving(['smb1MarioAnimations'], e => {
   if (e.smb1MarioAnimations?.container.parent) {
-    e.smb1MarioAnimations?.container.removeFromParent();
+    e.smb1MarioAnimations.container.removeFromParent();
   }
 });
 
@@ -74,7 +80,11 @@ export default function renderSmb1Mario(dt: number) {
       } else {
         mario.swimLoops = 0;
         if (mario.ducking || mario.forcedDucking) {
-          a.setAnimation('bigDuck');
+          if (mario.big) {
+            a.setAnimation('bigDuck');
+          } else {
+            a.setAnimation('smallDie');
+          }
         } else if (mario.jumping) {
           if (mario.big) {
             if (mario.shooting) {

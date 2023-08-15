@@ -10,6 +10,7 @@ import entities, { Entity } from "../entities";
 import parseLevel from "../systems/parseLevel";
 import { EntityTypeMapping, LevelData } from "../types";
 import culling from "../systems/culling";
+import renderSmb1Tiles from "../systems/renderSmb1Tiles";
 
 // TODO: Camera clamper polygon
 
@@ -101,6 +102,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
   override onStart(init: LevelEditorInit | null): void {
     if (!init) return;
     entities.clear();
+    entities.update();
     this.scale = display.getScale();
     this.graphics = init.graphics;
     this.input = init.input;
@@ -188,6 +190,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     culling(display);
     debugRender(this.graphics);
     renderSmb1Mario(dt);
+    renderSmb1Tiles();
     marioSmb1Sounds();
 
     return true;

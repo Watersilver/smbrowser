@@ -21,6 +21,7 @@ import marioSmb1Sounds from "../systems/marioSmb1Sounds";
 import resetStuff from "../systems/resetStuff";
 import entities from "../entities";
 import culling from "../systems/culling";
+import renderSmb1Tiles from "../systems/renderSmb1Tiles";
 
 export type GameplayInit = {
   graphics: Graphics;
@@ -132,6 +133,7 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
     culling(display);
     debugRender(this.graphics);
     renderSmb1Mario(dt);
+    renderSmb1Tiles();
     marioSmb1Sounds();
 
     // Camera

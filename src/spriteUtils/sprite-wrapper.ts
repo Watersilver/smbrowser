@@ -8,6 +8,7 @@ export default abstract class SpriteWrapper extends Loadable {
 
   constructor() {
     super();
+    this.container.cullable = true;
     this.sprite = new Sprite(dummyTexture);
     this.container.addChild(this.sprite);
   }

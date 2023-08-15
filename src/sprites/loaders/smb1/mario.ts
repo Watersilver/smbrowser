@@ -76,7 +76,7 @@ const mSS = new SpritesheetWrapper(image, marioSmb1Json);
 
 export type Smb1MarioSprites = AnimationsGroup<{readonly [animation in typeof mSS['animations'][number]]: any}>;
 
-class MarioFactory extends SpriteWrapperFactory<typeof mSS, Smb1MarioSprites> {
+class Smb1MarioFactory extends SpriteWrapperFactory<typeof mSS, Smb1MarioSprites> {
   protected override produce() {
     const marioSprites = AnimationsGroup.from(
       mSS,
@@ -86,10 +86,11 @@ class MarioFactory extends SpriteWrapperFactory<typeof mSS, Smb1MarioSprites> {
     marioSprites.setAnimationAnchor('bigJump', {x: 0.5, y: 0.57});
     marioSprites.setAnimationAnchor('bigShootJump', {x: 0.5, y: 0.57});
     marioSprites.setAnimationAnchor('bigDuck', {x: 0.5, y: 0.62});
+    marioSprites.container.zIndex = 1;
     return marioSprites;
   }
 }
 
-const marioFactory = new MarioFactory(mSS);
+const smb1marioFactory = new Smb1MarioFactory(mSS);
 
-export default marioFactory;
+export default smb1marioFactory;
