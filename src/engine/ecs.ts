@@ -30,6 +30,8 @@ export default class Ecs<Entity extends {
   private toBeRemoved: Set<Entity> = new Set();
   private toBeAdded: Set<Entity> = new Set();
 
+  number() { return this.entities.length; }
+
   private hasComponent(e: {[c: string]: unknown}, c: string) {
     return e[c] !== undefined;
   }
