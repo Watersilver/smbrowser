@@ -31,3 +31,19 @@ body {
   max-height: 100%;
   object-fit: contain;
 }
+
+button {
+  background-color: #eee;
+  border-radius: 7px;
+}
+button:hover {
+  background-color: #ddd;
+}
+
+button.selected {
+  background-color: #afb;
+  border-color: #afb;
+}
+button.selected:hover {
+  background-color: #aeb;
+}
