@@ -1,7 +1,7 @@
 import AnimationsGroup from "../../../spriteUtils/animations-group";
 import SpritesheetWrapper from "../../../spriteUtils/spritesheet-wrapper"
 import image from '../../../assets/NES - Super Mario Bros - Mario & Luigi.png'
-import { LazyLoader } from "../../../spriteUtils/lazy-loader";
+import SpriteWrapperFactory from "../spritewrapper-factory";
 
 const marioSmb1Json = {
   frames: {
@@ -74,16 +74,22 @@ const marioSmb1Json = {
 
 const mSS = new SpritesheetWrapper(image, marioSmb1Json);
 
-const newMarioLoader = () => new LazyLoader(() => {
-  const marioSprites = AnimationsGroup.from(
-    mSS,
-    mSS.getAnimations(),
-    'smallIdle'
-  );
-  marioSprites.setAnimationAnchor('bigJump', {x: 0.5, y: 0.57});
-  marioSprites.setAnimationAnchor('bigShootJump', {x: 0.5, y: 0.57});
-  marioSprites.setAnimationAnchor('bigDuck', {x: 0.5, y: 0.62});
-  return marioSprites;
-});
+export type Smb1MarioSprites = AnimationsGroup<{readonly [animation in typeof mSS['animations'][number]]: any}>;
 
-export default newMarioLoader;
+class MarioFactory extends SpriteWrapperFactory<typeof mSS, Smb1MarioSprites> {
+  protected override produce() {
+    const marioSprites = AnimationsGroup.from(
+      mSS,
+      mSS.getAnimations(),
+      'smallIdle'
+    );
+    marioSprites.setAnimationAnchor('bigJump', {x: 0.5, y: 0.57});
+    marioSprites.setAnimationAnchor('bigShootJump', {x: 0.5, y: 0.57});
+    marioSprites.setAnimationAnchor('bigDuck', {x: 0.5, y: 0.62});
+    return marioSprites;
+  }
+}
+
+const marioFactory = new MarioFactory(mSS);
+
+export default marioFactory;

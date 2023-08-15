@@ -1,13 +1,15 @@
 import { UnwrapLazyLoader } from "../spriteUtils/lazy-loader"
-import newMarioLoader from "./loaders/smb1/mario"
+import marioFactory from "./loaders/smb1/mario"
+import newTilesLoader from "./loaders/smb1/tiles"
 
-export type Smb1MarioSprites = UnwrapLazyLoader<ReturnType<typeof newMarioLoader>>;
+export type Smb1Tiles = UnwrapLazyLoader<ReturnType<typeof newTilesLoader>>;
 
 let loadCalled = false;
-let newMarioCalled = false;
-let marioLoaded = false;
-let readyResolve = () => {};
-const marioPromise = new Promise<void>(res => readyResolve = res);
+
+let newTilesCalled = false;
+let tilesLoaded = false;
+let tilesReadyResolve = () => {};
+const tilesPromise = new Promise<void>(res => tilesReadyResolve = res);
 
 // Filters:
 // https://filters.pixijs.download/main/docs/index.html
@@ -18,29 +20,30 @@ export const smb1Sprites = {
   async loadAll() {
     if (loadCalled) return;
     loadCalled = true;
-    const marioLoader = newMarioLoader();
-    marioLoader.get();
-    if (!newMarioCalled) marioLoader.whenReady().then(() => {
-      marioLoaded = true;
-      readyResolve();
+    if (marioFactory.getState() === 'standby') {
+      marioFactory.new();
+    }
+  },
+
+  newTile() {
+    const tileLoader = newTilesLoader();
+    if (!(newTilesCalled || loadCalled)) tileLoader.whenReady().then(() => {
+      tilesLoaded = true;
+      tilesReadyResolve();
     });
+    newTilesCalled = true;
+    return tileLoader.get();
   },
 
   newMario() {
-    const marioLoader = newMarioLoader();
-    if (!(newMarioCalled || loadCalled)) marioLoader.whenReady().then(() => {
-      marioLoaded = true;
-      readyResolve();
-    });
-    newMarioCalled = true;
-    return marioLoader.get();
+    return marioFactory.new();
   },
 
   getLoadingProgress() {
-    return marioLoaded ? 1 : 0;
+    return marioFactory.getState() === "ready" ? 1 : 0;
   },
 
   async whenReady() {
-    await Promise.all([marioPromise]);
+    await Promise.all([marioFactory.whenReady(), tilesPromise]);
   }
 }

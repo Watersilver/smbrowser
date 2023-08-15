@@ -1,5 +1,5 @@
 import { Ecs, Vec2d } from "./engine"
-import type { Smb1MarioSprites } from "./sprites/smb";
+import { Smb1MarioSprites } from "./sprites/loaders/smb1/mario";
 
 export type Entity = {
   positionStart: Vec2d;
