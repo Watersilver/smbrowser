@@ -60,7 +60,7 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
   override onUpdate(dt: number): boolean {
     if (!this.graphics || !this.input) return false;
 
-    if (this.input.isPressed('KeyT')) return false;
+    if (this.input.isPressed('Space')) return false;
 
     entities.update();
 
@@ -136,7 +136,7 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
 
     // Camera
     for (const e of entities.view(['mario'])) {
-      display.setScale(2.5);
+      display.setScale(2);
       display.setCenter(e.position.x, e.position.y);
     }
 

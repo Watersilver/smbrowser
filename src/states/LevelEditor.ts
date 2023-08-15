@@ -33,8 +33,8 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
   spanVel = new Vec2d(0, 0);
   grid: {
     [position: string]: {
-        gameObj: Entity;
-        init: [type: EntityTypeMapping, x: number, y: number, init?: {}, custom?: Entity];
+      gameObj: Entity;
+      init: [type: EntityTypeMapping, x: number, y: number, init?: {}, custom?: Entity];
     };
   } = {};
 
@@ -57,6 +57,47 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     }
   }
 
+  toolsCont: HTMLDivElement;
+  entityCount: HTMLDivElement;
+  marioSelect: HTMLButtonElement;
+  exteriorFloorSelect: HTMLButtonElement;
+  tileSelectors: HTMLDivElement;
+  prevSelected: EntityTypeMapping | null = null;
+  selected: EntityTypeMapping | null = null;
+
+  constructor() {
+    super();
+
+    const entCountDisplay = document.createElement('div');
+    this.entityCount = document.createElement('div');
+    entCountDisplay.style.display = "flex";
+    entCountDisplay.style.alignItems = 'center';
+    const label = document.createElement('div');
+    label.innerHTML = "Entities:";
+    entCountDisplay.append(label, this.entityCount);
+
+    this.tileSelectors = document.createElement('div');
+    this.tileSelectors.style.padding = '20px';
+    this.tileSelectors.style.display = 'flex';
+    this.tileSelectors.style.flexWrap = 'wrap';
+    this.tileSelectors.style.gap = '10px';
+
+    this.marioSelect = document.createElement('button');
+    this.marioSelect.innerHTML = "mario";
+    this.marioSelect.onclick = () => this.selected = EntityTypeMapping.mario;
+
+    this.exteriorFloorSelect = document.createElement('button');
+    this.exteriorFloorSelect.innerHTML = "Exterior floor";
+    this.exteriorFloorSelect.onclick = () => this.selected = EntityTypeMapping.block;
+
+    this.tileSelectors.append(this.marioSelect, this.exteriorFloorSelect);
+
+    this.toolsCont = document.createElement('div');
+    this.toolsCont.style.backgroundColor = 'white';
+    this.toolsCont.style.display = 'flex';
+    this.toolsCont.append(entCountDisplay, this.tileSelectors);
+  }
+
   override onStart(init: LevelEditorInit | null): void {
     if (!init) return;
     entities.clear();
@@ -68,9 +109,23 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       const ld = parseLevel(this.levelDataInit);
       this.grid = ld.grid;
     }
+
+    // Create tools
+    const tools = document.getElementById('tools');
+    const cont = document.createElement('div');
+    tools?.append(cont);
+    cont.style.backgroundColor = 'white';
+    cont.style.display = 'flex';
+    cont.append(this.toolsCont);
   }
 
   override onEnd(): [output: LevelEditorInit | null, next: 'gameplay'] {
+    // Remove tools
+    const tools = document.getElementById('tools');
+    if (tools) tools.innerHTML = '';
+
+    this.levelDataInit = JSON.stringify({entities: Object.values(this.grid).map(v => v.init)});
+
     if (!this.graphics || !this.input) return [null, 'gameplay'];
     const graphics = this.graphics;
     const input = this.input;
@@ -81,11 +136,29 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
   }
 
   override onUpdate(dt: number): boolean {
+    if (this.selected !== this.prevSelected) {
+      this.prevSelected = this.selected;
+      for (const s of this.tileSelectors.children) {
+        s.classList.remove('selected');
+      }
+      switch (this.selected) {
+        case EntityTypeMapping.mario: {
+          this.marioSelect.classList.add('selected');
+          break;
+        }
+        case EntityTypeMapping.block: {
+          this.exteriorFloorSelect.classList.add('selected');
+          break;
+        }
+      }
+    }
+
     if (!this.graphics || !this.input) return false;
 
-    if (this.input.isPressed('KeyT')) return false;
+    if (this.input.isPressed('Space')) return false;
 
     entities.update();
+    this.entityCount.innerHTML = entities.number().toString();
 
     this.graphics.clear();
 
@@ -95,14 +168,14 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       if (del) {
         this.remove(mx, my);
       } else {
-        const x = (Math.floor(mx / 16) * 16) + 8;
-        const y = (Math.floor(my / 16) * 16) + 8;
+        const x = (Math.floor(mx / 16) * 16);
+        const y = (Math.floor(my / 16) * 16);
         const key = x + "." + y;
         const prev = this.grid[key];
-        if (!prev) {
+        if (!prev && this.selected) {
           this.add([
-            EntityTypeMapping.block,
-            x, y
+            this.selected,
+            x + 8, y + 8
           ]);
         }
       }
