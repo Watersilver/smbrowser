@@ -23,6 +23,7 @@ export default class SpritesheetWrapper<T extends {
   private filters?: Filter[];
   private sheet?: Spritesheet;
   private readonly animations: (keyof NonNullable<T['animations']>)[];
+  private readonly frames: (keyof NonNullable<T['frames']>)[];
   private texture?: Texture;
   private renderTexture?: RenderTexture;
   private transparency?: readonly RGBRange[];
@@ -43,6 +44,7 @@ export default class SpritesheetWrapper<T extends {
       this.json.frames[frame] = {frame: position};
     }
 
+    this.frames = [...Object.keys(json.frames ?? {})];
     this.animations = [...Object.keys(json.animations ?? {})];
 
     if (json.animations) {
@@ -137,5 +139,9 @@ export default class SpritesheetWrapper<T extends {
 
   getAnimations() {
     return [...this.animations];
+  }
+
+  getFrames() {
+    return [...this.frames];
   }
 }
