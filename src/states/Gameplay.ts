@@ -138,7 +138,7 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
 
     // Camera
     for (const e of entities.view(['mario'])) {
-      display.setScale(2);
+      display.setScale(3);
       display.setCenter(e.position.x, e.position.y);
     }
 

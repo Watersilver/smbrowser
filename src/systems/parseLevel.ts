@@ -22,7 +22,8 @@ export default function parseLevel(levelData: string | LevelData) {
         break;
       }
       case EntityTypeMapping.block: {
-        ent = newBlock(entInit[1], entInit[2]);
+        const frame = entInit[3]?.tileFrame;
+        ent = newBlock(entInit[1], entInit[2], frame);
         break;
       }
       case EntityTypeMapping.kinematic: {

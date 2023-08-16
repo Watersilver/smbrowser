@@ -11,6 +11,9 @@ import parseLevel from "../systems/parseLevel";
 import { EntityTypeMapping, LevelData } from "../types";
 import culling from "../systems/culling";
 import renderSmb1Tiles from "../systems/renderSmb1Tiles";
+import newMario from "../entityFactories/newMario";
+import smb1marioFactory from "../sprites/loaders/smb1/mario";
+import smb1tilesFactory, { Smb1TilesSprites } from "../sprites/loaders/smb1/tiles";
 
 // TODO: Camera clamper polygon
 
@@ -65,6 +68,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
   tileSelectors: HTMLDivElement;
   prevSelected: EntityTypeMapping | null = null;
   selected: EntityTypeMapping | null = null;
+  solidFrame?: Smb1TilesSprites['frame'] = undefined;
 
   constructor() {
     super();
@@ -87,9 +91,46 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     this.marioSelect.innerHTML = "mario";
     this.marioSelect.onclick = () => this.selected = EntityTypeMapping.mario;
 
+    const m = smb1marioFactory.new();
+    m?.whenReady().then(() => {
+      this.marioSelect.innerHTML = '';
+      const img = document.createElement('img');
+      img.alt = 'mario';
+      this.marioSelect.append(img);
+
+      const dURL = m.getDataUrl();
+      if (!dURL) return;
+      img.src = dURL;
+    });
+
     this.exteriorFloorSelect = document.createElement('button');
-    this.exteriorFloorSelect.innerHTML = "Exterior floor";
+    this.exteriorFloorSelect.innerHTML = "solid";
     this.exteriorFloorSelect.onclick = () => this.selected = EntityTypeMapping.block;
+
+    const t = smb1tilesFactory.new();
+    t?.whenReady().then(() => {
+      this.exteriorFloorSelect.innerHTML = '';
+      const img = document.createElement('img');
+      img.alt = 'solid';
+      this.exteriorFloorSelect.append(img);
+
+      const dURL = t.getDataUrl();
+      if (!dURL) return;
+      img.src = dURL;
+
+      this.exteriorFloorSelect.addEventListener('wheel', e => {
+        const frames = t.getFrames();
+        const i = frames.findIndex(f => f === t.getFrame());
+        this.solidFrame = frames.at((i + Math.sign(e.deltaY)) % frames.length);
+        if (this.solidFrame) {
+          t.setFrame(this.solidFrame);
+        }
+
+        const dURL = t.getDataUrl();
+        if (!dURL) return;
+        img.src = dURL;
+      });
+    });
 
     this.tileSelectors.append(this.marioSelect, this.exteriorFloorSelect);
 
@@ -102,7 +143,6 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
   override onStart(init: LevelEditorInit | null): void {
     if (!init) return;
     entities.clear();
-    entities.update();
     this.scale = display.getScale();
     this.graphics = init.graphics;
     this.input = init.input;
@@ -175,10 +215,18 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
         const key = x + "." + y;
         const prev = this.grid[key];
         if (!prev && this.selected) {
-          this.add([
-            this.selected,
-            x + 8, y + 8
-          ]);
+          if (this.solidFrame && this.solidFrame !== 'solidFloor1') {
+            this.add([
+              this.selected,
+              x + 8, y + 8,
+              {tileFrame: this.solidFrame}
+            ]);
+          } else {
+            this.add([
+              this.selected,
+              x + 8, y + 8
+            ]);
+          }
         }
       }
     }

@@ -33,17 +33,17 @@ class Loading extends State<'test', LevelEditorInit | null, LevelEditorInit | nu
       ],
     ];
     for (let i = -30; i < 20; i++) {
-      if (i !== 14) ents.push([EntityTypeMapping.block, i * 16, 100]);
+      if (i !== 14) ents.push([EntityTypeMapping.block, i * 16+8, 16*5+8]);
     }
-    ents.push([EntityTypeMapping.block, -9 * 16, 100 - 16]);
-    ents.push([EntityTypeMapping.block, -19 * 16, 100 - 16]);
-    ents.push([EntityTypeMapping.block, -19 * 16, 100 - 16 * 2]);
-    ents.push([EntityTypeMapping.block, -19 * 16, 100 - 16 * 3]);
-    ents.push([EntityTypeMapping.block, -19 * 16, 100 - 16 * 4]);
-    ents.push([EntityTypeMapping.block, -19 * 16, 100 - 16 * 5]);
-    ents.push([EntityTypeMapping.block, 20 * 16, 100 - 16]);
-    ents.push([EntityTypeMapping.block, -16, 100 - 16 * 3]);
-    ents.push([EntityTypeMapping.block, -16 * 4, 100 - 16 * 2]);
+    ents.push([EntityTypeMapping.block, -9 * 16+8, 16*5+8 - 16]);
+    ents.push([EntityTypeMapping.block, -19 * 16+8, 16*5+8 - 16]);
+    ents.push([EntityTypeMapping.block, -19 * 16+8, 16*5+8 - 16 * 2]);
+    ents.push([EntityTypeMapping.block, -19 * 16+8, 16*5+8 - 16 * 3]);
+    ents.push([EntityTypeMapping.block, -19 * 16+8, 16*5+8 - 16 * 4]);
+    ents.push([EntityTypeMapping.block, -19 * 16+8, 16*5+8 - 16 * 5]);
+    ents.push([EntityTypeMapping.block, 20 * 16+8, 16*5+8 - 16]);
+    ents.push([EntityTypeMapping.block, -16+8, 16*5+8 - 16 * 3]);
+    ents.push([EntityTypeMapping.block, -16 * 4+8, 16*5+8 - 16 * 2]);
     ents.push([EntityTypeMapping.kinematic, 0, 0]);
     return [this.g ? {
       graphics: this.g?.graphics,
