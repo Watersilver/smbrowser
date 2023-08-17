@@ -1,6 +1,8 @@
 import image from '../../../../assets/smb1tileset.png'
 import SpritesheetWrapper from "../../../../spriteUtils/spritesheet-wrapper";
 
+// gutter problems:
+// https://www.html5gamedevs.com/topic/49927-textures-from-spritesheet-include-edges-of-other-sprites/
 const tilesSmb1Json = {
   frames: {
     solidFloor1: {x:0,y:16,w:16,h:16},
@@ -10,6 +12,7 @@ const tilesSmb1Json = {
     solidCastleBlock: {x:0,y:151,w:16,h:16},
     solidUnderwaterBlock: {x:147,y:134,w:16,h:16},
     solidUnderwaterSeaweed: {x:215,y:297,w:16,h:16},
+    solidBridge: {x:34,y:33,w:16,h:16},
     solidBulletBillBody: {x:119,y:33,w:16,h:16},
     solidBulletBillBase: {x:119,y:50,w:16,h:16},
     solidGreenShroomLeft: {x:0,y:196,w:16,h:16},
@@ -64,10 +67,40 @@ const tilesSmb1Json = {
     solidOrangePipeTopHeadRight: {x:136,y:196+84 * 2,w:16,h:16},
     solidOrangePipeTopBodyLeft: {x:119,y:213+84 * 2,w:16,h:16},
     solidOrangePipeTopBodyRight: {x:136,y:213+84 * 2,w:16,h:16},
+    brick1: {x:17,y:16,w:16,h:16},
+    brick2: {x:164,y:16,w:16,h:16},
+    brick3: {x:17,y:100,w:16,h:16},
+    brickBottom1: {x:34,y:16,w:16,h:16},
+    brickBottom2: {x:181,y:16,w:16,h:16},
+    brickBottom3: {x:34,y:100,w:16,h:16},
+    blockHit1: {x:51,y:16,w:16,h:16},
+    blockHit2: {x:198,y:16,w:16,h:16},
+    blockHit3: {x:51,y:100,w:16,h:16},
+    block1: {x:298,y:78,w:16,h:16},
+    block2: {x:315,y:78,w:16,h:16},
+    block3: {x:332,y:78,w:16,h:16},
+    blockInvisible: {x:349,y:78,w:16,h:16},
+    blockDisguised: {x:349,y:95,w:16,h:16},
+    coin1: {x:298,y:95,w:16,h:16},
+    coin2: {x:315,y:95,w:16,h:16},
+    coin3: {x:332,y:95,w:16,h:16},
+    clutterGreenPipeBodyVerticalLeft: {x:346,y:214,w:16,h:16},
+    clutterGreenPipeBodyVerticalRight: {x:363,y:214,w:16,h:16},
+    clutterGreenPipeBodyHorizontalTop: {x:380,y:231,w:16,h:16},
+    clutterGreenPipeBodyHorizontalBotton: {x:380,y:248,w:16,h:16},
+    clutterGreenPipeConntectorTL: {x:346,y:231,w:16,h:16},
+    clutterGreenPipeConntectorTR: {x:363,y:231,w:16,h:16},
+    clutterGreenPipeConntectorBL: {x:346,y:248,w:16,h:16},
+    clutterGreenPipeConntectorBR: {x:363,y:248,w:16,h:16},
+  },
+
+  animations: {
+    block: ['block1', 'block2', 'block3'],
+    coin: ['coin1', 'coin2', 'coin3']
   },
 
   transparency: [
-    {r: {from: 0.57, to: 0.58}, g: {from: 0.56, to: 0.57}, b: {from: 0.99, to: 1}},
+    {r: {from: 0.579, to: 0.581}, g: {from: 0.579, to: 0.581}, b: {from: 0.99, to: 1}},
     {r: {from: 0, to: 0.01}, g: {from: 0.16, to: 0.17}, b: {from: 0.54, to: 0.55}}
   ]
 } as const;

@@ -40,10 +40,13 @@ export default function mouseCamMove(
   const w = input.getWheel();
   if (w) {
     if (w.deltaY < 0) {
-      obj.scale += 0.1;
+      // obj.scale += 0.1;
+      obj.scale *= 1.1;
     } else {
-      obj.scale -= 0.1;
+      // obj.scale -= 0.1;
+      obj.scale /= 1.1;
     }
+    if (obj.scale < 0.1) obj.scale = 0.1;
   }
 
   if (prevScale !== obj.scale) {

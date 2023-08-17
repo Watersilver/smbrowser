@@ -83,6 +83,7 @@ class Smb1MarioFactory extends SpriteWrapperFactory<typeof mSS, Smb1MarioSprites
       mSS.getAnimations(),
       'smallIdle'
     );
+    marioSprites.setAnimationAnchor('smallJump', {x: 0.5, y: 0.55});
     marioSprites.setAnimationAnchor('bigJump', {x: 0.5, y: 0.57});
     marioSprites.setAnimationAnchor('bigShootJump', {x: 0.5, y: 0.57});
     marioSprites.setAnimationAnchor('bigDuck', {x: 0.5, y: 0.62});
