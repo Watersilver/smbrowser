@@ -182,11 +182,11 @@ export default class Ecs<Entity extends {
     const entity = new Proxy(target, {
       deleteProperty: (t, p) => {
         const handler = self.propChangeHandlers.get(p);
+        const prev = t[p];
+        const removed = delete t[p];
         if (handler) {
-          const prev = t[p];
           handler({...t}, prev);
         }
-        const removed = delete t[p];
         const e = self.targetToProxy.get(t);
         if (removed && e) self.hadCompsRemoved.add(e);
         return removed;
