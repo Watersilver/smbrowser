@@ -246,6 +246,8 @@ export default class Ecs<Entity extends {
     entToIndex.set(lastEnt, i);
     entities.pop();
 
+    if (!entities.length) entToIndex.clear();
+
     return true;
   }
 
