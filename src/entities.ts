@@ -1,4 +1,5 @@
 import { Ecs, Vec2d } from "./engine"
+import { Smb1TilesAnimations } from "./sprites/loaders/smb1/animated-tiles";
 import { Smb1MarioSprites } from "./sprites/loaders/smb1/mario";
 import { Smb1TilesSprites } from "./sprites/loaders/smb1/tiles";
 
@@ -112,6 +113,15 @@ export type Entity = {
   floorSpeedY?: number;
   smb1MarioAnimations?: Smb1MarioSprites;
   smb1TilesSprites?: Smb1TilesSprites;
+  smb1TilesAnimations?: Smb1TilesAnimations;
+  smb1TilesSpritesEditMode?: Smb1TilesSprites;
+  invisibleBlock?: boolean;
+  brick?: boolean;
+  coinblock?: 'coin' | 'coins' | 'pow' | 'life' | 'star';
+  coinblockDeathTimer?: number;
+  hitAnim?: number;
+  bonk?: boolean;
+  smash?: boolean;
 }
 
 export function newEntity(init?: Partial<Entity>): Entity {

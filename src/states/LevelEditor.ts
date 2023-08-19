@@ -612,7 +612,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     culling(display);
     debugRender(this.graphics);
     renderSmb1Mario(dt);
-    renderSmb1Tiles();
+    renderSmb1Tiles(dt, true);
     renderEdit(this.graphics, this.graphicsOverlay);
     marioSmb1Sounds();
 

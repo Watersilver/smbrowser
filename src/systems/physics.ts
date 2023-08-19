@@ -165,6 +165,9 @@ export default function physics(dt: number) {
         collidee.size.y = u.h;
         const [hit, col] = dynamicRectVsRect(collider, collidee);
         if (hit) {
+          if (u.userData.invisibleBlock) {
+            if (!(col.normal.y > 0)) continue;
+          }
           const correction = d.userData.dynamic.velocity.abs().elementwiseMul(col.normal).mul(1-col.time);
           d.userData.dynamic.velocity.x += correction.x;
           d.userData.dynamic.velocity.y += correction.y;
@@ -179,5 +182,10 @@ export default function physics(dt: number) {
     // if (store correction maybe) {
     //   d.userData.dynamicVelocityComponents['collisionCorrection'] = collisionVelCorrection;
     // }
+
+    // TODO:
+    // There still is some clunkiness with the physics system hitting
+    // edges when landing or jumping and messing up player momentum.
+    // It's probably here to stay...
   }
 }

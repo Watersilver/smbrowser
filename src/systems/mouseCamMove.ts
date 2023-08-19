@@ -20,7 +20,7 @@ export default function mouseCamMove(
   obj.mousePrevY = obj.mouseY;
   [obj.mouseX, obj.mouseY] = display.getMouseViewportPos();
 
-  if (input.isHeld("MouseSecondary")) {
+  if (input.isHeld("MouseSecondary") || input.isHeld('MouseAuxiliary')) {
     const [px, py] = display.fromViewport(obj.mousePrevX, obj.mousePrevY);
     const [x, y] = display.fromViewport(obj.mouseX, obj.mouseY);
     obj.spanVel.x = (px - x) / dt;

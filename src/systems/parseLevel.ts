@@ -1,9 +1,11 @@
 import { Vec2d } from "../engine";
 import entities, { Entity, newEntity } from "../entities";
+import newCoinblock from "../entityFactories/newCoinblock";
 import newBlock from "../entityFactories/newBlock";
 import newClutter from "../entityFactories/newClutter";
 import newMario from "../entityFactories/newMario";
 import { EntityTypeMapping, LevelData } from "../types";
+import newBrick from "../entityFactories/newBrick";
 
 export default function parseLevel(levelData: string | LevelData) {
   // GOOD LUCK!!
@@ -35,7 +37,7 @@ export default function parseLevel(levelData: string | LevelData) {
         }
         case EntityTypeMapping.brick: {
           const frame = entInit[3]?.tileFrame;
-          ent = newBlock(entInit[1], entInit[2], frame);
+          ent = newBrick(entInit[1], entInit[2], frame);
           break;
         }
         case EntityTypeMapping.coin: {
@@ -50,7 +52,7 @@ export default function parseLevel(levelData: string | LevelData) {
         }
         case EntityTypeMapping.coinblock: {
           const frame = entInit[3]?.tileFrame;
-          ent = newBlock(entInit[1], entInit[2], frame);
+          ent = newCoinblock(entInit[1], entInit[2], frame);
           break;
         }
         case EntityTypeMapping.kinematic: {

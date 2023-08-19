@@ -22,6 +22,7 @@ import resetStuff from "../systems/resetStuff";
 import entities from "../entities";
 import culling from "../systems/culling";
 import renderSmb1Tiles from "../systems/renderSmb1Tiles";
+import blockhit from "../systems/blockhit";
 
 export type GameplayInit = {
   graphics: Graphics;
@@ -126,14 +127,17 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
 
     marioSizeHandler();
 
-    // Reset volocities to state before components were added
+    // Reset velocities to state before components were added
     removeSpeedComponents();
+
+    // Check if hit block with head
+    blockhit(dt);
 
     // Render
     culling(display);
     debugRender(this.graphics);
     renderSmb1Mario(dt);
-    renderSmb1Tiles();
+    renderSmb1Tiles(dt);
     marioSmb1Sounds();
 
     // Camera
