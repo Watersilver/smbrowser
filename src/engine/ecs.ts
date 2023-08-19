@@ -233,6 +233,7 @@ export default class Ecs<Entity extends {
 
     const i = entToIndex.get(entity);
     if (i === undefined) return false;
+    entToIndex.delete(entity);
 
     const last = entities.length - 1;
 
