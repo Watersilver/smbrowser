@@ -243,10 +243,11 @@ export default class Ecs<Entity extends {
 
     entities[last] = entity;
     entities[i] = lastEnt;
-    entToIndex.set(lastEnt, i);
-    entities.pop();
+    const popped = entities.pop();
 
-    if (!entities.length) entToIndex.clear();
+    if (popped !== lastEnt) {
+      entToIndex.set(lastEnt, i);
+    }
 
     return true;
   }
