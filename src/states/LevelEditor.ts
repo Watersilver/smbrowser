@@ -10,7 +10,7 @@ import entities, { Entity } from "../entities";
 import parseLevel from "../systems/parseLevel";
 import { EntityTypeMapping, LevelData } from "../types";
 import culling from "../systems/culling";
-import renderSmb1Tiles from "../systems/renderSmb1Tiles";
+import renderSmb1Stuff from "../systems/renderSmb1Stuff";
 import smb1marioFactory from "../sprites/loaders/smb1/mario";
 import smb1tilesFactory, { Smb1TilesSprites } from "../sprites/loaders/smb1/tiles";
 import level from '../assets/level.json';
@@ -612,7 +612,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     culling(display);
     debugRender(this.graphics);
     renderSmb1Mario(dt);
-    renderSmb1Tiles(dt, true);
+    renderSmb1Stuff(dt, true);
     renderEdit(this.graphics, this.graphicsOverlay);
     marioSmb1Sounds();
 

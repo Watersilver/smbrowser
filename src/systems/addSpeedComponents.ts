@@ -51,4 +51,13 @@ export default function addSpeedComponents() {
       e.floorSpeed = addXComponent(d.velocity, e.floorSpeed);
     }
   }
+
+  // for (const e of entities.view(['dynamic', 'movement'])) {
+  //   const d = e.dynamic;
+  //   if (!d) continue;
+  //   const h = e.movement?.horizontal;
+  //   if (!h) continue;
+
+  //   addXComponent(d.velocity, h);
+  // }
 }

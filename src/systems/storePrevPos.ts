@@ -8,7 +8,11 @@ entities.onAdding([], e => {
 });
 
 export default function storePrevPos() {
-  for (const ent of entities.view(['dynamic', 'kinematic'])) {
+  for (const ent of entities.view(['dynamic'])) {
+    ent.positionPrev.x = ent.position.x;
+    ent.positionPrev.y = ent.position.y;
+  }
+  for (const ent of entities.view(['kinematic'])) {
     ent.positionPrev.x = ent.position.x;
     ent.positionPrev.y = ent.position.y;
   }

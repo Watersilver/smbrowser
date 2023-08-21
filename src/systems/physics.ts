@@ -26,7 +26,7 @@ function addRemoveToSHT(type: "dynamic" | "static" | "kinematic") {
 
     const last = list.at(-1);
     list.pop();
-    if (last && list.length > 0) {
+    if (last && last !== u) {
       list[e[indexType]] = last;
       last.userData[indexType] = e[indexType];
     };
@@ -93,6 +93,11 @@ export default function physics(dt: number) {
     collider.size.y = h;
     collider.dr.x = dr.x;
     collider.dr.y = dr.y;
+
+    // Hatchet job fix for collision funkiness on edges
+    if (d.userData.mario?.jumped) {
+      collider.size.y--;
+    }
 
     // Store potential collisions
     const collisions: [edginess: number, u: {l: number, t: number, w: number, h: number, userData: Entity}][] = [];

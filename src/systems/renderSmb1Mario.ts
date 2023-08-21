@@ -1,22 +1,4 @@
-import display from "../display";
 import entities from "../entities";
-
-entities.onPropChange('smb1MarioAnimations', (e, a) => {
-  if (a?.container.parent) a?.container.removeFromParent();
-  if (e.smb1MarioAnimations?.container) {
-    if (a) {
-      a.container.position.x = e.position.x;
-      a.container.position.y = e.position.y;
-    }
-    display.add(e.smb1MarioAnimations.container);
-  }
-});
-
-entities.onRemoving(['smb1MarioAnimations'], e => {
-  if (e.smb1MarioAnimations?.container.parent) {
-    e.smb1MarioAnimations.container.removeFromParent();
-  }
-});
 
 export default function renderSmb1Mario(dt: number) {
   for (const e of entities.view(['mario', 'smb1MarioAnimations'])) {
@@ -28,8 +10,6 @@ export default function renderSmb1Mario(dt: number) {
     const accelMagn = accel ? Math.abs(accel.x) : 0;
     const isIdle = speed < Number.EPSILON * 2 && accelMagn < Number.EPSILON * 2;
     if (a && mario) {
-      a.container.position.x = e.position.x;
-      a.container.position.y = e.position.y;
       a.container.scale.x = mario.facing;
 
       if (mario.grounded) {

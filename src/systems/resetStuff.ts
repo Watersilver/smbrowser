@@ -27,6 +27,9 @@ export default function resetStuff() {
   for (const ent of entities.view(['mario'])) {
     if (ent.mario) {
       ent.mario.changedSize = false;
+      ent.mario.gainedPow = false;
+      ent.mario.shot = false;
+      ent.mario.gainedOneUp = false;
     }
   }
 

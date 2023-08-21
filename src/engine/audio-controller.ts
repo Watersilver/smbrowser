@@ -5,7 +5,16 @@ type MusicInput<T extends string> = {
   name?: T | null;
   loopStart?: number;
   loopEnd?: number;
-}
+};
+
+type ReadonlyMusicInput<T extends string> = {
+  readonly fadeOutPrev?: number;
+  readonly fadeIn?: number;
+  readonly silence?: number;
+  readonly name?: T | null;
+  readonly loopStart?: number;
+  readonly loopEnd?: number;
+};
 
 function connectNodes(first: AudioNode, ...nodes: AudioNode[]) {
   let current = first;
@@ -212,6 +221,10 @@ class MusicPlayer<T extends string> extends AudioContainer<T> {
     if (this.state !== "silence") {
       this.state = "changed";
     }
+  }
+
+  getMusic(): ReadonlyMusicInput<T> | undefined {
+    return this.currentData;
   }
 }
 

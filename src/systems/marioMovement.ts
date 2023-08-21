@@ -253,12 +253,12 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
         mario.shooting -= dt;
         if (mario.shooting <= 0) mario.shooting = 0;
       }
-      if (mario.powerup === "fire") {
+      if (mario.powerup === "fire" && mario.big) {
         if (i.attack && !mario.shooting && !ducking) {
           mario.shooting = 1/10;
+          mario.shot = true;
         }
       }
     }
-
   }
 }

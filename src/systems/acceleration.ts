@@ -1,4 +1,4 @@
-import entities from "../entities";
+import entities, { Entity } from "../entities";
 
 export default function acceleration(dt: number) {
   for (const e of entities.view(['dynamic'])) {
@@ -11,7 +11,51 @@ export default function acceleration(dt: number) {
     if (!e.smash) continue;
     const d = e.dynamic;
     if (d) {
-      d.velocity.y = Math.max(d.velocity.y, -100);
+      d.velocity.y = Math.max(d.velocity.y, 0);
+    }
+  }
+  for (const e of entities.view(['mushroom', 'touchingDown'])) {
+    const farthestHit = e.touchingDown?.reduce((a: Entity | undefined, c): Entity | undefined => {
+      if (c.hitAnim === undefined) return a;
+      if (!a) return c;
+      if (
+        Math.abs(c.position.x - e.position.x)
+        >
+        Math.abs(a.position.x - e.position.x)
+      ) {
+        return c;
+      }
+      return a;
+    }, undefined);
+    const bonkedFromBelow = !!e.touchingDown?.find(h => h.bonked);
+    if (bonkedFromBelow) {
+      if (e.movement) {
+        e.movement.bounce = -100;
+        e.movement.bounceOnce = true;
+        e.movement.bounceNow = true;
+      }
+    }
+    if (farthestHit) {
+      if (e.movement?.horizontal) {
+        const dir = Math.sign(e.position.x - farthestHit.position.x);
+        e.movement.horizontal = Math.abs(e.movement.horizontal) * dir;
+        e.movement.horizontalNow = true;
+      }
+    }
+  }
+  for (const e of entities.view(['dynamic', 'movement'])) {
+    const d = e.dynamic;
+    const m = e.movement;
+    if (d && m) {
+      if (m.bounceNow) {
+        d.velocity.y = m.bounce ?? 0;
+        if (m.bounceOnce) {
+          m.bounce = undefined;
+        }
+      }
+      if (m.horizontalNow) {
+        d.velocity.x = m.horizontal ?? 0;
+      }
     }
   }
   for (const e of entities.view(['kinematic'])) {

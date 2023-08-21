@@ -21,8 +21,11 @@ import marioSmb1Sounds from "../systems/marioSmb1Sounds";
 import resetStuff from "../systems/resetStuff";
 import entities from "../entities";
 import culling from "../systems/culling";
-import renderSmb1Tiles from "../systems/renderSmb1Tiles";
+import renderSmb1Stuff from "../systems/renderSmb1Stuff";
 import blockhit from "../systems/blockhit";
+import movement from "../systems/movement";
+import dynamicCollisions from "../systems/dynamicCollisions";
+import marioPowerups from "../systems/marioPowerups";
 
 export type GameplayInit = {
   graphics: Graphics;
@@ -133,11 +136,17 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
     // Check if hit block with head
     blockhit(dt);
 
+    movement();
+
+    dynamicCollisions();
+
+    marioPowerups(dt);
+
     // Render
     culling(display);
     debugRender(this.graphics);
     renderSmb1Mario(dt);
-    renderSmb1Tiles(dt);
+    renderSmb1Stuff(dt);
     marioSmb1Sounds();
 
     // Camera

@@ -1,10 +1,13 @@
 import { getSmb1Audio } from "../audio";
 import entities from "../entities";
-import didHitHead from "./utils/didHitHead";
 
 const audio = getSmb1Audio();
 
 const swimSoundOptions = {stopPrev: {same: true}};
+
+entities.onAdding(['coinFromBlockLife'], () => {
+  audio.sounds.play('coin');
+});
 
 export default function marioSmb1Sounds() {
   for (const e of entities.view(['mario'])) {
@@ -29,12 +32,30 @@ export default function marioSmb1Sounds() {
           audio.sounds.play('pipe');
         }
       }
+
+      if (m.gainedPow) {
+        audio.sounds.play('powerup');
+      }
+
+      if (m.shot) {
+        audio.sounds.play('fireball');
+      }
+
+      if (m.gainedOneUp) {
+        audio.sounds.play('oneUp');
+      }
     }
   }
 
-  for (const e of entities.view(['mario', 'hits', 'prevHits'])) {
-    if (e.bonk) {
+  for (const e of entities.view(['bonk'])) {
+    if (e.bonk && !e.smash) {
       audio.sounds.play('bump');
+    }
+  }
+
+  for (const e of entities.view(['smash'])) {
+    if (e.smash) {
+      audio.sounds.play('breakblock');
     }
   }
 }

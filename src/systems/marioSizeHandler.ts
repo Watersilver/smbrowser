@@ -1,4 +1,3 @@
-import { Graphics } from "pixi.js";
 import { Vec2d } from "../engine";
 import { dynamicRectVsRect } from "../engine/aabb";
 import entities from "../entities";

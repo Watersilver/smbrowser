@@ -1,6 +1,8 @@
 import { Ecs, Vec2d } from "./engine"
+import { Smb1ObjectsAnimations } from "./sprites/loaders/smb1/animated-objects";
 import { Smb1TilesAnimations } from "./sprites/loaders/smb1/animated-tiles";
 import { Smb1MarioSprites } from "./sprites/loaders/smb1/mario";
+import { Smb1ObjectsSprites } from "./sprites/loaders/smb1/objects";
 import { Smb1TilesSprites } from "./sprites/loaders/smb1/tiles";
 
 export type Entity = {
@@ -86,13 +88,19 @@ export type Entity = {
     surface?: boolean;
     big?: boolean;
     changedSize?: boolean;
+    gainedPow?: boolean;
+    gainedOneUp?: boolean;
     ducking?: boolean;
     forcedDucking?: boolean;
     grounded?: boolean;
     swimLoops?: number;
     prevGrounded?: boolean;
     shooting?: number;
+    shot?: boolean;
     powerup?: "fire";
+    star?: number;
+    coins: number;
+    lives: number;
 
     // Use same mechanism for wind and whirlpools
     wind?: number;
@@ -113,7 +121,9 @@ export type Entity = {
   floorSpeedY?: number;
   smb1MarioAnimations?: Smb1MarioSprites;
   smb1TilesSprites?: Smb1TilesSprites;
+  smb1ObjectsSprites?: Smb1ObjectsSprites;
   smb1TilesAnimations?: Smb1TilesAnimations;
+  smb1ObjectsAnimations?: Smb1ObjectsAnimations;
   smb1TilesSpritesEditMode?: Smb1TilesSprites;
   invisibleBlock?: boolean;
   brick?: boolean;
@@ -122,7 +132,27 @@ export type Entity = {
   hitAnim?: number;
   bonk?: boolean;
   smash?: boolean;
-}
+  bonkCooldown?: number;
+  smashCooldown?: number;
+  brokenBrick?: {
+    side: 1 | -1;
+    velocity: Vec2d;
+  };
+  grow?: number;
+  movement?: {
+    horizontal?: number;
+    horizontalNow?: boolean;
+    bounce?: number;
+    bounceNow?: boolean;
+    bounceOnce?: boolean;
+  };
+  mushroom?: boolean;
+  oneUp?: boolean;
+  powerup?: boolean;
+  star?: boolean;
+  bonked?: boolean;
+  coinFromBlockLife?: number;
+};
 
 export function newEntity(init?: Partial<Entity>): Entity {
   const newEnt: Entity = {

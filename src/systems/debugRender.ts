@@ -1,5 +1,6 @@
 import { Graphics } from "pixi.js";
 import entities from "../entities";
+import display from "../display";
 
 export default function debugRender(graphics: Graphics) {
   for (const ent of entities.view(['kinematic'])) {

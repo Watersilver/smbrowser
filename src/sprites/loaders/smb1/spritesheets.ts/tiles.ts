@@ -130,11 +130,14 @@ const tilesSmb1Json = {
     clutterGreenPipeConntectorTR: {x:363,y:231,w:16,h:16},
     clutterGreenPipeConntectorBL: {x:346,y:248,w:16,h:16},
     clutterGreenPipeConntectorBR: {x:363,y:248,w:16,h:16},
+    brokenBrick1: {x:102,y:50,w:8,h:8},
+    brokenBrick2: {x:249,y:50,w:8,h:8},
+    brokenBrick3: {x:102,y:134,w:8,h:8},
   },
 
   animations: {
     block: ['block1', 'block2', 'block3'],
-    coin: ['coin1', 'coin2', 'coin3']
+    coin: ['coin1', 'coin2', 'coin3'],
   },
 
   transparency: [

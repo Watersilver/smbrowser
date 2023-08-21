@@ -21,4 +21,13 @@ export default function removeSpeedComponents() {
       e.floorSpeed = 0;
     }
   }
+
+  // for (const e of entities.view(['dynamic', 'movement'])) {
+  //   const d = e.dynamic;
+  //   if (!d) continue;
+
+  //   if (e.movement?.horizontal) {
+  //     d.velocity.x -= e.movement.horizontal;
+  //   }
+  // }
 }

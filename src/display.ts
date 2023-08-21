@@ -318,12 +318,12 @@ class Display {
 
   /** Checks if point inside bounding box */
   containsBroad(point: {x: number, y: number}) {
-    pointVsRect(point, this.boundingBoxRectData);
+    return pointVsRect(point, this.boundingBoxRectData);
   }
 
   /** Checks if react overlaps bounding box */
   overlapsRectBroad(rect: {pos: {x: number; y: number;}; size: {x: number; y: number;}}) {
-    rectVsRect(rect, this.boundingBoxRectData);
+    return rectVsRect(rect, this.boundingBoxRectData);
   }
 
   clamp(l: number, t: number, w: number, h: number) {
