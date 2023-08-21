@@ -1,4 +1,4 @@
-import {autoDetectRenderer, Color, Container, DisplayObject} from "pixi.js"
+import {autoDetectRenderer, Container, DisplayObject} from "pixi.js"
 import { pointVsRect, rectVsRect } from "./engine/aabb"
 
 type TransformEffect = Generator<{x?: number; y?: number; angle?: number; scale?: number}, void, void>;
