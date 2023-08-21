@@ -94,13 +94,13 @@ export default function physics(dt: number) {
     collider.dr.x = dr.x;
     collider.dr.y = dr.y;
 
-    // Hatchet job fix for collision funkiness on edges
+    // Hatchet job fix for collision funkiness on corners when jumping
     if (d.userData.mario?.jumped) {
       collider.size.y--;
     }
 
     // Store potential collisions
-    const collisions: [edginess: number, u: {l: number, t: number, w: number, h: number, userData: Entity}][] = [];
+    const collisions: [edginess: number, u: {l: number, t: number, w: number, h: number, userData: Entity}, time: number][] = [];
     for (const u of worldGrid.statics.findNear(d.l, d.t, d.w, d.h)) {
       if (u === d) continue;
 
@@ -112,7 +112,7 @@ export default function physics(dt: number) {
       const [hit, col] = dynamicRectVsRect(collider, collidee);
 
       if (hit) {
-        collisions.push([col.edginess, u]);
+        collisions.push([col.edginess, u, col.time]);
       }
     }
     for (const u of worldGrid.kinematics.findNear(d.l, d.t, d.w, d.h)) {
@@ -128,20 +128,39 @@ export default function physics(dt: number) {
       const [hit, col] = dynamicRectVsDynamicRect(collider, collidee);
 
       if (hit) {
-        collisions.push([col.edginess, u]);
+        collisions.push([col.edginess, u, col.time]);
       }
     }
 
+    // let wut = false;
+
     // sort collisions by closest
     const sorted = collisions
-    // using edginess (how close to an edge our collision point is)
+    // using time
+    .sort((a, b) => a[2] - b[2])
+    // using edginess (how close to a corner our collision point is)
     // adjusted: was collision time, but some times it would be zero and still resulted in getting stuck to edges
     .sort((a, b) => b[0] - a[0]);
+
+    // Hatchet job fix for collision funkiness on corners when landing
+    // Problem must be caused by floating point error.
+    // After a vertical collision has been resolved we get another
+    // collision with an object of the same top coordinate
+    // presumably because of the error in the updatedDr calculation:
+    // const updatedDr = d.userData.dynamic.velocity.mul(dt);
+    // fix by ignoring all top coordinates greater than resolved
+    // for normals that point up and ignoring all bottoms lesser
+    // than resolved otherwise. Note that the latter again introduces
+    // floating point error because we need the top + the size to
+    // calculate it. However if the collided entities have exactly
+    // the same dimensions this doesn't cause problems.
+    let verticalResolvedY: number | null = null;
+    let verticalResolvedNormal = 0;
 
     // resolve collisions
     // const collisionVelCorrection = new Vec2d(0, 0);
     for (const [_, u] of sorted) {
-      const updatedDr = d.userData.dynamic.velocity.mul(dt);;
+      const updatedDr = d.userData.dynamic.velocity.mul(dt);
       collider.dr.x = updatedDr.x;
       collider.dr.y = updatedDr.y;
 
@@ -168,14 +187,37 @@ export default function physics(dt: number) {
         collidee.pos.y = u.t;
         collidee.size.x = u.w;
         collidee.size.y = u.h;
+
+        // Ignore collision if already vertically resolved for this height
+        if (verticalResolvedNormal && verticalResolvedY) {
+          if (verticalResolvedNormal < 0) {
+            if (collidee.pos.y >= verticalResolvedY) continue;
+          } else {
+            if (collidee.pos.y + collidee.size.y <= verticalResolvedY) continue;
+          }
+        }
+
         const [hit, col] = dynamicRectVsRect(collider, collidee);
         if (hit) {
           if (u.userData.invisibleBlock) {
             if (!(col.normal.y > 0)) continue;
           }
+
+          verticalResolvedNormal = Math.sign(col.normal.y);
+          if (verticalResolvedNormal < 0) {
+            verticalResolvedY = collidee.pos.y;
+          } else {
+            verticalResolvedY = collidee.pos.y + collidee.size.y;
+          }
+
           const correction = d.userData.dynamic.velocity.abs().elementwiseMul(col.normal).mul(1-col.time);
           d.userData.dynamic.velocity.x += correction.x;
           d.userData.dynamic.velocity.y += correction.y;
+
+          // if (Math.abs(correction.x) > 0) {
+          //   wut = true
+          // }
+
           // collisionVelCorrection.x += correction.x;
           // collisionVelCorrection.y += correction.y;
           if (d.userData.hits) d.userData.hits.push({e: u.userData, ...col});
@@ -184,13 +226,12 @@ export default function physics(dt: number) {
       }
     }
 
+    // if (wut && d.userData.hits) {
+    //   console.log(...d.userData.hits);
+    // }
+
     // if (store correction maybe) {
     //   d.userData.dynamicVelocityComponents['collisionCorrection'] = collisionVelCorrection;
     // }
-
-    // TODO:
-    // There still is some clunkiness with the physics system hitting
-    // edges when landing or jumping and messing up player momentum.
-    // It's probably here to stay...
   }
 }

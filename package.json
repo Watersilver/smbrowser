@@ -30,6 +30,7 @@
     "webpack-merge": "^5.9.0"
   },
   "dependencies": {
+    "pixi-filters": "^5.2.1",
     "pixi.js": "^7.2.4"
   }
 }

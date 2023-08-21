@@ -33,6 +33,8 @@ const systemUtils = {
         if (a) {
           a.container.position.x = e.position.x;
           a.container.position.y = e.position.y;
+
+          a.container.filters = e.filters ?? null;
         }
         display.add(cont);
       }
@@ -41,12 +43,22 @@ const systemUtils = {
     entities.onRemoving([p], e => {
       const cont = e[p]?.container;
       if (cont?.parent) {
+        cont.filters = null;
         cont.removeFromParent();
+      }
+    });
+
+    entities.onPropChange('filters', e => {
+      for (const r of handledRenderables) {
+        const cont = e[r as RenderProps]?.container;
+        if (cont) {
+          cont.filters = e.filters ?? null;
+        }
       }
     });
   },
 
-  updateRenderablePos(p: RenderProps) {
+  updateRenderable(p: RenderProps) {
     for (const e of entities.view(['dynamic', p])) {
       const a = e[p];
       if (!a) continue;

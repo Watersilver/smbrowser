@@ -1,3 +1,4 @@
+import { Filter } from "pixi.js";
 import { Ecs, Vec2d } from "./engine"
 import { Smb1ObjectsAnimations } from "./sprites/loaders/smb1/animated-objects";
 import { Smb1TilesAnimations } from "./sprites/loaders/smb1/animated-tiles";
@@ -105,6 +106,7 @@ export type Entity = {
     // Use same mechanism for wind and whirlpools
     wind?: number;
   };
+  filters?: Filter[];
   gravity?: number;
   underwater?: boolean;
   dynamicIndex: number;

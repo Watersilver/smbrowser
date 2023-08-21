@@ -58,8 +58,10 @@ export function rayVsRect(ray: Ray, rect: Rect):
   // Contact point of collision
   const point = ray.direction.mul(tNearHit).add(ray.origin);
 
-  // adjustment: calculate how close to an edge each contact point is to sort collisions instead of sorting by contact time
-  // Find out how close to an edge our point is
+  // adjustment: calculate how close to a corner each contact point
+  // is to sort collisions, instead of sorting by contact time
+
+  // Find out how close to a corner our point is
   const l1 = rect.pos.sub(point).length();
   const l2 = rect.pos.add(rect.size).sub(point).length();
   const l3 = rect.pos.add(new Vec2d(rect.size.x, 0)).sub(point).length();

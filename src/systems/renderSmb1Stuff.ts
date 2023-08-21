@@ -41,15 +41,15 @@ export default function renderSmb1Stuff(dt: number, editMode?: boolean) {
     }
   }
 
-  systemUtils.updateRenderablePos('smb1MarioAnimations');
-  systemUtils.updateRenderablePos('smb1ObjectsSprites');
-  systemUtils.updateRenderablePos('smb1TilesSprites');
-  systemUtils.updateRenderablePos('smb1ObjectsAnimations');
+  systemUtils.updateRenderable('smb1MarioAnimations');
+  systemUtils.updateRenderable('smb1ObjectsSprites');
+  systemUtils.updateRenderable('smb1TilesSprites');
+  systemUtils.updateRenderable('smb1ObjectsAnimations');
 
   if (editMode) {
-    systemUtils.updateRenderablePos('smb1TilesSpritesEditMode');
+    systemUtils.updateRenderable('smb1TilesSpritesEditMode');
   } else {
-    systemUtils.updateRenderablePos('smb1TilesAnimations');
+    systemUtils.updateRenderable('smb1TilesAnimations');
 
     const prevT = timing;
     timing = (timing + dt * 8 * 1.1) % 8;
