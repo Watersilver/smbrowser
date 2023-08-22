@@ -150,10 +150,9 @@ export default function physics(dt: number) {
     // const updatedDr = d.userData.dynamic.velocity.mul(dt);
     // fix by ignoring all top coordinates greater than resolved
     // for normals that point up and ignoring all bottoms lesser
-    // than resolved otherwise. Note that the latter again introduces
-    // floating point error because we need the top + the size to
-    // calculate it. However if the collided entities have exactly
-    // the same dimensions this doesn't cause problems.
+    // than resolved otherwise. Note that this again introduces
+    // floating point error. However if the collided entities have
+    // exactly the same dimensions this doesn't cause problems.
     let verticalResolvedY: number | null = null;
     let verticalResolvedNormal = 0;
 
@@ -189,7 +188,7 @@ export default function physics(dt: number) {
         collidee.size.y = u.h;
 
         // Ignore collision if already vertically resolved for this height
-        if (verticalResolvedNormal && verticalResolvedY) {
+        if (verticalResolvedNormal && verticalResolvedY !== null) {
           if (verticalResolvedNormal < 0) {
             if (collidee.pos.y >= verticalResolvedY) continue;
           } else {
@@ -206,8 +205,10 @@ export default function physics(dt: number) {
           verticalResolvedNormal = Math.sign(col.normal.y);
           if (verticalResolvedNormal < 0) {
             verticalResolvedY = collidee.pos.y;
-          } else {
+          } else if (verticalResolvedNormal > 0) {
             verticalResolvedY = collidee.pos.y + collidee.size.y;
+          } else {
+            verticalResolvedY = null;
           }
 
           const correction = d.userData.dynamic.velocity.abs().elementwiseMul(col.normal).mul(1-col.time);
@@ -227,7 +228,7 @@ export default function physics(dt: number) {
     }
 
     // if (wut && d.userData.hits) {
-    //   console.log(...d.userData.hits);
+    //   console.log(verticalResolvedNormal, verticalResolvedY, ...d.userData.hits);
     // }
 
     // if (store correction maybe) {
