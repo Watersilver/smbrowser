@@ -95,9 +95,9 @@ export default function physics(dt: number) {
     collider.dr.y = dr.y;
 
     // Hatchet job fix for collision funkiness on corners when jumping
-    if (d.userData.mario?.jumped) {
-      collider.size.y--;
-    }
+    // if (d.userData.mario?.jumped) {
+    //   collider.size.y--;
+    // }
 
     // Store potential collisions
     const collisions: [edginess: number, u: {l: number, t: number, w: number, h: number, userData: Entity}, time: number][] = [];
