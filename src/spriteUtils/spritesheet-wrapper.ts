@@ -76,7 +76,7 @@ export default class SpritesheetWrapper<T extends {
           ) {
             gl_FragColor = vec4(0.0,0.0,0.0,0.0);
           } else {
-            gl_FragColor = texture2D(uSampler, vTextureCoord);
+            gl_FragColor = c;
           }
         }
         `);
@@ -119,6 +119,38 @@ export default class SpritesheetWrapper<T extends {
     utils.clearTextureCache();
     await this.sheet.parse();
     utils.clearTextureCache();
+
+    // Pad the textures to avoid webgl bullcrap seams.
+    // Example of the problem https://www.html5gamedevs.com/topic/45418-what-to-do-about-edges-between-tiles/
+    for (const [k, t] of Object.entries(this.sheet.textures)) {
+      const paddedTexture = RenderTexture.create({
+        width: t.width + 2,
+        height: t.height + 2
+      });
+      const spr = Sprite.from(t);
+      for (const pos of [[0,0], [1,0], [2,0], [0,1], [2,1], [0,2], [1,2], [2,2], [1,1]]) {
+        spr.position.x = pos[0] ?? 0;
+        spr.position.y = pos[1] ?? 0;
+        display.renderer.render(spr, {renderTexture: paddedTexture});
+      }
+      this.sheet.textures[k] = paddedTexture;
+
+      // Not 100% sure why this works but it does.
+      // I originally though the it would result in bigger
+      // textures and I would need to crop them.
+      // Probably because texture dimensions are defined
+      // so even when providing bigger texture it uses them?
+      // But they are also centered correctly. No clue..
+    }
+
+    // Replace animations textures with padded textures
+    for (const anim of Object.values(this.sheet.animations)) {
+      for (let i = 0; i != anim.length; i++) {
+        const a = anim[i]?.textureCacheIds[0];
+        const t = a && this.sheet.textures[a];
+        if (t) anim[i] = t;
+      }
+    }
 
     this.ready = true;
     this.resolveReady();

@@ -1,15 +1,13 @@
 import './config'
 import { Graphics } from "pixi.js";
 import display from "./display"
-import { Input, Loop, Vec2d } from "./engine"
+import { Input, Loop } from "./engine"
 import State from "./engine/state-machine"
 import { getSmb1Audio } from "./audio";
 import LevelEditor, { LevelEditorInit } from './states/LevelEditor';
-import { EntityTypeMapping } from './types';
 import Gameplay from './states/Gameplay';
 
 display.setBGColor('#9290FF');
-display.setBGColor('#044');
 display.countFps();
 display.showFps();
 
