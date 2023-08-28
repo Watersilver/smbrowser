@@ -14,7 +14,7 @@ export default function newCoinFromBlock(x: number, y: number) {
   return entities.createEntity(newEntity({
     position: new Vec2d(x, y),
     size: new Vec2d(8, 16),
-    dynamic: {velocity: new Vec2d(0, 0), acceleration: new Vec2d(0, 0), grounded: false},
+    dynamic: {velocity: new Vec2d(0, 0), acceleration: new Vec2d(0, 0)},
     smb1ObjectsAnimations,
     coinFromBlockLife: 0.8
   }));

@@ -14,7 +14,6 @@ export type Entity = {
   dynamic?: {
     velocity: Vec2d;
     acceleration: Vec2d;
-    grounded: boolean;
   };
   kinematic?: {
     velocity: Vec2d;
@@ -106,6 +105,10 @@ export type Entity = {
     // Use same mechanism for wind and whirlpools
     wind?: number;
   };
+  fireball?: {
+    parent?: Entity;
+  };
+  fireballHit?: boolean;
   filters?: Filter[];
   gravity?: number;
   underwater?: boolean;

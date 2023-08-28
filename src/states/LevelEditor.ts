@@ -217,7 +217,9 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       img.style.width = "48px";
       img.style.height = '48px';
       img.alt = 'mario';
-      this.marioSelect.append(img);
+      const text = document.createElement('div');
+      text.innerHTML = img.alt;
+      this.marioSelect.append(img, text);
 
       const dURL = m.getDataUrl();
       if (!dURL) return;
@@ -235,7 +237,9 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       img.style.width = "48px";
       img.style.height = '48px';
       img.alt = 'solid';
-      this.solidSelect.append(img);
+      const text = document.createElement('div');
+      text.innerHTML = img.alt;
+      this.solidSelect.append(img, text);
 
       const dURL = t.getDataUrl();
       if (!dURL) return;
@@ -273,7 +277,9 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       img.style.width = "48px";
       img.style.height = '48px';
       img.alt = 'brick';
-      this.brickSelect.append(img);
+      const text = document.createElement('div');
+      text.innerHTML = img.alt;
+      this.brickSelect.append(img, text);
 
       const dURL = bricks.getDataUrl();
       if (!dURL) return;
@@ -311,7 +317,9 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       img.style.width = "48px";
       img.style.height = '48px';
       img.alt = 'clutter';
-      this.clutterSelect.append(img);
+      const text = document.createElement('div');
+      text.innerHTML = img.alt;
+      this.clutterSelect.append(img, text);
 
       const dURL = clutter.getDataUrl();
       if (!dURL) return;
@@ -350,7 +358,9 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       img.style.width = "48px";
       img.style.height = '48px';
       img.alt = 'block';
-      this.blockSelect.append(img);
+      const text = document.createElement('div');
+      text.innerHTML = img.alt;
+      this.blockSelect.append(img, text);
 
       const dURL = blocks.getDataUrl();
       if (!dURL) return;

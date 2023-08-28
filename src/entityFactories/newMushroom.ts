@@ -16,7 +16,6 @@ export default function newMushroom(x: number, y: number) {
     grow: 0,
     dynamic: {
       velocity: new Vec2d(0, 0),
-      grounded: false,
       acceleration: new Vec2d(0, 0)
     },
     mushroom: true,

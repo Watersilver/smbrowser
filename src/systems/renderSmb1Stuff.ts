@@ -80,9 +80,19 @@ export default function renderSmb1Stuff(dt: number, editMode?: boolean) {
           entities.remove(e);
         }
       }
+    }
 
-      if (e.smb1ObjectsAnimations) {
-        e.smb1ObjectsAnimations.update(dt);
+    for (const e of entities.view(['smb1ObjectsAnimations'])) {
+      const a = e.smb1ObjectsAnimations;
+      if (!a) continue;
+      a.update(dt);
+    }
+
+    for (const e of entities.view(['fireballHit', 'smb1ObjectsAnimations'])) {
+      if (e.smb1ObjectsAnimations?.didLoop()) {
+        entities.remove(e);
+        e.smb1ObjectsAnimations.container.visible = false;
+        delete e.smb1ObjectsAnimations;
       }
     }
   }

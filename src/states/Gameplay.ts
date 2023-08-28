@@ -26,6 +26,10 @@ import blockhit from "../systems/blockhit";
 import movement from "../systems/movement";
 import dynamicCollisions from "../systems/dynamicCollisions";
 import marioPowerups from "../systems/marioPowerups";
+import { getSmb1Audio } from "../audio";
+import fireballs from "../systems/fireballs";
+
+const audio = getSmb1Audio();
 
 export type GameplayInit = {
   graphics: Graphics;
@@ -45,14 +49,19 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
   scale = 1;
 
   private t = 0;
+  private paused = false;
 
   override onStart(init: GameplayInit | null): void {
+    this.paused = false;
+
     if (!init) return;
     this.graphics = init.graphics;
     this.input = init.input;
   }
 
   override onEnd(): [output: GameplayInit | null, next: 'editor'] {
+    this.paused = false;
+
     if (!this.graphics || !this.input) return [null, 'editor'];
     const graphics = this.graphics;
     const input = this.input;
@@ -66,6 +75,15 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
     if (!this.graphics || !this.input) return false;
 
     if (this.input.isPressed('Space')) return false;
+
+    const pausedPrev = this.paused;
+    if (this.input.isPressed('KeyP')) {
+      this.paused = !this.paused;
+    }
+
+    if (this.paused !== pausedPrev) {
+      audio.sounds.play('pause');
+    }
 
     entities.update();
 
@@ -103,60 +121,75 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
 
     this.graphics.clear();
 
-    // Sensors
-    detectTouching();
-    detectFloorSpeed();
+    if (!this.paused) {
 
-    // Inputs
-    marioPlayerInput(this.input, dt);
+      // Sensors
+      detectTouching();
+      detectFloorSpeed();
 
-    // Apply accelerations
-    gravity();
-    marioMovement(dt);
+      // Inputs
+      marioPlayerInput(this.input, dt);
 
-    // Modification of velocities
-    acceleration(dt);
-    addSpeedComponents();
+      // Apply accelerations
+      gravity();
+      marioMovement(dt);
 
-    // Limiting velocities
-    speedLimit();
+      fireballs();
 
-    // Final total velocity
-    physics(dt);
+      // Modification of velocities
+      acceleration(dt);
+      addSpeedComponents();
 
-    // Modification of position
-    storePrevPos();
-    velocity(dt);
+      // Limiting velocities
+      speedLimit();
 
-    marioSizeHandler();
+      // Final total velocity
+      physics(dt);
 
-    // Reset velocities to state before components were added
-    removeSpeedComponents();
+      // Modification of position
+      storePrevPos();
+      velocity(dt);
 
-    // Check if hit block with head
-    blockhit(dt);
+      marioSizeHandler();
 
-    movement();
+      // Reset velocities to state before components were added
+      removeSpeedComponents();
 
-    dynamicCollisions();
+      // Check if hit block with head
+      blockhit(dt);
 
-    marioPowerups(dt);
+      movement();
+
+      dynamicCollisions();
+
+      marioPowerups(dt);
+
+    }
 
     // Render
     culling(display);
     debugRender(this.graphics);
     renderSmb1Mario(dt);
     renderSmb1Stuff(dt);
-    marioSmb1Sounds();
+
+    if (!this.paused) {
+
+      marioSmb1Sounds();
+
+    }
 
     // Camera
     for (const e of entities.view(['mario'])) {
       display.setScale(3);
-      display.setCenter(e.position.x, e.position.y);
+      display.setCenter(e.position.x, e.position.y + e.size.y * 0.5 - 16);
     }
 
-    // Cleanup
-    resetStuff();
+    if (!this.paused) {
+
+      // Cleanup
+      resetStuff();
+
+    }
 
     return true;
   }

@@ -258,10 +258,10 @@ class SoundPlayer<T extends string> extends AudioContainer<T> {
 
   /**
    * @param name name of sound to be played. Ignore to play no sound
-   * @param options.stopPrev stops currently playing sound. Either immediatelly when provided true, or after seconds given by timeout. If same is true, only stops prev if it is the same sound.
+   * @param options.stopPrev stops currently playing sound. Either immediatelly when provided true, or after seconds given by timeout. If same is true, only stops prev if it is the same sound. If name is given only stops given names.
    * @param options.sleep prevents the same sound from being played again for given seconds
    */
-  play(name?: T | null, options?: {stopPrev?: boolean | {timeout?: number, same?: boolean}, sleep?: number}) {
+  play(name?: T | null, options?: {stopPrev?: boolean | {timeout?: number, same?: boolean, name?: T | T[]}, sleep?: number}) {
     // Only allow a particular sound to be played once per task
     if (name) {
       if (this.cached.has(name)) return;
@@ -285,6 +285,14 @@ class SoundPlayer<T extends string> extends AudioContainer<T> {
           for (const p of this.playing.values()) {
             if (p.name === name) {
               stop = true;
+              break;
+            }
+          }
+        }
+        if (stopPrev.name) {
+          for (const p of this.playing.values()) {
+            if (typeof stopPrev.name === 'string' ? stopPrev.name === p.name : stopPrev.name.findIndex(n => p.name === n) !== -1) {
+              p.volume.gain.value = 0;
               break;
             }
           }
