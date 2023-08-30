@@ -1,2 +1,2 @@
-# simple-aabb-physics
-Axis Aligned Bounding Box physics for the browser
+# smbrowser
+Super mario bros 1 for the browser
