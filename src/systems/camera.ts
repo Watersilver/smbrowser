@@ -34,6 +34,6 @@ export default function camera(display: Display) {
       }
     }
 
-    if (z) display.moveToClamp(cx, cy, 100, z.x, z.y, z.w, z.h);
+    if (z) display.moveToClamp(cx, cy, 0.1, z.x, z.y, z.w, z.h);
   }
 }
