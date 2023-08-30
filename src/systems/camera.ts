@@ -15,17 +15,17 @@ export default function camera(display: Display) {
   if (mario) {
     const cx = mario.position.x, cy = mario.position.y + mario.size.y * 0.5 - 16;
 
-    let inNoCamZone = false;
+    let preserveCamZone = false;
     for (const zone of zones.preserveCamera) {
       if (aabb.pointVsRect({x: cx, y: cy}, {pos: {x: zone.x, y: zone.y}, size: {x: zone.w, y: zone.h}})) {
-        inNoCamZone = true;
+        preserveCamZone = true;
       }
     }
 
     display.moveToScale(3);
     display.moveToCenter(cx, cy);
 
-    if (!inNoCamZone) {
+    if (!preserveCamZone) {
       z = null;
       for (const zone of zones.camera) {
         if (aabb.pointVsRect({x: cx, y: cy}, {pos: {x: zone.x, y: zone.y}, size: {x: zone.w, y: zone.h}})) {
