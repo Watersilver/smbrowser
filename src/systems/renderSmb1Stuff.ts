@@ -80,6 +80,9 @@ export default function renderSmb1Stuff(dt: number, editMode?: boolean) {
           entities.remove(e);
         }
       }
+      if (e.smb1ObjectsAnimations && e.positionStart.y - e.position.y > 25) {
+        e.smb1ObjectsAnimations.container.zIndex = 2;
+      }
     }
 
     for (const e of entities.view(['smb1ObjectsAnimations'])) {
