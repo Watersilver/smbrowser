@@ -63,6 +63,7 @@ class Game extends Loop {
 
     this.smUpdate(clampedDT);
 
+    display.update(clampedDT);
     display.render();
   }
 }

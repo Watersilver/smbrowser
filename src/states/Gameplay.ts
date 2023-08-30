@@ -28,15 +28,23 @@ import dynamicCollisions from "../systems/dynamicCollisions";
 import marioPowerups from "../systems/marioPowerups";
 import { getSmb1Audio } from "../audio";
 import fireballs from "../systems/fireballs";
+import type LevelEditor from "./LevelEditor";
+import zones from "../zones";
+import camera from "../systems/camera";
 
 const audio = getSmb1Audio();
 
 export type GameplayInit = {
   graphics: Graphics;
   input: Input;
+  zones: LevelEditor['zones']
+}
+export type GameplayOut = {
+  graphics: Graphics;
+  input: Input;
 }
 
-export default class Gameplay extends State<'editor', GameplayInit | null, GameplayInit | null> {
+export default class Gameplay extends State<'editor', GameplayInit | null, GameplayOut | null> {
   graphics?: Graphics;
   input?: Input;
 
@@ -57,10 +65,27 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
     if (!init) return;
     this.graphics = init.graphics;
     this.input = init.input;
+
+    zones.camera.push(...init.zones.camZones);
+    zones.death.push(...init.zones.deathZones);
+    zones.preserveCamera.push(...init.zones.camPreserveZones);
+    zones.noInput.push(...init.zones.noMarioInputZones);
+    zones.surface.push(...init.zones.surfaceZones);
+    zones.underwater.push(...init.zones.underwaterZones);
+    zones.whirlpool.push(...init.zones.whirlpoolZones);
   }
 
-  override onEnd(): [output: GameplayInit | null, next: 'editor'] {
+  override onEnd(): [output: GameplayOut | null, next: 'editor'] {
     this.paused = false;
+    display.stopMoveTo();
+
+    zones.camera.length = 0;
+    zones.death.length = 0;
+    zones.preserveCamera.length = 0;
+    zones.noInput.length = 0;
+    zones.surface.length = 0;
+    zones.underwater.length = 0;
+    zones.whirlpool.length = 0;
 
     if (!this.graphics || !this.input) return [null, 'editor'];
     const graphics = this.graphics;
@@ -178,11 +203,7 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
 
     }
 
-    // Camera
-    for (const e of entities.view(['mario'])) {
-      display.setScale(3);
-      display.setCenter(e.position.x, e.position.y + e.size.y * 0.5 - 16);
-    }
+    camera(display);
 
     if (!this.paused) {
 

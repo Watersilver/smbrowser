@@ -8,7 +8,7 @@ import { EntityTypeMapping, LevelData } from "../types";
 import newBrick from "../entityFactories/newBrick";
 
 export default function parseLevel(levelData: string | LevelData) {
-  // GOOD LUCK!!
+  // No type checking. GOOD LUCK!!
   const parsed = typeof levelData === "string" ? JSON.parse(levelData) as LevelData : levelData;
 
   const grid: {[position: string]: {

@@ -1,7 +1,7 @@
 import { Graphics } from "pixi.js";
 import State from "../engine/state-machine";
 import display from "../display";
-import { Input, Vec2d } from "../engine";
+import { Input, Vec2d, aabb } from "../engine";
 import mouseCamMove from "../systems/mouseCamMove";
 import debugRender from "../systems/debugRender";
 import renderSmb1Mario from "../systems/renderSmb1Mario";
@@ -16,8 +16,6 @@ import smb1tilesFactory, { Smb1TilesSprites } from "../sprites/loaders/smb1/tile
 import level from '../assets/level.json';
 import renderEdit from "../systems/renderEdit";
 
-// TODO: Camera clamper polygon
-
 // TODO: Maek game
 
 export type LevelEditorInit = {
@@ -25,13 +23,38 @@ export type LevelEditorInit = {
   input: Input;
   levelDataInit?: string;
 }
+export type LevelEditorOut = {
+  graphics: Graphics;
+  input: Input;
+  zones: LevelEditor['zones'];
+  levelDataInit?: string;
+}
 
 type HistoryStep = {type: 'add' | 'remove', ents: LevelData['entities'][number][], layer: 1 | 2};
+type Zone = {x: number; y: number; w: number; h: number;};
 
-export default class LevelEditor extends State<'gameplay', LevelEditorInit | null, LevelEditorInit | null> {
+export default class LevelEditor extends State<'gameplay', LevelEditorInit | null, LevelEditorOut | null> {
   graphics?: Graphics;
   input?: Input;
   levelDataInit?: string;
+
+  zones: {
+    camZones: Zone[];
+    camPreserveZones: Zone[];
+    deathZones: Zone[];
+    underwaterZones: Zone[];
+    whirlpoolZones: Zone[];
+    surfaceZones: Zone[];
+    noMarioInputZones: Zone[];
+  } = {
+    camZones: [],
+    camPreserveZones: [],
+    deathZones: [],
+    underwaterZones: [],
+    whirlpoolZones: [],
+    surfaceZones: [],
+    noMarioInputZones: []
+  };
 
   mouseX = 0;
   mouseY = 0;
@@ -89,6 +112,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
   toolsCont: HTMLDivElement;
   entityCount: HTMLDivElement;
   mousePosDisplay: HTMLDivElement;
+  zoneSelect: HTMLButtonElement;
   marioSelect: HTMLButtonElement;
   solidSelect: HTMLButtonElement;
   brickSelect: HTMLButtonElement;
@@ -97,6 +121,9 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
   tileSelectors: HTMLDivElement;
   prevSelected: EntityTypeMapping | null = null;
   selected: EntityTypeMapping | null = null;
+  selectedZone: 'cam' | 'campreserve' | 'death' | 'underwater' | 'whirlpool' | 'surface' | 'noMInput' = 'cam';
+  zoneSelected: boolean = false;
+  currentZone?: {x: number; y: number; w: number; h: number;};
   solidFrame?: Smb1TilesSprites['frame'] = undefined;
   brickFrame?: Smb1TilesSprites['frame'] = undefined;
   blockFrame?: Smb1TilesSprites['frame'] = undefined;
@@ -166,6 +193,18 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     }
     if (e.smb1TilesSprites) {
       e.smb1TilesSprites.container.alpha = alpha;
+    }
+    if (e.smb1ObjectsSprites) {
+      e.smb1ObjectsSprites.container.alpha = alpha;
+    }
+    if (e.smb1ObjectsAnimations) {
+      e.smb1ObjectsAnimations.container.alpha = alpha;
+    }
+    if (e.smb1TilesAnimations) {
+      e.smb1TilesAnimations.container.alpha = alpha;
+    }
+    if (e.smb1TilesSpritesEditMode) {
+      e.smb1TilesSpritesEditMode.container.alpha = alpha;
     }
   }
 
@@ -344,7 +383,6 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       });
     });
 
-    // TODO: blocks will be animated
     this.blockSelect = document.createElement('button');
     this.blockSelect.innerHTML = "block";
     this.blockSelect.onclick = () => this.selected = EntityTypeMapping.coinblock;
@@ -385,7 +423,92 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       });
     });
 
-    this.tileSelectors.append(this.marioSelect, this.solidSelect, this.brickSelect, this.blockSelect, this.clutterSelect);
+    this.zoneSelect = document.createElement('button');
+    this.zoneSelect.innerHTML = 'camera<br>zone';
+    this.zoneSelect.onclick = () => {
+      this.selected = null;
+      this.zoneSelected = true;
+    };
+    const renderZSName = () => {
+      switch (this.selectedZone) {
+        case 'cam':
+          this.zoneSelect.innerHTML = 'camera<br>zone';
+          break;
+        case 'campreserve':
+          this.zoneSelect.innerHTML = 'camera preserve<br>zone';
+          break;
+        case 'noMInput':
+          this.zoneSelect.innerHTML = 'no mario input<br>zone';
+          break;
+        case 'underwater':
+          this.zoneSelect.innerHTML = 'underwater<br>zone';
+          break;
+        case 'surface':
+          this.zoneSelect.innerHTML = 'surface<br>zone';
+          break;
+        case 'whirlpool':
+          this.zoneSelect.innerHTML = 'whirlpool<br>zone';
+          break;
+        default:
+          this.zoneSelect.innerHTML = 'death<br>zone';
+          break;
+      }
+    };
+    renderZSName();
+    this.zoneSelect.addEventListener('wheel', e => {
+      if (Math.sign(e.deltaY) > 0) {
+        switch (this.selectedZone) {
+          case 'cam':
+            this.selectedZone = 'campreserve';
+            break;
+          case 'campreserve':
+            this.selectedZone = 'noMInput';
+            break;
+          case 'noMInput':
+            this.selectedZone = 'underwater';
+            break;
+          case 'underwater':
+            this.selectedZone = 'surface';
+            break;
+          case 'surface':
+            this.selectedZone = 'whirlpool';
+            break;
+          case 'whirlpool':
+            this.selectedZone = 'death';
+            break;
+          default:
+            this.selectedZone = 'cam';
+            break;
+        }
+      } else {
+        switch (this.selectedZone) {
+          case 'cam':
+            this.selectedZone = 'death';
+            break;
+          case 'campreserve':
+            this.selectedZone = 'cam';
+            break;
+          case 'noMInput':
+            this.selectedZone = 'campreserve';
+            break;
+          case 'underwater':
+            this.selectedZone = 'noMInput';
+            break;
+          case 'surface':
+            this.selectedZone = 'underwater';
+            break;
+          case 'whirlpool':
+            this.selectedZone = 'surface';
+            break;
+          default:
+            this.selectedZone = 'whirlpool';
+            break;
+        }
+      }
+      renderZSName();
+    });
+
+    this.tileSelectors.append(this.zoneSelect, this.marioSelect, this.solidSelect, this.brickSelect, this.blockSelect, this.clutterSelect);
 
     this.mousePosDisplay = document.createElement('div');
 
@@ -426,6 +549,10 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       const ld = parseLevel(this.levelDataInit);
       this.grid = ld.grid;
       this.grid2 = ld.grid2;
+      for (const [key, val] of Object.entries(this.zones)) {
+        val.length = 0;
+        val.push(...((ld.parsed as any)[key] || []))
+      }
     }
     this.toggleTransparency('layer');
 
@@ -441,7 +568,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       const save = (e: KeyboardEvent) => {
         if (e.ctrlKey && e.code === "KeyS") {
           e.preventDefault();
-          const ld: LevelData = {entities: [], entities2: []};
+          const ld: LevelData = {entities: [], entities2: [], ...this.zones};
           for (const d of Object.values(this.grid)) {
             ld.entities.push(d.init);
           }
@@ -465,7 +592,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     this.disableSave = saveListen();
   }
 
-  override onEnd(): [output: LevelEditorInit | null, next: 'gameplay'] {
+  override onEnd(): [output: LevelEditorOut | null, next: 'gameplay'] {
     this.toggleTransparency('none');
     // Remove graphics overlay
     this.graphicsOverlay.removeFromParent();
@@ -477,7 +604,8 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
 
     this.levelDataInit = JSON.stringify({
       entities: Object.values(this.grid).map(v => v.init),
-      entities2: Object.values(this.grid2).map(v => v.init)
+      entities2: Object.values(this.grid2).map(v => v.init),
+      ...this.zones
     });
 
     if (!this.graphics || !this.input) return [null, 'gameplay'];
@@ -485,12 +613,24 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     const input = this.input;
     return [{
       graphics,
-      input
+      input,
+      zones: this.zones
     }, "gameplay"];
   }
 
   override onUpdate(dt: number): boolean {
     this.graphicsOverlay.clear();
+
+    if (this.selected) {
+      this.zoneSelected = false;
+      this.currentZone = undefined;
+    }
+
+    if (this.zoneSelected) {
+      this.zoneSelect.classList.add('selected');
+    } else {
+      this.zoneSelect.classList.remove('selected');
+    }
 
     if (this.selected !== this.prevSelected) {
       this.prevSelected = this.selected;
@@ -535,7 +675,9 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     }
 
     const [mx, my] = display.getMousePos();
-    this.mousePosDisplay.innerHTML = `x: ${Math.floor(mx)} | y: ${Math.floor(my)}<br>gx: ${Math.floor(mx / 16) * 16} | gy: ${Math.floor(my / 16) * 16}`;
+    const mxgrid = Math.floor(mx / 16) * 16;
+    const mygrid = Math.floor(my / 16) * 16;
+    this.mousePosDisplay.innerHTML = `x: ${Math.floor(mx)} | y: ${Math.floor(my)}<br>gx: ${mxgrid} | gy: ${mygrid}`;
 
     entities.update();
     this.entityCount.innerHTML = entities.number().toString();
@@ -544,15 +686,14 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
 
     if (this.input.isHeld('MouseMain')) {
       const del = this.input.isHeld('ControlLeft');
-      const [mx, my] = display.getMousePos();
-      if (del) {
+      if (del && this.selected) {
         const r = this.remove(mx, my);
         if (r) {
           this.historyPush({type: "remove", ents: [r.init], layer: this.layer});
         }
       } else {
-        const x = (Math.floor(mx / 16) * 16);
-        const y = (Math.floor(my / 16) * 16);
+        const x = mxgrid;
+        const y = mygrid;
         const key = x + "." + y;
         const prev = this.getGrid()[key];
         if (!prev && this.selected) {
@@ -614,6 +755,101 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
         }
       }
     }
+    
+
+    if (this.zoneSelected) {
+      const snapToGrid = !this.input.isHeld('ShiftLeft');
+      const del = this.input.isHeld('ControlLeft');
+      const x = snapToGrid ? mxgrid : mx;
+      const y = snapToGrid ? mygrid : my;
+
+      if (this.input.isPressed('MouseMain')) {
+        if (del) {
+          this.currentZone = undefined;
+
+          for (const [zonesGroup, zones] of Object.entries(this.zones)) {
+            const zone = zones.find(z => aabb.pointVsRect(new Vec2d(mx, my), {pos: new Vec2d(z.x, z.y), size: new Vec2d(z.w, z.h)}));
+            if (zone) {
+              const set = new Set((this.zones as any)[zonesGroup]);
+              set.delete(zone);
+              (this.zones as any)[zonesGroup] = [...set];
+              break;
+            }
+          }
+        } else {
+          this.currentZone = {x, y, w: 16, h: 16};
+        }
+      }
+
+      if (this.input.isHeld('MouseMain')) {
+        if (this.currentZone) {
+          const xSide = Math.sign(x + 8 - this.currentZone.x);
+          if (snapToGrid) {
+            this.currentZone.w = x + 16 - this.currentZone.x;
+            if (xSide < 0) {
+              this.currentZone.w = this.currentZone.w - 16;
+            }
+          } else {
+            const w = x - this.currentZone.x;
+            this.currentZone.w = Math.abs(w) > 16 ? w : Math.sign(w) * 16 || 16;
+          }
+
+          const ySide = Math.sign(y + 8 - this.currentZone.y);
+          if (snapToGrid) {
+            this.currentZone.h = y + 16 - this.currentZone.y;
+            if (ySide < 0) {
+              this.currentZone.h = this.currentZone.h - 16;
+            }
+          } else {
+            const h = y - this.currentZone.y;
+            this.currentZone.h = Math.abs(h) > 16 ? h : Math.sign(h) * 16 || 16;
+          }
+        }
+      }
+
+      if (this.input.isReleased('MouseMain')) {
+        if (this.currentZone) {
+          let x = 0, y = 0, w = 0, h = 0;
+          if (this.currentZone.w > 0) {
+            x = this.currentZone.x;
+            w = this.currentZone.w;
+          } else {
+            x = this.currentZone.x + this.currentZone.w;
+            w = -this.currentZone.w;
+          }
+          if (this.currentZone.h > 0) {
+            y = this.currentZone.y;
+            h = this.currentZone.h;
+          } else {
+            y = this.currentZone.y + this.currentZone.h;
+            h = -this.currentZone.h;
+          }
+          switch (this.selectedZone) {
+            case 'cam':
+              this.zones.camZones.push({x,y,w,h});
+              break;
+            case 'campreserve':
+              this.zones.camPreserveZones.push({x,y,w,h});
+              break;
+            case 'death':
+              this.zones.deathZones.push({x,y,w,h});
+              break;
+            case 'noMInput':
+              this.zones.noMarioInputZones.push({x,y,w,h});
+              break;
+            case 'surface':
+              this.zones.surfaceZones.push({x,y,w,h});
+              break;
+            case 'underwater':
+              this.zones.underwaterZones.push({x,y,w,h});
+              break;
+            case 'whirlpool':
+              this.zones.whirlpoolZones.push({x,y,w,h});
+              break;
+          }
+        }
+      }
+    }
 
     // Level edit mode
     mouseCamMove(dt, display, this.input, this);
@@ -623,7 +859,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     debugRender(this.graphics);
     renderSmb1Mario(dt);
     renderSmb1Stuff(dt, true);
-    renderEdit(this.graphics, this.graphicsOverlay);
+    renderEdit(this.graphics, this.graphicsOverlay, this.zones, this.currentZone);
     marioSmb1Sounds();
 
     return true;

@@ -13,13 +13,15 @@ export enum EntityTypeMapping {
   clutter = 'd'
 }
 
+type Zone = {x: number; y: number; w: number; h: number;};
+
 export type LevelData = {
   entities: [
     type: EntityTypeMapping,
     x: number,
     y: number,
     init?: {
-      tileFrame?: Smb1TilesSprites['frame']
+      tileFrame?: Smb1TilesSprites['frame'];
     },
     custom?: Entity
   ][];
@@ -28,8 +30,15 @@ export type LevelData = {
     x: number,
     y: number,
     init?: {
-      tileFrame?: Smb1TilesSprites['frame']
+      tileFrame?: Smb1TilesSprites['frame'];
     },
     custom?: Entity
   ][];
+  camZones?: Zone[];
+  camPreserveZones?: Zone[];
+  deathZones?: Zone[];
+  underwaterZones?: Zone[];
+  whirlpoolZones?: Zone[];
+  surfaceZones?: Zone[];
+  noMarioInputZones?: Zone[];
 };

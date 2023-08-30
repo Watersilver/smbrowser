@@ -1,7 +1,17 @@
 import { Graphics } from "pixi.js";
 import display from "../display";
 
-export default function renderEdit(g: Graphics, o: Graphics) {
+type Zone = {x: number; y: number; w: number; h: number;};
+
+export default function renderEdit(g: Graphics, o: Graphics, zones: {
+  camZones: Zone[];
+  camPreserveZones: Zone[];
+  deathZones: Zone[];
+  underwaterZones: Zone[];
+  whirlpoolZones: Zone[];
+  surfaceZones: Zone[];
+  noMarioInputZones: Zone[];
+}, currentZone?: Zone) {
   const [l, t] = display.fromViewport(0, 0);
   const [r, b] = display.fromViewport(display.getViewportWidth(), display.getViewportHeight());
 
@@ -37,4 +47,57 @@ export default function renderEdit(g: Graphics, o: Graphics) {
   .beginFill(0, 0)
   .drawRect(x, y, 16, 16)
   .endFill();
+
+  if (currentZone) {
+    let x = 0, y = 0, w = 0, h = 0;
+    if (currentZone.w > 0) {
+      x = currentZone.x;
+      w = currentZone.w;
+    } else {
+      x = currentZone.x + currentZone.w;
+      w = -currentZone.w;
+    }
+    if (currentZone.h > 0) {
+      y = currentZone.y;
+      h = currentZone.h;
+    } else {
+      y = currentZone.y + currentZone.h;
+      h = -currentZone.h;
+    }
+    o.lineStyle(4 / scale, 0xffffff)
+    .beginFill(0, 0)
+    .drawRect(x, y, w, h)
+    .endFill();
+    o.lineStyle(2 / scale, 0x000000)
+    .beginFill(0, 0)
+    .drawRect(x, y, w, h)
+    .endFill();
+  }
+
+  for (const [name, z] of Object.entries(zones)) {
+    const col =
+      name === 'camZones'
+      ? 0xffff00
+      : name === 'noCamZones'
+      ? 0xffaa99
+      : name === 'deathZones'
+      ? 0xff0000
+      : name === 'underwaterZones'
+      ? 0x0000ff
+      : name === 'whirlpoolZones'
+      ? 0x00ff00
+      : name === 'surfaceZones'
+      ? 0x00ffff
+      : 0xff00ff;
+    z.forEach(zone => {
+      o.lineStyle(4 / scale, 0xffffff)
+      .beginFill(0, 0)
+      .drawRect(zone.x, zone.y, zone.w, zone.h)
+      .endFill();
+      o.lineStyle(2 / scale, col)
+      .beginFill(0, 0)
+      .drawRect(zone.x, zone.y, zone.w, zone.h)
+      .endFill();
+    })
+  }
 }

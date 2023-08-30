@@ -20,6 +20,17 @@ class Display {
   private boundingBox = {l:0,t:0,r:0,b:0,w:0,h:0};
   private boundingBoxRectData = {pos: {x: 0, y: 0}, size: {x: 0, y: 0}};
 
+  private targetX?: number;
+  private targetY?: number;
+  private targetScale?: number;
+
+  // Lerp speed when changing position
+  private posLerp?: number = 700;
+  // Percentage moved when changing position
+  private posPerc?: number = 0.9 * 3;
+  // Percentage scaled when changing scale
+  private scalePerc?: number = 0.99 * 6;
+
   private transformEffects: Set<TransformEffect> = new Set();
 
   changeResolution(newWidth: number) {
@@ -157,7 +168,7 @@ class Display {
     view.addEventListener('mousemove', e => {
       if (e.offsetX > this.px + this.width) return;
       if (e.offsetY > this.py + this.height) return;
-      
+
       const x = e.offsetX - this.px;
       const y = e.offsetY - this.py;
 
@@ -249,10 +260,24 @@ class Display {
 
   getCenterY() { return this.pivoty; }
 
-  setCenter(x: number, y: number) {
+  private _setCenter(x: number, y: number) {
     this.pivotx = x;
     this.pivoty = y;
     this.view.pivot.set(x, y);
+
+    // Center changed so recompute bounding box
+    this.computeBoundingBox();
+  }
+
+  setCenter(x: number, y: number) {
+    this._setCenter(x, y);
+    this.targetX = this.pivotx;
+    this.targetY = this.pivoty;
+  }
+
+  moveToCenter(x: number, y: number) {
+    this.targetX = x;
+    this.targetY = y;
   }
 
   getViewportWidth() { return this.width; }
@@ -260,12 +285,21 @@ class Display {
 
   getScale() { return this.scale; }
 
-  setScale(s: number) {
+  private _setScale(s: number) {
     this.scale = s;
     this.view.scale.set(s, s);
 
     // Scale changed so recompute bounding box
     this.computeBoundingBox();
+  }
+
+  setScale(s: number) {
+    this._setScale(s);
+    this.targetScale = this.scale;
+  }
+
+  moveToScale(s: number) {
+    this.targetScale = s;
   }
 
   /** radians */
@@ -327,6 +361,36 @@ class Display {
   }
 
   clamp(l: number, t: number, w: number, h: number) {
+    const prevScale = this.scale;
+    const prevX = this.pivotx;
+    const prevY = this.pivoty;
+    const clamp = this.computeClamp(this.pivotx, this.pivoty, this.scale, l,t,w,h);
+    if (prevX !== clamp.targetX || prevY !== clamp.targetY) {
+      this.setCenter(clamp.targetX, clamp.targetY);
+    }
+    this.targetX = clamp.targetX;
+    this.targetY = clamp.targetY;
+    if (prevScale !== clamp.targetScale) {
+      this.setScale(clamp.targetScale);
+    }
+    this.targetScale = clamp.targetScale;
+  }
+
+  moveToClamp(targetX: number, targetY: number, targetScale: number, l: number, t: number, w: number, h: number) {
+    const prevX = this.getCenterX();
+    const prevY = this.getCenterY();
+    const prevScale = this.getScale();
+    this._setCenter(targetX, targetY);
+    this._setScale(targetScale);
+    const clamp = this.computeClamp(targetX, targetY, targetScale, l,t,w,h);
+    this.targetX = clamp.targetX;
+    this.targetY = clamp.targetY;
+    this.targetScale = clamp.targetScale;
+    this._setCenter(prevX, prevY);
+    this._setScale(prevScale);
+  }
+
+  private computeClamp(targetX: number, targetY: number, targetScale: number, l: number, t: number, w: number, h: number) {
     // Ensure camera is within given bounds by chaging pivot and scale
 
     const wbigger = w > this.boundingBox.w;
@@ -334,35 +398,93 @@ class Display {
 
     if (wbigger && hbigger) {
       // if bounding box is smaller than given rect just ensure that it is within rect
-      if (this.boundingBox.l < l) this.pivotx = l + this.boundingBox.w * 0.5;
-      if (this.boundingBox.r > l + w) this.pivotx = l + w - this.boundingBox.w * 0.5;
-      if (this.boundingBox.t < t) this.pivoty = t + this.boundingBox.h * 0.5;
-      if (this.boundingBox.t > t + h) this.pivoty = t + h - this.boundingBox.h * 0.5;
+      if (this.boundingBox.l < l) targetX = l + this.boundingBox.w * 0.5;
+      if (this.boundingBox.r > l + w) targetX = l + w - this.boundingBox.w * 0.5;
+      if (this.boundingBox.t < t) targetY = t + this.boundingBox.h * 0.5;
+      if (this.boundingBox.b > t + h) targetY = t + h - this.boundingBox.h * 0.5;
     } else {
-      // if bounding box is larger, first move to center of dimensions where overlap occures,
+      // if bounding box is larger, first move to center of dimensions where overlap occurs,
       // then scale until smaller or equal
       if (!wbigger && !hbigger) {
-        this.pivotx = l + w * 0.5;
-        this.pivoty = t + h * 0.5;
         const ratio = Math.max(this.boundingBox.w / w, this.boundingBox.h / h);
-        this.setScale(this.scale * ratio);
+        targetScale = this.scale * ratio;
+        const prevScale = this.scale;
+        this._setScale(targetScale);
+        if (this.boundingBox.l < l) targetX = l + this.boundingBox.w * 0.5;
+        if (this.boundingBox.r > l + w) targetX = l + w - this.boundingBox.w * 0.5;
+        if (this.boundingBox.t < t) targetY = t + this.boundingBox.h * 0.5;
+        if (this.boundingBox.b > t + h) targetY = t + h - this.boundingBox.h * 0.5;
+        this._setScale(prevScale);
       } else if (!wbigger) {
-        this.pivotx = l + w * 0.5;
-        if (this.boundingBox.t < t) this.pivoty = t + this.boundingBox.h * 0.5;
-        if (this.boundingBox.t > t + h) this.pivoty = t + h - this.boundingBox.h * 0.5;
-        this.setScale(this.scale * this.boundingBox.w / w);
+        targetX = l + w * 0.5;
+        const prevScale = this.scale;
+        targetScale = this.scale * this.boundingBox.w / w;
+        this._setScale(targetScale);
+        if (this.boundingBox.t < t) targetY = t + this.boundingBox.h * 0.5;
+        if (this.boundingBox.b > t + h) targetY = t + h - this.boundingBox.h * 0.5;
+        this._setScale(prevScale);
       } else {
-        this.pivoty = t + h * 0.5;
-        if (this.boundingBox.l < l) this.pivotx = l + this.boundingBox.w * 0.5;
-        if (this.boundingBox.r > l + w) this.pivotx = l + w - this.boundingBox.w * 0.5;
-        this.setScale(this.scale * this.boundingBox.h / h);
+        targetY = t + h * 0.5;
+        const prevScale = this.scale;
+        targetScale = this.scale * this.boundingBox.h / h;
+        this._setScale(targetScale);
+        if (this.boundingBox.l < l) targetX = l + this.boundingBox.w * 0.5;
+        if (this.boundingBox.r > l + w) targetX = l + w - this.boundingBox.w * 0.5;
+        this._setScale(prevScale);
       }
     }
-    this.setCenter(this.pivotx, this.pivoty);
+
+    return {
+      targetX,
+      targetY,
+      targetScale
+    };
   }
 
   pushEffect(e: TransformEffect) {
     this.transformEffects.add(e);
+  }
+
+  stopMoveTo() {
+    this.targetScale = undefined;
+    this.targetX = undefined;
+    this.targetY = undefined;
+  }
+
+  private computeDeltaOf(dimension: "x" | "y", dt: number) {
+    let delta = 0;
+    let target = dimension === 'x' ? this.targetX : this.targetY;
+    if (target !== undefined) {
+      const diff = target - (dimension === 'x' ? this.pivotx : this.pivoty);
+      if (this.posPerc) {
+        delta = diff * this.posPerc * dt;
+      }
+      if (this.posLerp) {
+        const lerp = Math.sign(diff) * this.posLerp * dt;
+        if (Math.abs(delta) < Math.abs(lerp)) {
+          delta = lerp;
+        }
+      }
+      if (Math.abs(diff) < Math.abs(delta)) {
+        delta = diff;
+      }
+    }
+    return delta;
+  }
+  update(dt: number) {
+    let dx = this.computeDeltaOf('x', dt), dy = this.computeDeltaOf('y', dt), ds = 0;
+    this._setCenter(this.pivotx + dx, this.pivoty + dy);
+
+    if (this.targetScale) {
+      const diff = this.targetScale - this.scale;
+      if (this.scalePerc) {
+        ds = Math.sign(diff) * this.scalePerc * dt;
+      }
+      if (Math.abs(diff) < Math.abs(ds)) {
+        ds = diff;
+      }
+    }
+    this._setScale(this.scale + ds);
   }
 
   render() {
