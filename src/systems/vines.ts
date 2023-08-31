@@ -1,6 +1,28 @@
 import entities from "../entities";
 import newClutter from "../entityFactories/newClutter";
 
+// TODO: vine climb
+
+// TODO: Trampolines
+
+// TODO: Bowserfire, Jumping fish, bullet bill etc zones.
+
+// TODO: Goomba
+
+// TODO: Koopa Troopa green
+
+// TODO: Koopa Troopa red
+
+// TODO: Koopa paratroopa green
+
+// TODO: Koopa paratroopa green
+
+// TODO: Piranha plants
+
+// TODO: Enemy spawners
+
+// TODO: Death and respawn and checkpoints
+
 export default function vines(dt: number) {
 
   // Grow
