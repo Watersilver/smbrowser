@@ -5,7 +5,7 @@ import { Smb1TilesAnimations } from "./sprites/loaders/smb1/animated-tiles";
 import { Smb1MarioSprites } from "./sprites/loaders/smb1/mario";
 import { Smb1ObjectsSprites } from "./sprites/loaders/smb1/objects";
 import { Smb1TilesSprites } from "./sprites/loaders/smb1/tiles";
-import { Points } from "./types";
+import { Points, Vine } from "./types";
 
 export type Entity = {
   positionStart: Vec2d;
@@ -128,6 +128,7 @@ export type Entity = {
   dynamicIndex: number;
   kinematicIndex: number;
   staticIndex: number;
+  sensorIndex: number;
   static?: boolean;
   prevHits?: {e: Entity; normal: Vec2d; point: Vec2d;}[];
   hits?: {e: Entity; normal: Vec2d; point: Vec2d;}[];
@@ -145,7 +146,14 @@ export type Entity = {
   smb1TilesSpritesEditMode?: Smb1TilesSprites;
   invisibleBlock?: boolean;
   brick?: boolean;
-  coinblock?: 'coin' | 'coins' | 'pow' | 'life' | 'star';
+  coinblock?: 'coin' | 'coins' | 'pow' | 'life' | 'star' | 'vine';
+  vineCreator?: Vine;
+  vine?: {
+    targetHeight: number;
+    root: Entity;
+    parts: Entity[];
+  };
+  vineStart?: boolean;
   coinblockDeathTimer?: number;
   hitAnim?: number;
   bonk?: boolean;
@@ -176,6 +184,10 @@ export type Entity = {
     from: "u" | "d" | "l" | "r";
     to: "u" | "d" | "l" | "r";
   };
+  coin?: boolean;
+  sensor?: boolean;
+  moving?: boolean;
+  coinGotCollected?: boolean;
 };
 
 export function newEntity(init?: Partial<Entity>): Entity {
@@ -187,6 +199,7 @@ export function newEntity(init?: Partial<Entity>): Entity {
     dynamicIndex: -1,
     staticIndex: -1,
     kinematicIndex: -1,
+    sensorIndex: -1
   };
   Object.assign(newEnt, init);
   return newEnt;

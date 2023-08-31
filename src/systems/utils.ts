@@ -65,8 +65,15 @@ const systemUtils = {
       a.container.position.x = e.position.x;
       a.container.position.y = e.position.y;
     }
-  
+
     for (const e of entities.view(['kinematic', p])) {
+      const a = e[p];
+      if (!a) continue;
+      a.container.position.x = e.position.x;
+      a.container.position.y = e.position.y;
+    }
+
+    for (const e of entities.view(['moving', p])) {
       const a = e[p];
       if (!a) continue;
       a.container.position.x = e.position.x;

@@ -1,7 +1,7 @@
 import { Graphics } from "pixi.js";
 import State from "../engine/state-machine";
 import display from "../display";
-import { Input, Vec2d } from "../engine";
+import { Input, Vec2d, aabb } from "../engine";
 import detectTouching from "../systems/detectTouching";
 import detectFloorSpeed from "../systems/detectFloorSpeed";
 import marioPlayerInput from "../systems/marioPlayerInput";
@@ -31,9 +31,13 @@ import fireballs from "../systems/fireballs";
 import type LevelEditor from "./LevelEditor";
 import zones from "../zones";
 import camera from "../systems/camera";
-import { Points } from "../types";
+import { Points, Vine } from "../types";
 import newPipe from "../entityFactories/newPipe";
 import pipes from "../systems/pipes";
+import coins from "../systems/coins";
+import worldGrid from "../world-grid";
+import Collidable from "../utils/collidable";
+import vines from "../systems/vines";
 
 const audio = getSmb1Audio();
 
@@ -42,6 +46,7 @@ export type GameplayInit = {
   input: Input;
   zones: LevelEditor['zones'];
   pipes: Points[];
+  vines: Vine[];
 }
 export type GameplayOut = {
   graphics: Graphics;
@@ -81,6 +86,27 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
     init.pipes.forEach(pipe => {
       newPipe(pipe);
       newPipe([...pipe].reverse());
+    });
+
+    const bb = {l: 0, t: 0, w: 2, h: 2};
+    const collider = {pos: {x: 0, y: 0}, size: {x: 2, y: 2}};
+    const collidee = new Collidable();
+    init.vines.forEach(vine => {
+      bb.l = vine.x - 1;
+      bb.t = vine.y - 1;
+      collider.pos.x = bb.l;
+      collider.pos.y = bb.t;
+      for (const u of worldGrid.statics.findNear(bb.l, bb.t, bb.w, bb.h)) {
+        const uu = u.userData;
+        collidee.set(uu);
+
+        if (aabb.rectVsRect(collider, collidee)) {
+          uu.brick = false;
+          uu.coinblock = 'vine';
+          uu.vineCreator = vine;
+          continue;
+        }
+      }
     });
   }
 
@@ -193,6 +219,10 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
 
       // Check if hit block with head
       blockhit(dt);
+
+      coins(dt);
+
+      vines(dt);
 
       movement();
 

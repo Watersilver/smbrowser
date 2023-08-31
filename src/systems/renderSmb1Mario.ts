@@ -1,6 +1,8 @@
 import fireMarioFilter, { fireMarioFilterUniforms } from "../Filters/fire-mario";
 import entities from "../entities";
 import { GlowFilter, MultiColorReplaceFilter } from "pixi-filters";
+import smb1Sprites from "../sprites/smb1";
+import display from "../display";
 
 const fmfRedStart = fireMarioFilterUniforms.red;
 let t = 0;
@@ -38,6 +40,23 @@ const bothMario = [
   sf,
   fsg
 ]
+
+// Do this weid ass thing here because for some reason
+// these filters cause some stutter first time they're
+// applied.
+// Apply them here first so stutter is during loading.
+const m = smb1Sprites.getFactory('mario').new();
+m.container.filters = fireMario;
+display.add(m.container);
+setTimeout(() => {
+  m.container.filters = starMario;
+  setTimeout(() => {
+    m.container.filters = bothMario;
+    setTimeout(() => {
+      m.container.removeFromParent();
+    });
+  });
+});
 
 function hueToRgb(p: number, q: number, t: number) {
   if (t < 0) t += 1;

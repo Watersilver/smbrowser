@@ -8,6 +8,7 @@ import newCoinFromBlock from "../entityFactories/newCoinFromBlock";
 import newFireFlower from "../entityFactories/newFireFlower";
 import newMushroom from "../entityFactories/newMushroom";
 import newStar from "../entityFactories/newStar";
+import newVine from "../entityFactories/newVine";
 import smb1Sprites from "../sprites/smb1";
 import worldGrid from "../world-grid";
 
@@ -149,8 +150,12 @@ export default function blockhit(dt: number) {
               mush.smb1ObjectsSprites?.setFrame('oneup');
             } else if (e.coinblock === 'star') {
               newStar(e.position.x, e.position.y);
+            } else if (e.coinblock === 'vine') {
+              if (e.vineCreator) newVine(e, e.vineCreator.h);
+              delete e.vineCreator;
             } else {
               newCoinFromBlock(e.position.x, e.position.y);
+              if (e.mario) e.mario.coins++;
             }
             delete e.coinblock;
             if (e.smb1TilesAnimations) {
@@ -175,6 +180,8 @@ export default function blockhit(dt: number) {
             }
           } else {
             newCoinFromBlock(e.position.x, e.position.y);
+            if (e.mario) e.mario.coins++;
+
             if (e.coinblockDeathTimer === undefined) {
               e.coinblockDeathTimer = 3.8;
             }

@@ -8,7 +8,7 @@ import renderSmb1Mario from "../systems/renderSmb1Mario";
 import marioSmb1Sounds from "../systems/marioSmb1Sounds";
 import entities, { Entity } from "../entities";
 import parseLevel from "../systems/parseLevel";
-import { EntityTypeMapping, LevelData, Points } from "../types";
+import { EntityTypeMapping, LevelData, Points, Vine } from "../types";
 import culling from "../systems/culling";
 import renderSmb1Stuff from "../systems/renderSmb1Stuff";
 import smb1marioFactory from "../sprites/loaders/smb1/mario";
@@ -26,7 +26,7 @@ export type LevelEditorOut = {
   input: Input;
   zones: LevelEditor['zones'];
   pipes: Points[];
-  levelDataInit?: string;
+  vines: Vine[];
 }
 
 type HistoryStep = {type: 'add' | 'remove', ents: LevelData['entities'][number][], layer: 1 | 2};
@@ -54,6 +54,10 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     surfaceZones: [],
     noMarioInputZones: []
   };
+
+  currentVine?: Vine;
+  vines: Vine[] = [];
+  vineSelected: boolean = false;
 
   currentPipe?: Points;
   pipes: Points[] = [];
@@ -115,12 +119,14 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
   toolsCont: HTMLDivElement;
   entityCount: HTMLDivElement;
   mousePosDisplay: HTMLDivElement;
+  vineSelect: HTMLButtonElement;
   pipeSelect: HTMLButtonElement;
   zoneSelect: HTMLButtonElement;
   marioSelect: HTMLButtonElement;
   solidSelect: HTMLButtonElement;
   brickSelect: HTMLButtonElement;
   blockSelect: HTMLButtonElement;
+  coinSelect: HTMLButtonElement;
   clutterSelect: HTMLButtonElement;
   tileSelectors: HTMLDivElement;
   prevSelected: EntityTypeMapping | null = null;
@@ -427,11 +433,33 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       });
     });
 
+    this.coinSelect = document.createElement('button');
+    this.coinSelect.innerHTML = "coin";
+    this.coinSelect.onclick = () => this.selected = EntityTypeMapping.coin;
+
+    const coins = smb1tilesFactory.new();
+    coins.setFrame('coin1');
+    coins?.whenReady().then(() => {
+      this.coinSelect.innerHTML = '';
+      const img = document.createElement('img');
+      img.style.width = "48px";
+      img.style.height = '48px';
+      img.alt = 'coin';
+      const text = document.createElement('div');
+      text.innerHTML = img.alt;
+      this.coinSelect.append(img, text);
+
+      const dURL = coins.getDataUrl();
+      if (!dURL) return;
+      img.src = dURL;
+    });
+
     this.zoneSelect = document.createElement('button');
     this.zoneSelect.innerHTML = 'camera<br>zone';
     this.zoneSelect.onclick = () => {
       this.selected = null;
       this.pipeSelected = false;
+      this.vineSelected = false;
       this.zoneSelected = true;
     };
     const renderZSName = () => {
@@ -518,10 +546,20 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     this.pipeSelect.onclick = () => {
       this.selected = null;
       this.zoneSelected = false;
+      this.vineSelected = false;
       this.pipeSelected = true;
     };
 
-    this.tileSelectors.append(this.zoneSelect, this.pipeSelect, this.marioSelect, this.solidSelect, this.brickSelect, this.blockSelect, this.clutterSelect);
+    this.vineSelect = document.createElement('button');
+    this.vineSelect.innerHTML = 'vine<br>marker';
+    this.vineSelect.onclick = () => {
+      this.selected = null;
+      this.zoneSelected = false;
+      this.pipeSelected = false;
+      this.vineSelected = true;
+    };
+
+    this.tileSelectors.append(this.zoneSelect, this.pipeSelect, this.vineSelect, this.marioSelect, this.solidSelect, this.brickSelect, this.blockSelect, this.coinSelect, this.clutterSelect);
 
     this.mousePosDisplay = document.createElement('div');
 
@@ -628,7 +666,8 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       graphics,
       input,
       zones: this.zones,
-      pipes: this.pipes
+      pipes: this.pipes,
+      vines: this.vines
     }, "gameplay"];
   }
 
@@ -638,8 +677,10 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     if (this.selected) {
       this.zoneSelected = false;
       this.pipeSelected = false;
+      this.vineSelected = false;
       this.currentZone = undefined;
       this.currentPipe = undefined;
+      this.currentVine = undefined;
     }
 
     if (this.zoneSelected) {
@@ -652,6 +693,12 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       this.pipeSelect.classList.add('selected');
     } else {
       this.pipeSelect.classList.remove('selected');
+    }
+
+    if (this.vineSelected) {
+      this.vineSelect.classList.add('selected');
+    } else {
+      this.vineSelect.classList.remove('selected');
     }
 
     if (this.selected !== this.prevSelected) {
@@ -680,6 +727,10 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
           this.blockSelect.classList.add('selected');
           break;
         }
+        case EntityTypeMapping.coin: {
+          this.coinSelect.classList.add('selected');
+          break;
+        }
       }
     }
 
@@ -693,6 +744,8 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
         // Restore
         if (this.selected) {
           this.historyRestore();
+        } else if (this.currentVine) {
+          this.currentVine = undefined;
         }
       } else {
         // Undo
@@ -707,6 +760,8 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
           } else {
             this.pipes.pop();
           }
+        } else if (this.vineSelected) {
+          this.vines.pop();
         }
       }
     }
@@ -778,6 +833,13 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
                 this.selected,
                 xstart, ystart,
                 {tileFrame: this.blockFrame}
+              ]);
+              break;
+            }
+            case EntityTypeMapping.coin: {
+              h = this.add([
+                this.selected,
+                xstart, ystart
               ]);
               break;
             }
@@ -899,8 +961,8 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
 
         if (del) {
           const pipe = this.pipes.find(p => p.find(point => point[0] === mxgrid && point[1] === mygrid));
-          const set = new Set(this.pipes);
           if (pipe) {
+            const set = new Set(this.pipes);
             set.delete(pipe);
             this.pipes = [...set];
           }
@@ -925,6 +987,36 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       }
     }
 
+    if (this.vineSelected) {
+      if (this.input.isPressed('Delete') || this.input.isPressed('Backspace')) {
+        this.currentVine = undefined;
+      }
+
+      if (this.input.isPressed('MouseMain')) {
+        const del = this.input.isHeld('ControlLeft');
+
+        if (del) {
+          const vine = this.vines.find(v => Math.abs(v.x - mxgrid) < 16 && Math.abs(v.y - mygrid) < 16);
+          if (vine) {
+            const set = new Set(this.vines);
+            set.delete(vine);
+            this.vines = [...set];
+          }
+        } else {
+          if (this.currentVine) {
+            this.vines.push(this.currentVine);
+            this.currentVine = undefined;
+          } else {
+            this.currentVine = {x: mxgrid + 8, y: mygrid + 8, h: 0};
+          }
+        }
+      }
+
+      if (this.currentVine) {
+        this.currentVine.h = Math.abs(mygrid - this.currentVine.y);
+      }
+    }
+
     // Level edit mode
     mouseCamMove(dt, display, this.input, this);
 
@@ -933,7 +1025,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     debugRender(this.graphics);
     renderSmb1Mario(dt);
     renderSmb1Stuff(dt, true);
-    renderEdit(this.graphics, this.graphicsOverlay, this.zones, this.pipes, this.currentZone, this.currentPipe);
+    renderEdit(this.graphics, this.graphicsOverlay, this.zones, this.pipes, this.vines, this.currentZone, this.currentPipe, this.currentVine);
     marioSmb1Sounds();
 
     return true;

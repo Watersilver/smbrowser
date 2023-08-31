@@ -6,6 +6,7 @@ import newClutter from "../entityFactories/newClutter";
 import newMario from "../entityFactories/newMario";
 import { EntityTypeMapping, LevelData } from "../types";
 import newBrick from "../entityFactories/newBrick";
+import newCoin from "../entityFactories/newCoin";
 
 export default function parseLevel(levelData: string | LevelData) {
   // No type checking. GOOD LUCK!!
@@ -41,13 +42,12 @@ export default function parseLevel(levelData: string | LevelData) {
           break;
         }
         case EntityTypeMapping.coin: {
-          const frame = entInit[3]?.tileFrame;
-          ent = newBlock(entInit[1], entInit[2], frame);
+          ent = newCoin(entInit[1], entInit[2]);
           break;
         }
         case EntityTypeMapping.clutter: {
           const frame = entInit[3]?.tileFrame;
-          ent = newClutter(entInit[1], entInit[2], frame);
+          ent = newClutter(entInit[1], entInit[2], {type: "tile", frame});
           break;
         }
         case EntityTypeMapping.coinblock: {

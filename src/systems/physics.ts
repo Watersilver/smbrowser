@@ -7,9 +7,9 @@ import storePrevHits from "./storePrevHits";
 const collider = {pos: new Vec2d(0, 0), size: new Vec2d(0, 0), dr: new Vec2d(0, 0)};
 const collidee = {pos: new Vec2d(0, 0), size: new Vec2d(0, 0), dr: new Vec2d(0, 0)};
 
-function addRemoveToSHT(type: "dynamic" | "static" | "kinematic") {
-  const worldGridType = type === "dynamic" ? "dynamics" : type === "static" ? "statics" : "kinematics";
-  const indexType = type === "dynamic" ? "dynamicIndex" : type === "static" ? "staticIndex" : "kinematicIndex";
+function addRemoveToSHT(type: "dynamic" | "static" | "kinematic" | "sensor") {
+  const worldGridType = type === "dynamic" ? "dynamics" : type === "static" ? "statics" : type === 'sensor' ? 'sensors' : "kinematics";
+  const indexType = type === "dynamic" ? "dynamicIndex" : type === "static" ? "staticIndex" : type === 'sensor' ? 'sensorIndex' : "kinematicIndex";
 
   const list: ReturnType<typeof worldGrid[keyof typeof worldGrid]['create']>[] = [];
 
@@ -39,9 +39,25 @@ function addRemoveToSHT(type: "dynamic" | "static" | "kinematic") {
 const dynamicsList = addRemoveToSHT('dynamic');
 addRemoveToSHT('static');
 const kinematicList = addRemoveToSHT('kinematic');
+const sensorsList = addRemoveToSHT('sensor');
 
 export default function physics(dt: number) {
   storePrevHits();
+
+  for (const e of entities.view(['sensor', 'moving'])) {
+    const s = sensorsList.at(e.sensorIndex);
+    if (!s) continue;
+
+    const pos = e.position;
+    const size = e.size;
+
+    s.l = pos.x - size.x * 0.5;
+    s.t = pos.y - size.y * 0.5;
+    s.w = size.x;
+    s.h = size.y;
+
+    worldGrid.sensors.update(s);
+  }
 
   for (const k of kinematicList) {
     if (!k.userData.kinematic) continue;

@@ -10,6 +10,8 @@ const kinematics = new SpatialHashTable<Entity>(32);
 
 const statics = new SpatialHashTable<Entity>(32);
 
+const sensors = new SpatialHashTable<Entity>(32);
 
-const worldGrid = {dynamics, kinematics, statics};
+
+const worldGrid = {dynamics, kinematics, statics, sensors};
 export default worldGrid;

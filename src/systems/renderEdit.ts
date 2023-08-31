@@ -1,8 +1,40 @@
 import { Graphics } from "pixi.js";
 import display from "../display";
-import { Points } from "../types";
+import { Points, Vine } from "../types";
 
 type Zone = {x: number; y: number; w: number; h: number;};
+
+const drawVine = (o: Graphics, vine: Vine, color: number) => {
+  const scale = display.getScale();
+
+  o.lineStyle(4 / scale, 0x000000)
+  .beginFill(0,0)
+  .moveTo(vine.x, vine.y)
+  .lineTo(vine.x, vine.y - vine.h)
+  .endFill();
+  o.lineStyle(0,0)
+  .beginFill(0x000000,1)
+  .drawCircle(vine.x, vine.y, 4 / scale)
+  .endFill();
+  o.lineStyle(0,0)
+  .beginFill(0x000000,1)
+  .drawRect(vine.x - 10 / scale, vine.y - vine.h - 2 / scale, 20 / scale, 4 / scale)
+  .endFill();
+
+  o.lineStyle(2 / scale, color)
+  .beginFill(0,0)
+  .moveTo(vine.x, vine.y)
+  .lineTo(vine.x, vine.y - vine.h)
+  .endFill();
+  o.lineStyle(0,0)
+  .beginFill(color,1)
+  .drawCircle(vine.x, vine.y, 3 / scale)
+  .endFill();
+  o.lineStyle(0,0)
+  .beginFill(color,1)
+  .drawRect(vine.x - 9 / scale, vine.y - vine.h - 1 / scale, 18 / scale, 2 / scale)
+  .endFill();
+}
 
 export default function renderEdit(g: Graphics, o: Graphics, zones: {
     camZones: Zone[];
@@ -14,8 +46,10 @@ export default function renderEdit(g: Graphics, o: Graphics, zones: {
     noMarioInputZones: Zone[];
   },
   pipes: Points[],
+  vines: Vine[],
   currentZone?: Zone,
-  currentPipe?: Points
+  currentPipe?: Points,
+  currentVine?: Vine
 ) {
   const [l, t] = display.fromViewport(0, 0);
   const [r, b] = display.fromViewport(display.getViewportWidth(), display.getViewportHeight());
@@ -106,6 +140,31 @@ export default function renderEdit(g: Graphics, o: Graphics, zones: {
     .endFill();
   }
 
+  for (const pipe of pipes) {
+    if (pipe) {
+      const outer = o.lineStyle(4 / scale, 0x000000).beginFill(0,0);
+      for (let i = 1; i < pipe.length; i++) {
+        const prev = pipe[i - 1];
+        const current = pipe[i];
+        if (prev && current) {
+          outer.moveTo(prev[0], prev[1]);
+          outer.lineTo(current[0], current[1]);
+        }
+      }
+      outer.endFill();
+      const inner = o.lineStyle(2 / scale, 0xffff00).beginFill(0,0);
+      for (let i = 1; i < pipe.length; i++) {
+        const prev = pipe[i - 1];
+        const current = pipe[i];
+        if (prev && current) {
+          outer.moveTo(prev[0], prev[1]);
+          outer.lineTo(current[0], current[1]);
+        }
+      }
+      inner.endFill();
+    }
+  }
+
   if (currentPipe) {
     const pipe = currentPipe;
     const outer = o.lineStyle(4 / scale, 0x000000).beginFill(0,0);
@@ -130,28 +189,11 @@ export default function renderEdit(g: Graphics, o: Graphics, zones: {
     inner.endFill();
   }
 
-  for (const pipe of pipes) {
-    if (pipe) {
-      const outer = o.lineStyle(4 / scale, 0x000000).beginFill(0,0);
-      for (let i = 1; i < pipe.length; i++) {
-        const prev = pipe[i - 1];
-        const current = pipe[i];
-        if (prev && current) {
-          outer.moveTo(prev[0], prev[1]);
-          outer.lineTo(current[0], current[1]);
-        }
-      }
-      outer.endFill();
-      const inner = o.lineStyle(2 / scale, 0xffff00).beginFill(0,0);
-      for (let i = 1; i < pipe.length; i++) {
-        const prev = pipe[i - 1];
-        const current = pipe[i];
-        if (prev && current) {
-          outer.moveTo(prev[0], prev[1]);
-          outer.lineTo(current[0], current[1]);
-        }
-      }
-      inner.endFill();
-    }
+  for (const vine of vines) {
+    drawVine(o, vine, 0x00ff00);
+  }
+
+  if (currentVine) {
+    drawVine(o, currentVine, 0x00ffff);
   }
 }

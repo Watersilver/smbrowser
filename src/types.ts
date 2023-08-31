@@ -17,6 +17,8 @@ export type Zone = {x: number; y: number; w: number; h: number;};
 
 export type Points = [x: number, y: number][];
 
+export type Vine = {x: number, y: number, h: number};
+
 export type LevelData = {
   entities: [
     type: EntityTypeMapping,
@@ -44,4 +46,5 @@ export type LevelData = {
   surfaceZones?: Zone[];
   noMarioInputZones?: Zone[];
   pipes?: Points[];
+  vines?: Vine[];
 };

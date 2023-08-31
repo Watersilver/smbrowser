@@ -5,8 +5,8 @@ const audio = getSmb1Audio();
 
 const swimSoundOptions = {stopPrev: {same: true}};
 
-entities.onAdding(['coinFromBlockLife'], () => {
-  audio.sounds.play('coin');
+entities.onPropChange('coinGotCollected', e => {
+  if (e.coinGotCollected) audio.sounds.play('coin', {stopPrev: {same: true}});
 });
 
 export default function marioSmb1Sounds() {
@@ -63,5 +63,12 @@ export default function marioSmb1Sounds() {
     if (e.smash) {
       audio.sounds.play('breakblock');
     }
+  }
+
+  for (const e of entities.view(['vineStart'])) {
+    if (e.vineStart) {
+      audio.sounds.play('vine');
+    }
+    delete e.vineStart;
   }
 }

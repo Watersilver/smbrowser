@@ -2,7 +2,7 @@ import { Vec2d } from "../engine";
 import entities, { newEntity } from "../entities";
 import smb1Sprites from "../sprites/smb1";
 
-export default function newCoinFromBlock(x: number, y: number) {
+export default function newCoinFromBlock(x: number, y: number, zIndex?: number) {
   const smb1ObjectsAnimations = smb1Sprites.getFactory('animObjects').new();
   smb1ObjectsAnimations.setAnimation('coin');
   smb1ObjectsAnimations.container.zIndex = -1;
@@ -16,6 +16,7 @@ export default function newCoinFromBlock(x: number, y: number) {
     size: new Vec2d(8, 16),
     dynamic: {velocity: new Vec2d(0, 0), acceleration: new Vec2d(0, 0)},
     smb1ObjectsAnimations,
-    coinFromBlockLife: 0.8
+    coinFromBlockLife: 0.8,
+    coinGotCollected: true
   }));
 }
