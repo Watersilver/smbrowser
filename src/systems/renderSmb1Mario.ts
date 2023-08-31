@@ -99,7 +99,7 @@ export default function renderSmb1Mario(dt: number) {
     const mario = e.mario;
     const v = e.dynamic?.velocity;
     const accel = e.dynamic?.acceleration;
-    const speed = v ? Math.abs(v.x) : 0;
+    const speed = v ? Math.abs(v.x) : (e.mario?.inPipe?.nonIdle ? 50 : 0);
     const accelMagn = accel ? Math.abs(accel.x) : 0;
     const isIdle = speed < Number.EPSILON * 2 && accelMagn < Number.EPSILON * 2;
     if (a && mario) {

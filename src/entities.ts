@@ -5,6 +5,7 @@ import { Smb1TilesAnimations } from "./sprites/loaders/smb1/animated-tiles";
 import { Smb1MarioSprites } from "./sprites/loaders/smb1/mario";
 import { Smb1ObjectsSprites } from "./sprites/loaders/smb1/objects";
 import { Smb1TilesSprites } from "./sprites/loaders/smb1/tiles";
+import { Points } from "./types";
 
 export type Entity = {
   positionStart: Vec2d;
@@ -101,9 +102,21 @@ export type Entity = {
     star?: number;
     coins: number;
     lives: number;
+    invinsibility?: number;
 
     // Use same mechanism for wind and whirlpools
     wind?: number;
+
+    inPipe?: {
+      path: Points;
+      from: "u" | "d" | "l" | "r";
+      to: "u" | "d" | "l" | "r";
+      started?: boolean;
+      exiting?: {x: number, y: number};
+      iTarget?: number;
+      zIndex?: number;
+      nonIdle?: boolean;
+    };
   };
   fireball?: {
     parent?: Entity;
@@ -157,6 +170,12 @@ export type Entity = {
   star?: boolean;
   bonked?: boolean;
   coinFromBlockLife?: number;
+  followCam?: boolean;
+  pipe?: {
+    path: Points;
+    from: "u" | "d" | "l" | "r";
+    to: "u" | "d" | "l" | "r";
+  };
 };
 
 export function newEntity(init?: Partial<Entity>): Entity {

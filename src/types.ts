@@ -13,7 +13,9 @@ export enum EntityTypeMapping {
   clutter = 'd'
 }
 
-type Zone = {x: number; y: number; w: number; h: number;};
+export type Zone = {x: number; y: number; w: number; h: number;};
+
+export type Points = [x: number, y: number][];
 
 export type LevelData = {
   entities: [
@@ -41,4 +43,5 @@ export type LevelData = {
   whirlpoolZones?: Zone[];
   surfaceZones?: Zone[];
   noMarioInputZones?: Zone[];
+  pipes?: Points[];
 };

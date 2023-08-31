@@ -11,6 +11,12 @@ entities.onAdding(['coinFromBlockLife'], () => {
 
 export default function marioSmb1Sounds() {
   for (const e of entities.view(['mario'])) {
+    if (e.mario?.inPipe?.started) {
+      audio.sounds.play('pipe');
+    }
+  }
+
+  for (const e of entities.view(['mario', 'dynamic'])) {
     const m = e.mario;
     if (m) {
       if (m.jumped) {

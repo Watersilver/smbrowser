@@ -65,6 +65,7 @@ export default function newMario(x: number, y: number) {
     },
     floorSpeed: 0,
     gravity: 0,
-    smb1MarioAnimations: smb1Sprites.getFactory('mario').new()
+    smb1MarioAnimations: smb1Sprites.getFactory('mario').new(),
+    followCam: true
   }))
 }

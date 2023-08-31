@@ -7,13 +7,13 @@ let z: {x: number; y: number; w: number; h: number} | null = null;
 
 export default function camera(display: Display) {
 
-  let mario: Entity | null = null;
-  for (const e of entities.view(['mario'])) {
-    mario = e;
+  let following: Entity | null = null;
+  for (const e of entities.view(['followCam'])) {
+    following = e;
   }
 
-  if (mario) {
-    const cx = mario.position.x, cy = mario.position.y + mario.size.y * 0.5 - 16;
+  if (following) {
+    const cx = following.position.x, cy = following.position.y + following.size.y * 0.5 - 16;
 
     let preserveCamZone = false;
     for (const zone of zones.preserveCamera) {

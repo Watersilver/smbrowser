@@ -31,13 +31,17 @@ import fireballs from "../systems/fireballs";
 import type LevelEditor from "./LevelEditor";
 import zones from "../zones";
 import camera from "../systems/camera";
+import { Points } from "../types";
+import newPipe from "../entityFactories/newPipe";
+import pipes from "../systems/pipes";
 
 const audio = getSmb1Audio();
 
 export type GameplayInit = {
   graphics: Graphics;
   input: Input;
-  zones: LevelEditor['zones']
+  zones: LevelEditor['zones'];
+  pipes: Points[];
 }
 export type GameplayOut = {
   graphics: Graphics;
@@ -73,6 +77,11 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
     zones.surface.push(...init.zones.surfaceZones);
     zones.underwater.push(...init.zones.underwaterZones);
     zones.whirlpool.push(...init.zones.whirlpoolZones);
+
+    init.pipes.forEach(pipe => {
+      newPipe(pipe);
+      newPipe([...pipe].reverse());
+    });
   }
 
   override onEnd(): [output: GameplayOut | null, next: 'editor'] {
@@ -154,6 +163,8 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
 
       // Inputs
       marioPlayerInput(this.input, dt);
+
+      pipes(this.input, dt);
 
       // Apply accelerations
       gravity();

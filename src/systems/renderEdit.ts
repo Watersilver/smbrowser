@@ -1,17 +1,22 @@
 import { Graphics } from "pixi.js";
 import display from "../display";
+import { Points } from "../types";
 
 type Zone = {x: number; y: number; w: number; h: number;};
 
 export default function renderEdit(g: Graphics, o: Graphics, zones: {
-  camZones: Zone[];
-  camPreserveZones: Zone[];
-  deathZones: Zone[];
-  underwaterZones: Zone[];
-  whirlpoolZones: Zone[];
-  surfaceZones: Zone[];
-  noMarioInputZones: Zone[];
-}, currentZone?: Zone) {
+    camZones: Zone[];
+    camPreserveZones: Zone[];
+    deathZones: Zone[];
+    underwaterZones: Zone[];
+    whirlpoolZones: Zone[];
+    surfaceZones: Zone[];
+    noMarioInputZones: Zone[];
+  },
+  pipes: Points[],
+  currentZone?: Zone,
+  currentPipe?: Points
+) {
   const [l, t] = display.fromViewport(0, 0);
   const [r, b] = display.fromViewport(display.getViewportWidth(), display.getViewportHeight());
 
@@ -48,6 +53,33 @@ export default function renderEdit(g: Graphics, o: Graphics, zones: {
   .drawRect(x, y, 16, 16)
   .endFill();
 
+  for (const [name, z] of Object.entries(zones)) {
+    const col =
+      name === 'camZones'
+      ? 0xffff00
+      : name === 'camPreserveZones'
+      ? 0xffaa99
+      : name === 'deathZones'
+      ? 0xff0000
+      : name === 'underwaterZones'
+      ? 0x0000ff
+      : name === 'whirlpoolZones'
+      ? 0x00ff00
+      : name === 'surfaceZones'
+      ? 0x00ffff
+      : 0xff00ff;
+    z.forEach(zone => {
+      o.lineStyle(4 / scale, 0xffffff)
+      .beginFill(0, 0)
+      .drawRect(zone.x, zone.y, zone.w, zone.h)
+      .endFill();
+      o.lineStyle(2 / scale, col)
+      .beginFill(0, 0)
+      .drawRect(zone.x, zone.y, zone.w, zone.h)
+      .endFill();
+    })
+  }
+
   if (currentZone) {
     let x = 0, y = 0, w = 0, h = 0;
     if (currentZone.w > 0) {
@@ -74,30 +106,52 @@ export default function renderEdit(g: Graphics, o: Graphics, zones: {
     .endFill();
   }
 
-  for (const [name, z] of Object.entries(zones)) {
-    const col =
-      name === 'camZones'
-      ? 0xffff00
-      : name === 'noCamZones'
-      ? 0xffaa99
-      : name === 'deathZones'
-      ? 0xff0000
-      : name === 'underwaterZones'
-      ? 0x0000ff
-      : name === 'whirlpoolZones'
-      ? 0x00ff00
-      : name === 'surfaceZones'
-      ? 0x00ffff
-      : 0xff00ff;
-    z.forEach(zone => {
-      o.lineStyle(4 / scale, 0xffffff)
-      .beginFill(0, 0)
-      .drawRect(zone.x, zone.y, zone.w, zone.h)
-      .endFill();
-      o.lineStyle(2 / scale, col)
-      .beginFill(0, 0)
-      .drawRect(zone.x, zone.y, zone.w, zone.h)
-      .endFill();
-    })
+  if (currentPipe) {
+    const pipe = currentPipe;
+    const outer = o.lineStyle(4 / scale, 0x000000).beginFill(0,0);
+    for (let i = 1; i < pipe.length; i++) {
+      const prev = pipe[i - 1];
+      const current = pipe[i];
+      if (prev && current) {
+        outer.moveTo(prev[0], prev[1]);
+        outer.lineTo(current[0], current[1]);
+      }
+    }
+    outer.endFill();
+    const inner = o.lineStyle(2 / scale, 0xffffff).beginFill(0,0);
+    for (let i = 1; i < pipe.length; i++) {
+      const prev = pipe[i - 1];
+      const current = pipe[i];
+      if (prev && current) {
+        outer.moveTo(prev[0], prev[1]);
+        outer.lineTo(current[0], current[1]);
+      }
+    }
+    inner.endFill();
+  }
+
+  for (const pipe of pipes) {
+    if (pipe) {
+      const outer = o.lineStyle(4 / scale, 0x000000).beginFill(0,0);
+      for (let i = 1; i < pipe.length; i++) {
+        const prev = pipe[i - 1];
+        const current = pipe[i];
+        if (prev && current) {
+          outer.moveTo(prev[0], prev[1]);
+          outer.lineTo(current[0], current[1]);
+        }
+      }
+      outer.endFill();
+      const inner = o.lineStyle(2 / scale, 0xffff00).beginFill(0,0);
+      for (let i = 1; i < pipe.length; i++) {
+        const prev = pipe[i - 1];
+        const current = pipe[i];
+        if (prev && current) {
+          outer.moveTo(prev[0], prev[1]);
+          outer.lineTo(current[0], current[1]);
+        }
+      }
+      inner.endFill();
+    }
   }
 }

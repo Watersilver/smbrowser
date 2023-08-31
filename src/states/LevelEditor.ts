@@ -8,15 +8,13 @@ import renderSmb1Mario from "../systems/renderSmb1Mario";
 import marioSmb1Sounds from "../systems/marioSmb1Sounds";
 import entities, { Entity } from "../entities";
 import parseLevel from "../systems/parseLevel";
-import { EntityTypeMapping, LevelData } from "../types";
+import { EntityTypeMapping, LevelData, Points } from "../types";
 import culling from "../systems/culling";
 import renderSmb1Stuff from "../systems/renderSmb1Stuff";
 import smb1marioFactory from "../sprites/loaders/smb1/mario";
 import smb1tilesFactory, { Smb1TilesSprites } from "../sprites/loaders/smb1/tiles";
 import level from '../assets/level.json';
 import renderEdit from "../systems/renderEdit";
-
-// TODO: Maek game
 
 export type LevelEditorInit = {
   graphics: Graphics;
@@ -27,6 +25,7 @@ export type LevelEditorOut = {
   graphics: Graphics;
   input: Input;
   zones: LevelEditor['zones'];
+  pipes: Points[];
   levelDataInit?: string;
 }
 
@@ -55,6 +54,10 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     surfaceZones: [],
     noMarioInputZones: []
   };
+
+  currentPipe?: Points;
+  pipes: Points[] = [];
+  pipeSelected: boolean = false;
 
   mouseX = 0;
   mouseY = 0;
@@ -112,6 +115,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
   toolsCont: HTMLDivElement;
   entityCount: HTMLDivElement;
   mousePosDisplay: HTMLDivElement;
+  pipeSelect: HTMLButtonElement;
   zoneSelect: HTMLButtonElement;
   marioSelect: HTMLButtonElement;
   solidSelect: HTMLButtonElement;
@@ -427,6 +431,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     this.zoneSelect.innerHTML = 'camera<br>zone';
     this.zoneSelect.onclick = () => {
       this.selected = null;
+      this.pipeSelected = false;
       this.zoneSelected = true;
     };
     const renderZSName = () => {
@@ -508,7 +513,15 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       renderZSName();
     });
 
-    this.tileSelectors.append(this.zoneSelect, this.marioSelect, this.solidSelect, this.brickSelect, this.blockSelect, this.clutterSelect);
+    this.pipeSelect = document.createElement('button');
+    this.pipeSelect.innerHTML = 'pipe<br>path';
+    this.pipeSelect.onclick = () => {
+      this.selected = null;
+      this.zoneSelected = false;
+      this.pipeSelected = true;
+    };
+
+    this.tileSelectors.append(this.zoneSelect, this.pipeSelect, this.marioSelect, this.solidSelect, this.brickSelect, this.blockSelect, this.clutterSelect);
 
     this.mousePosDisplay = document.createElement('div');
 
@@ -614,7 +627,8 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     return [{
       graphics,
       input,
-      zones: this.zones
+      zones: this.zones,
+      pipes: this.pipes
     }, "gameplay"];
   }
 
@@ -623,13 +637,21 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
 
     if (this.selected) {
       this.zoneSelected = false;
+      this.pipeSelected = false;
       this.currentZone = undefined;
+      this.currentPipe = undefined;
     }
 
     if (this.zoneSelected) {
       this.zoneSelect.classList.add('selected');
     } else {
       this.zoneSelect.classList.remove('selected');
+    }
+
+    if (this.pipeSelected) {
+      this.pipeSelect.classList.add('selected');
+    } else {
+      this.pipeSelect.classList.remove('selected');
     }
 
     if (this.selected !== this.prevSelected) {
@@ -668,9 +690,24 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     // Traverse history
     if (this.input.isPressed('KeyZ') && (this.input.isHeld('ControlLeft') || this.input.isHeld('ControlRight'))) {
       if (this.input.isHeld("ShiftLeft") || this.input.isHeld("ShiftRight")) {
-        this.historyRestore();
+        // Restore
+        if (this.selected) {
+          this.historyRestore();
+        }
       } else {
-        this.historyUndo();
+        // Undo
+        if (this.selected) {
+          this.historyUndo();
+        } else if (this.pipeSelected) {
+          if (this.currentPipe) {
+            this.currentPipe.pop();
+            if (this.currentPipe.length <= 1) {
+              this.currentPipe = undefined;
+            }
+          } else {
+            this.pipes.pop();
+          }
+        }
       }
     }
 
@@ -755,7 +792,6 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
         }
       }
     }
-    
 
     if (this.zoneSelected) {
       const snapToGrid = !this.input.isHeld('ShiftLeft');
@@ -768,7 +804,9 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
           this.currentZone = undefined;
 
           for (const [zonesGroup, zones] of Object.entries(this.zones)) {
-            const zone = zones.find(z => aabb.pointVsRect(new Vec2d(mx, my), {pos: new Vec2d(z.x, z.y), size: new Vec2d(z.w, z.h)}));
+            const zone = zones
+            .sort((a, b) => a.w * a.h - b.w * b.h) // smallest first
+            .find(z => aabb.pointVsRect(new Vec2d(mx, my), {pos: new Vec2d(z.x, z.y), size: new Vec2d(z.w, z.h)}));
             if (zone) {
               const set = new Set((this.zones as any)[zonesGroup]);
               set.delete(zone);
@@ -851,6 +889,42 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       }
     }
 
+    if (this.pipeSelected) {
+      if (this.input.isPressed('Delete') || this.input.isPressed('Backspace')) {
+        this.currentPipe = undefined;
+      }
+
+      if (this.input.isPressed('MouseMain')) {
+        const del = this.input.isHeld('ControlLeft');
+
+        if (del) {
+          const pipe = this.pipes.find(p => p.find(point => point[0] === mxgrid && point[1] === mygrid));
+          const set = new Set(this.pipes);
+          if (pipe) {
+            set.delete(pipe);
+            this.pipes = [...set];
+          }
+        } else {
+          if (this.currentPipe) {
+            const last = this.currentPipe.at(-1);
+            if (last && last[0] === mxgrid && last[1] === mygrid) {
+              this.pipes.push(this.currentPipe);
+              this.currentPipe = undefined;
+            } else {
+              this.currentPipe.push([mxgrid, mygrid]);
+            }
+          } else {
+            this.currentPipe = [[mxgrid, mygrid]];
+          }
+        }
+      }
+
+      if (this.input.isPressed("Enter") && this.currentPipe) {
+        this.pipes.push(this.currentPipe);
+        this.currentPipe = undefined;
+      }
+    }
+
     // Level edit mode
     mouseCamMove(dt, display, this.input, this);
 
@@ -859,7 +933,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     debugRender(this.graphics);
     renderSmb1Mario(dt);
     renderSmb1Stuff(dt, true);
-    renderEdit(this.graphics, this.graphicsOverlay, this.zones, this.currentZone);
+    renderEdit(this.graphics, this.graphicsOverlay, this.zones, this.pipes, this.currentZone, this.currentPipe);
     marioSmb1Sounds();
 
     return true;

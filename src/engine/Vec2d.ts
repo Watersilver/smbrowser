@@ -1,4 +1,4 @@
-type Vec2dData = {
+export type Vec2dData = {
   x: number;
   y: number;
 }
