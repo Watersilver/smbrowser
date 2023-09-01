@@ -27,9 +27,13 @@ export type Entity = {
       jumping?: boolean;
       left?: boolean;
       right?: boolean;
+      leftPress?: boolean;
+      rightPress?: boolean;
       attack?: boolean;
       run?: number;
       ducking?: boolean;
+      climbUp?: boolean;
+      climbDown?: boolean;
     }
     anyPressed?: boolean;
   };
@@ -103,6 +107,8 @@ export type Entity = {
     coins: number;
     lives: number;
     invinsibility?: number;
+    climbing?: Entity;
+    climbingCooldown?: number;
 
     // Use same mechanism for wind and whirlpools
     wind?: number;

@@ -1,36 +1,19 @@
+import { aabb } from "../engine";
 import entities from "../entities";
 import newClutter from "../entityFactories/newClutter";
+import Collidable from "../utils/collidable";
+import worldGrid from "../world-grid";
 
-// TODO: vine climb
-
-// TODO: Trampolines
-
-// TODO: Bowserfire, Jumping fish, bullet bill etc zones.
-
-// TODO: Goomba
-
-// TODO: Koopa Troopa green
-
-// TODO: Koopa Troopa red
-
-// TODO: Koopa paratroopa green
-
-// TODO: Koopa paratroopa green
-
-// TODO: Piranha plants
-
-// TODO: Enemy spawners
-
-// TODO: Death and respawn and checkpoints
+const collider = new Collidable();
+const collidee = new Collidable();
 
 export default function vines(dt: number) {
-
   // Grow
   for (const e of entities.view(['vine', 'moving'])) {
     if (!e.vine) continue;
 
     // compute new size and position
-    e.size.y += (e.vine.targetHeight - e.size.y) * dt * 0.9 * 5;
+    e.size.y += (e.vine.targetHeight - e.size.y) * dt * 0.3 * 5;
     if (e.vine.targetHeight - e.size.y < 0.1) e.size.y = e.vine.targetHeight;
     const bottom = e.vine.root.smb1TilesSprites?.container.position.y ?? e.vine.root.position.y;
     e.position.y = bottom - e.size.y * 0.5;
@@ -60,6 +43,43 @@ export default function vines(dt: number) {
     // Become static if done growing
     if (e.size.y === e.vine.targetHeight) {
       delete e.moving;
+    }
+  }
+
+  // Grab
+  for (const e of entities.view(['mario'])) {
+    if (!e.mario) continue;
+    delete e.mario.climbing;
+
+    if (e.mario.climbingCooldown) {
+      e.mario.climbingCooldown -= dt;
+      if (e.mario.climbingCooldown <= 0) {
+        delete e.mario.climbingCooldown;
+      }
+      continue;
+    }
+
+    collider.set(e, dt);
+    const bb = collider.computeBoundingBox();
+    for (const u of worldGrid.sensors.findNear(bb.l, bb.t, bb.w, bb.h)) {
+      const uu = u.userData;
+      if (uu.vine) {
+        collidee.set(uu);
+
+        if (aabb.rectVsRect(collider, collidee)) {
+          e.mario.ducking = false;
+          e.mario.jumping = true;
+          e.mario.climbing = uu;
+          e.mario.facing = e.position.x - uu.position.x < 0 ? 1 : -1;
+          if (e.dynamic) {
+            e.dynamic.velocity.x = 0;
+            e.dynamic.velocity.y = 0;
+            e.dynamic.acceleration.x = 0;
+            e.dynamic.acceleration.y = 0;
+          }
+          break;
+        }
+      }
     }
   }
 }

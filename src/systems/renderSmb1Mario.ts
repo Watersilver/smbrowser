@@ -122,7 +122,6 @@ export default function renderSmb1Mario(dt: number) {
     const accelMagn = accel ? Math.abs(accel.x) : 0;
     const isIdle = speed < Number.EPSILON * 2 && accelMagn < Number.EPSILON * 2;
     if (a && mario) {
-
       // Determine filters
       if (mario.star && mario.powerup === 'fire') {
         if (e.filters !== bothMario) {
@@ -148,7 +147,18 @@ export default function renderSmb1Mario(dt: number) {
         a.loopsPerSecond = 0;
       }
 
-      if (!mario.grounded && e.underwater) {
+      if (mario.climbing) {
+        if (e.positionPrev.y !== e.position.y) {
+          a.loopsPerSecond = 3;
+        } else {
+          a.loopsPerSecond = 0;
+        }
+        if (mario.big) {
+          a.setAnimation('bigClimb');
+        } else {
+          a.setAnimation('smallClimb');
+        }
+      } else if (!mario.grounded && e.underwater) {
         a.loopsPerSecond = 3;
         if (mario.jumped) {
           if (mario.big) {

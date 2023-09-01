@@ -31,7 +31,7 @@ export default function pipes(input: Input, dt: number) {
               path: e.pipe.path,
               from: e.pipe.from,
               to: e.pipe.to,
-              zIndex: e.smb1MarioAnimations?.container.zIndex
+              zIndex: e.smb1MarioAnimations?.container.zIndex ?? 1
             }
             if (uu.smb1MarioAnimations) uu.smb1MarioAnimations.container.zIndex = -10;
           }
@@ -138,7 +138,9 @@ export default function pipes(input: Input, dt: number) {
 
         if (e.position.sub(p.exiting).length() > exitDist) {
           if (e.smb1MarioAnimations) {
-            if (p.zIndex !== undefined) e.smb1MarioAnimations.container.zIndex = p.zIndex;
+            if (p.zIndex !== undefined) {
+              e.smb1MarioAnimations.container.zIndex = p.zIndex;
+            }
             e.smb1MarioAnimations.container.visible = true;
           }
           delete e.mario?.inPipe;

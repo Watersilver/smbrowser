@@ -3,6 +3,8 @@ import entities, { newEntity } from "../entities";
 import smb1Sprites from "../sprites/smb1";
 
 export default function newMario(x: number, y: number) {
+  const smb1MarioAnimations = smb1Sprites.getFactory('mario').new();
+  smb1MarioAnimations.container.zIndex = 1;
   return entities.createEntity(newEntity({
     position: new Vec2d(x, y),
     touchingUp: [],
@@ -65,7 +67,7 @@ export default function newMario(x: number, y: number) {
     },
     floorSpeed: 0,
     gravity: 0,
-    smb1MarioAnimations: smb1Sprites.getFactory('mario').new(),
+    smb1MarioAnimations,
     followCam: true
-  }))
+  }));
 }

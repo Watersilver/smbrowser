@@ -24,10 +24,10 @@ export default class Collidable {
     this.w = data.size.x;
     this.h = data.size.y;
 
-    this.pos.x = data.position.x;
-    this.pos.y = data.position.y;
-    this.size.x = data.size.x;
-    this.size.y = data.size.y;
+    this.pos.x = this.l;
+    this.pos.y = this.t;
+    this.size.x = this.w;
+    this.size.y = this.h;
 
     if (dt && data.dynamic) {
       this.dr.x = data.dynamic.velocity.x * dt;

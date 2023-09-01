@@ -19,8 +19,9 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
     if (config && mi && dynamic && mario) {
       const underwater = !!e.underwater;
       const i = mi.inputs;
-      const jumped = (underwater || downBlocked) && i.jump && !mario.jumpCooldown;
+      const jumped = (underwater || downBlocked || mario.climbing) && i.jump && !mario.jumpCooldown;
       const grounded = downBlocked && !jumped && !mario.jumpCooldown;
+
       e.gravity = e.gravity || config.initFallGravity;
 
       mario.jumped = false;
@@ -38,11 +39,40 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
       mario.prevGrounded = mario.grounded;
 
       // If this is check isn't here, getting up while holding directional key moves us a little
-      // Desirable if we want to get into tight spaces without first gathering momentum
-      // Could be good for avoiding softlocks
       const wasDucking = mario.ducking;
       const ducking = mario.forcedDucking || mario.ducking || wasDucking;
-      if (grounded) {
+
+      if (mario.climbing) {
+        if (i.leftPress) {
+          mario.facing = 1;
+        }
+        if (i.rightPress) {
+          mario.facing = -1;
+        }
+        dynamic.velocity.y = 0;
+        dynamic.acceleration.y = 0;
+        if (i.climbUp) {
+          dynamic.acceleration.y = -50 / dt;
+        }
+        if (i.climbDown) {
+          dynamic.acceleration.y = 50 / dt;
+        }
+        e.position.x = mario.climbing.position.x - mario.facing * e.size.x / 2;
+        e.gravity = 0;
+        if (jumped) {
+          delete mario.climbing;
+          mario.climbingCooldown = 0.2;
+          dynamic.acceleration.x = - mario.facing * 50 / dt;
+
+          if (!i.climbDown) {
+            mario.jumped = true;
+            mario.jumping = true;
+            mario.jumpCooldown = 5 / 60;
+            mario.facing = mario.facing === -1 ? 1 : -1;
+            dynamic.acceleration.y = - ((mario.jumpSpeed ?? 0) + dynamic.velocity.y) / dt;
+          }
+        }
+      } else if (grounded) {
         mario.ducking = i.ducking && mario.big;
         mario.maxAirSpeed = undefined;
         mario.jumping = !!mario.jumpCooldown;
@@ -253,7 +283,7 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
         mario.shooting -= dt;
         if (mario.shooting <= 0) mario.shooting = 0;
       }
-      if (mario.powerup === "fire" && mario.big) {
+      if (mario.powerup === "fire" && mario.big && !mario.climbing) {
         if (i.attack && !mario.shooting && !ducking) {
           mario.shooting = 1/10;
           mario.shot = true;
