@@ -127,20 +127,86 @@ export default class SpritesheetWrapper<T extends {
         width: t.width + 2,
         height: t.height + 2
       });
-      const spr = Sprite.from(t);
-      for (const pos of [[0,0], [1,0], [2,0], [0,1], [2,1], [0,2], [1,2], [2,2], [1,1]]) {
-        spr.position.x = pos[0] ?? 0;
-        spr.position.y = pos[1] ?? 0;
-        display.renderer.render(spr, {renderTexture: paddedTexture});
-      }
-      this.sheet.textures[k] = paddedTexture;
 
-      // Not 100% sure why this works but it does.
-      // I originally though the it would result in bigger
-      // textures and I would need to crop them.
-      // Probably because texture dimensions are defined
-      // so even when providing bigger texture it uses them?
-      // But they are also centered correctly. No clue..
+      const spr = Sprite.from(t);
+
+      const fx = t.frame.x;
+      const fy = t.frame.y;
+      const fw = t.frame.width;
+      const fh = t.frame.height;
+
+      // Pad left
+      t.frame.x = fx;
+      t.frame.y = fy;
+      t.frame.width = 1;
+      t.frame.height = fh;
+      t.updateUvs();
+      spr.position.x = 0;
+      // spr.position.y = 0;
+      // display.renderer.render(spr, {renderTexture: paddedTexture, clear: false});
+      // spr.position.y = 2;
+      // display.renderer.render(spr, {renderTexture: paddedTexture, clear: false});
+      spr.position.y = 1;
+      display.renderer.render(spr, {renderTexture: paddedTexture, clear: false});
+
+      // Pad right
+      t.frame.x = fx + fw - 1;
+      t.frame.y = fy;
+      t.frame.width = 1;
+      t.frame.height = fh;
+      t.updateUvs();
+      spr.position.x = fw + 1;
+      // spr.position.y = 0;
+      // display.renderer.render(spr, {renderTexture: paddedTexture, clear: false});
+      // spr.position.y = 2;
+      // display.renderer.render(spr, {renderTexture: paddedTexture, clear: false});
+      spr.position.y = 1;
+      display.renderer.render(spr, {renderTexture: paddedTexture, clear: false});
+
+      // Pad top
+      t.frame.x = fx;
+      t.frame.y = fy;
+      t.frame.width = fw;
+      t.frame.height = 1;
+      t.updateUvs();
+      spr.position.y = 0;
+      // spr.position.x = 0;
+      // display.renderer.render(spr, {renderTexture: paddedTexture, clear: false});
+      // spr.position.x = 2;
+      // display.renderer.render(spr, {renderTexture: paddedTexture, clear: false});
+      spr.position.x = 1;
+      display.renderer.render(spr, {renderTexture: paddedTexture, clear: false});
+
+      // Pad bottom
+      t.frame.x = fx;
+      t.frame.y = fy + fh - 1;
+      t.frame.width = fw;
+      t.frame.height = 1;
+      t.updateUvs();
+      spr.position.y = fh + 1;
+      // spr.position.x = 0;
+      // display.renderer.render(spr, {renderTexture: paddedTexture, clear: false});
+      // spr.position.x = 2;
+      // display.renderer.render(spr, {renderTexture: paddedTexture, clear: false});
+      spr.position.x = 1;
+      display.renderer.render(spr, {renderTexture: paddedTexture, clear: false});
+
+      // Draw center
+      t.frame.x = fx;
+      t.frame.y = fy;
+      t.frame.width = fw;
+      t.frame.height = fh;
+      t.updateUvs();
+      spr.position.x = 1;
+      spr.position.y = 1;
+      display.renderer.render(spr, {renderTexture: paddedTexture, clear: false});
+
+      paddedTexture.frame.x = 1;
+      paddedTexture.frame.y = 1;
+      paddedTexture.frame.width = t.width;
+      paddedTexture.frame.height = t.height;
+      paddedTexture.updateUvs();
+      this.sheet.textures[k] = paddedTexture;
     }
 
     // Replace animations textures with padded textures
