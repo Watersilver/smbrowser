@@ -34,6 +34,8 @@ entities.onPropChange('bonked', e => {
 
 export default function coins(dt: number) {
   for (const e of entities.view(['mario'])) {
+    if (!e.mario) continue;
+
     collider.set(e, dt);
     const bb = collider.computeBoundingBox();
     for (const u of worldGrid.sensors.findNear(bb.l, bb.t, bb.w, bb.h)) {
@@ -45,9 +47,15 @@ export default function coins(dt: number) {
           uu.coinGotCollected = true;
           delete uu.coin;
           entities.remove(uu);
-          if (e.mario) e.mario.coins++;
+          e.mario.coins++;
         }
       }
+    }
+
+    while (e.mario.coins > 99) {
+      e.mario.coins -= 100;
+      e.mario.gainedOneUp = true;
+      e.mario.lives++;
     }
   }
 }

@@ -17,7 +17,7 @@ export default function camera(display: Display) {
 
     let preserveCamZone = false;
     for (const zone of zones.preserveCamera) {
-      if (aabb.pointVsRect({x: cx, y: cy}, {pos: {x: zone.x, y: zone.y}, size: {x: zone.w, y: zone.h}})) {
+      if (aabb.pointVsRect({x: following.position.x, y: following.position.y}, {pos: {x: zone.x, y: zone.y}, size: {x: zone.w, y: zone.h}})) {
         preserveCamZone = true;
       }
     }
@@ -28,7 +28,7 @@ export default function camera(display: Display) {
     if (!preserveCamZone) {
       z = null;
       for (const zone of zones.camera) {
-        if (aabb.pointVsRect({x: cx, y: cy}, {pos: {x: zone.x, y: zone.y}, size: {x: zone.w, y: zone.h}})) {
+        if (aabb.pointVsRect({x: following.position.x, y: following.position.y}, {pos: {x: zone.x, y: zone.y}, size: {x: zone.w, y: zone.h}})) {
           z = zone;
         }
       }

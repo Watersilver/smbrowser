@@ -6,7 +6,7 @@ import worldGrid from "../world-grid";
 const collider = new Collidable();
 const collidee = new Collidable();
 
-const pipeSpeed = 177;
+const pipeSpeed = 200;
 
 export default function pipes(input: Input, dt: number) {
   for (const e of entities.view(['pipe'])) {
@@ -134,7 +134,7 @@ export default function pipes(input: Input, dt: number) {
           e.smb1MarioAnimations.container.y = e.position.y;
         }
 
-        let exitDist = p.to === 'd' || p.to === 'u' ? e.size.y * 0.5 : e.size.x * 0.5;
+        let exitDist = p.to === 'd' || p.to === 'u' ? e.size.y * 0.55 : e.size.x * 0.55;
 
         if (e.position.sub(p.exiting).length() > exitDist) {
           if (e.smb1MarioAnimations) {

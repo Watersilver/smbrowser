@@ -4,7 +4,6 @@ import { Smb1TilesSprites } from "../sprites/loaders/smb1/tiles";
 import smb1Sprites from "../sprites/smb1";
 
 export default function newCoinblock(x: number, y: number, editFrame?: Smb1TilesSprites['frame']) {
-  const smb1TilesAnimations = smb1Sprites.getFactory('animTiles').new();
   const smb1TilesSprites = smb1Sprites.getFactory('tiles').new();
 
   const coinblock =
@@ -17,13 +16,14 @@ export default function newCoinblock(x: number, y: number, editFrame?: Smb1Tiles
     : editFrame?.includes('Life')
     ? 'life'
     : 'coin';
-  
+
   switch (editFrame) {
     case 'blockCoin':
     case 'blockCoins':
     case 'blockPowerup':
     case 'blockStar':
     case 'blockLife':
+      const smb1TilesAnimations = smb1Sprites.getFactory('animTiles').new();
       smb1TilesAnimations.setAnimation('block');
       smb1TilesSprites.setFrame(editFrame ?? 'solidFloor1');
       return entities.createEntity(newEntity({
@@ -33,6 +33,8 @@ export default function newCoinblock(x: number, y: number, editFrame?: Smb1Tiles
         smb1TilesSpritesEditMode: smb1TilesSprites
       }));
     default:
+      const smb1TilesSpritesEditMode = smb1Sprites.getFactory('tiles').new();
+      smb1TilesSpritesEditMode.setFrame(editFrame ?? 'solidFloor1');
       if (editFrame?.includes("Brick")) {
         if (editFrame?.includes("Bottom")) {
           if (editFrame.includes("2")) {
@@ -58,7 +60,8 @@ export default function newCoinblock(x: number, y: number, editFrame?: Smb1Tiles
         position: new Vec2d(x, y), size: new Vec2d(16, 16), static: true,
         smb1TilesSprites,
         coinblock,
-        invisibleBlock: editFrame?.includes('Invisible')
+        invisibleBlock: editFrame?.includes('Invisible'),
+        smb1TilesSpritesEditMode
       }));
   }
 }

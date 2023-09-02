@@ -54,6 +54,7 @@ export default function dynamicCollisions() {
           }
         } else if (other.oneUp) {
           e.mario.gainedOneUp = true;
+          e.mario.lives++;
         } else if (other.star) {
           e.mario.star = 30;
         }

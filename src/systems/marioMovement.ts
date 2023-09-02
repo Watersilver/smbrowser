@@ -1,4 +1,10 @@
+import { aabb } from "../engine";
 import entities from "../entities";
+import Collidable from "../utils/collidable";
+import worldGrid from "../world-grid";
+
+const collider = new Collidable();
+const collidee = new Collidable();
 
 export default function marioMovement(dt: number, parameters?: {conservationOfMomentum?: boolean}) {
   for (const e of entities.view([
@@ -43,12 +49,14 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
       const ducking = mario.forcedDucking || mario.ducking || wasDucking;
 
       if (mario.climbing) {
-        if (i.leftPress) {
+        const prevFacing = mario.facing;
+        if (i.leftPress && mario.facing === -1) {
           mario.facing = 1;
         }
-        if (i.rightPress) {
+        if (i.rightPress && mario.facing === 1) {
           mario.facing = -1;
         }
+        dynamic.velocity.x = 0;
         dynamic.velocity.y = 0;
         dynamic.acceleration.y = 0;
         if (i.climbUp) {
@@ -57,6 +65,26 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
         if (i.climbDown) {
           dynamic.acceleration.y = 50 / dt;
         }
+
+        // Prevent facing change to make you end up in static block
+        // Somehow this works. Yes it sucks balls
+        if (prevFacing !== mario.facing) {
+          dynamic.velocity.x = e.size.x * mario.facing * 2 / dt;
+          dynamic.velocity.y = dynamic.acceleration.y * dt;
+          collider.set(e, dt);
+          collider.computeBoundingBox();
+          const bb = collider.boundingBox;
+
+          for (const u of worldGrid.statics.findNear(bb.l, bb.t, bb.w, bb.h)) {
+            collidee.set(u.userData);
+            const [hit] = aabb.dynamicRectVsRect(collider, collidee);
+            if (hit) mario.facing = prevFacing;
+          }
+
+          dynamic.velocity.x = 0;
+          dynamic.velocity.y = 0;
+        }
+
         e.position.x = mario.climbing.position.x - mario.facing * e.size.x / 2;
         e.gravity = 0;
         if (jumped) {

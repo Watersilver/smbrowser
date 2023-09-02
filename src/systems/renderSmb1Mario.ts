@@ -122,6 +122,14 @@ export default function renderSmb1Mario(dt: number) {
     const accelMagn = accel ? Math.abs(accel.x) : 0;
     const isIdle = speed < Number.EPSILON * 2 && accelMagn < Number.EPSILON * 2;
     if (a && mario) {
+
+      // Make mario smaller to make him fin in pipe
+      if (mario.inPipe) {
+        a.container.scale.set(0.9);
+      } else {
+        a.container.scale.set(1);
+      }
+
       // Determine filters
       if (mario.star && mario.powerup === 'fire') {
         if (e.filters !== bothMario) {

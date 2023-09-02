@@ -31,6 +31,16 @@ export default function renderSmb1Stuff(dt: number, editMode?: boolean) {
       }
     }
 
+    for (const e of entities.view(['smb1TilesSprites', 'smb1TilesSpritesEditMode'])) {
+      if (editMode) {
+        if (e.smb1TilesSpritesEditMode) e.smb1TilesSpritesEditMode.container.visible = true;
+        if (e.smb1TilesSprites) e.smb1TilesSprites.container.visible = false;
+      } else {
+        if (e.smb1TilesSpritesEditMode) e.smb1TilesSpritesEditMode.container.visible = false;
+        if (e.smb1TilesSprites) e.smb1TilesSprites.container.visible = true;
+      }
+    }
+
     for (const e of entities.view(['smb1TilesSprites', 'invisibleBlock'])) {
       if (!e.smb1TilesSprites) continue;
       if (editMode) {

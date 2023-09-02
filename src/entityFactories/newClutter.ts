@@ -13,7 +13,12 @@ export default function newClutter(x: number, y: number, config: {
 }) {
   if (config.type === 'tile') {
     const smb1TilesSprites = smb1Sprites.getFactory('tiles').new();
-    smb1TilesSprites.setFrame(config.frame ?? 'clutterGreenPipeBodyHorizontalBotton');
+    smb1TilesSprites.setFrame(config.frame ?? 'clutterFence');
+    if (config.frame?.includes('Pipe')) {
+      smb1TilesSprites.container.zIndex = 2;
+    } else {
+      smb1TilesSprites.container.zIndex = -5;
+    }
     return entities.createEntity(newEntity({
       position: new Vec2d(x, y), size: new Vec2d(16, 16),
       smb1TilesSprites
@@ -21,6 +26,7 @@ export default function newClutter(x: number, y: number, config: {
   } else {
     const smb1ObjectsSprites = smb1Sprites.getFactory('objects').new();
     smb1ObjectsSprites.setFrame(config.frame ?? 'vine');
+    smb1ObjectsSprites.container.zIndex = -5;
     return entities.createEntity(newEntity({
       position: new Vec2d(x, y), size: new Vec2d(16, 16),
       smb1ObjectsSprites

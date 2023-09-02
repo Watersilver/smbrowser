@@ -220,12 +220,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
 
   private toggleTransparency(type: 'layer' | 'none') {
     if (type === 'none') {
-      entities.view(['smb1MarioAnimations']).forEach(m => {
-        if (m.smb1MarioAnimations) m.smb1MarioAnimations.container.alpha = 1;
-      });
-      entities.view(['smb1TilesSprites']).forEach(m => {
-        if (m.smb1TilesSprites) m.smb1TilesSprites.container.alpha = 1;
-      });
+      entities.view().forEach(e => this.applyAlphaFromLayer(e, this.layer));
     } else if (type === 'layer') {
       const grid = this.getGrid();
       const otherGrid = grid === this.grid ? this.grid2 : this.grid;
@@ -358,7 +353,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     this.clutterSelect.onclick = () => this.selected = EntityTypeMapping.clutter;
 
     const clutter = smb1tilesFactory.new();
-    this.clutterFrame = 'clutterGreenPipeBodyHorizontalBotton';
+    this.clutterFrame = 'clutterFence';
     clutter.setFrame(this.clutterFrame);
     clutter?.whenReady().then(() => {
       this.clutterSelect.innerHTML = '';
@@ -604,6 +599,9 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
         val.length = 0;
         val.push(...((ld.parsed as any)[key] || []))
       }
+
+      if (ld.parsed.pipes) this.pipes = ld.parsed.pipes;
+      if (ld.parsed.vines) this.vines = ld.parsed.vines;
     }
     this.toggleTransparency('layer');
 
@@ -619,7 +617,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       const save = (e: KeyboardEvent) => {
         if (e.ctrlKey && e.code === "KeyS") {
           e.preventDefault();
-          const ld: LevelData = {entities: [], entities2: [], ...this.zones};
+          const ld: LevelData = {entities: [], entities2: [], ...this.zones, pipes: this.pipes, vines: this.vines};
           for (const d of Object.values(this.grid)) {
             ld.entities.push(d.init);
           }

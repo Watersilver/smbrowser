@@ -29,7 +29,7 @@ class Display {
   // Percentage moved when changing position
   private posPerc?: number = 0.9 * 3;
   // Percentage scaled when changing scale
-  private scalePerc?: number = 0.99 * 6;
+  private scalePerc?: number = 0.99 * 5;
 
   private transformEffects: Set<TransformEffect> = new Set();
 
@@ -478,7 +478,11 @@ class Display {
     if (this.targetScale) {
       const diff = this.targetScale - this.scale;
       if (this.scalePerc) {
-        ds = Math.sign(diff) * this.scalePerc * dt;
+        ds = diff * this.scalePerc * dt;
+        const ds2 = 0.5 * Math.sign(diff) * this.scalePerc * dt;
+        if (Math.abs(ds) < Math.abs(ds2)) {
+          ds = ds2;
+        }
       }
       if (Math.abs(diff) < Math.abs(ds)) {
         ds = diff;

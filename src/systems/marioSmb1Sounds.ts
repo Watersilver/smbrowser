@@ -6,7 +6,7 @@ const audio = getSmb1Audio();
 const swimSoundOptions = {stopPrev: {same: true}};
 
 entities.onPropChange('coinGotCollected', e => {
-  if (e.coinGotCollected) audio.sounds.play('coin', {stopPrev: {same: true}});
+  if (e.coinGotCollected) audio.sounds.play('coin');
 });
 
 export default function marioSmb1Sounds() {
@@ -48,7 +48,7 @@ export default function marioSmb1Sounds() {
       }
 
       if (m.gainedOneUp) {
-        audio.sounds.play('oneUp');
+        audio.sounds.play('oneUp', {stopPrev: {name: 'coin'}});
       }
     }
   }
