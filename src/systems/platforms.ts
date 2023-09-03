@@ -3,6 +3,8 @@ import entities from "../entities";
 
 const routeSpeed = 75;
 
+const maxDescendSpeed = 100;
+
 export default function platforms(dt: number) {
   for (const e of entities.view(['platform'])) {
     const p = e.platform;
@@ -27,9 +29,7 @@ export default function platforms(dt: number) {
         e.kinematic.velocity.x = dx / dt;
         e.kinematic.velocity.y = dy / dt;
       }
-    }
-
-    if (p.moveTo) {
+    } else if (p.moveTo) {
       if (e.touchingUp?.find(m => m.mario)) {
         delete e.touchingUp;
         if (e.kinematic) {
@@ -49,6 +49,21 @@ export default function platforms(dt: number) {
           e.kinematic.velocity.y = 0;
           delete p.moveTo;
         };
+      }
+    } else {
+      const m = e.touchingUp?.find(m => m.mario);
+      if (m) {
+        if (e.kinematic) {
+          e.kinematic.acceleration.y = m.gravity ?? 0;
+          if (e.kinematic.velocity.y > maxDescendSpeed) {
+            e.kinematic.acceleration.y = 0;
+          }
+        }
+      } else {
+        if (e.kinematic) {
+          e.kinematic.acceleration.y = 0;
+          e.kinematic.velocity.y = 0;
+        }
       }
     }
   }
