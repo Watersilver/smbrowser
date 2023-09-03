@@ -25,7 +25,7 @@ entities.onPropChange('bonked', e => {
       if (aabb.rectVsRect(collider, collidee)) {
         delete uu.coin;
         entities.remove(uu);
-        if (e.mario) e.mario.coins++;
+        if (e.player) e.player.coins++;
         newCoinFromBlock(uu.position.x, uu.position.y, 2);
       }
     }
@@ -33,8 +33,8 @@ entities.onPropChange('bonked', e => {
 });
 
 export default function coins(dt: number) {
-  for (const e of entities.view(['mario'])) {
-    if (!e.mario) continue;
+  for (const e of entities.view(['player'])) {
+    if (!e.player) continue;
 
     collider.set(e, dt);
     const bb = collider.computeBoundingBox();
@@ -47,15 +47,15 @@ export default function coins(dt: number) {
           uu.coinGotCollected = true;
           delete uu.coin;
           entities.remove(uu);
-          e.mario.coins++;
+          e.player.coins++;
         }
       }
     }
 
-    while (e.mario.coins > 99) {
-      e.mario.coins -= 100;
-      e.mario.gainedOneUp = true;
-      e.mario.lives++;
+    while (e.player.coins > 99) {
+      e.player.coins -= 100;
+      e.player.gainedOneUp = true;
+      e.player.lives++;
     }
   }
 }

@@ -18,7 +18,10 @@ export default function newMario(x: number, y: number) {
       velocity: new Vec2d(0, 0),
       acceleration: new Vec2d(0, 0)
     },
-    player: true,
+    player: {
+      coins: 0,
+      lives: 3
+    },
     marioInput: {inputs: {}},
     marioMovementConfig: {
       minWalkSpeed: 0x00130 * 60 / 0x01000,
@@ -62,8 +65,6 @@ export default function newMario(x: number, y: number) {
     },
     mario: {
       facing: 1,
-      coins: 0,
-      lives: 3
     },
     floorSpeed: 0,
     gravity: 0,

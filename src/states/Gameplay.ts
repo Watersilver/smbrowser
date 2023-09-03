@@ -38,6 +38,8 @@ import coins from "../systems/coins";
 import worldGrid from "../world-grid";
 import Collidable from "../utils/collidable";
 import vines from "../systems/vines";
+import newTrampoline from "../entityFactories/newTrampoline";
+import springs from "../systems/springs";
 
 const audio = getSmb1Audio();
 
@@ -47,6 +49,7 @@ export type GameplayInit = {
   zones: LevelEditor['zones'];
   pipes: Points[];
   vines: Vine[];
+  trampolines: Vine[];
 }
 export type GameplayOut = {
   graphics: Graphics;
@@ -107,6 +110,9 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
           continue;
         }
       }
+    });
+    init.trampolines.forEach(t => {
+      newTrampoline(t.x, t.y, t.h);
     });
   }
 
@@ -224,19 +230,20 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
 
       vines(dt);
 
+      springs(dt);
+
       movement();
 
       dynamicCollisions();
 
       marioPowerups(dt);
-
     }
 
     // Render
     culling(display);
     debugRender(this.graphics);
-    renderSmb1Mario(dt);
     renderSmb1Stuff(dt);
+    renderSmb1Mario(dt);
 
     if (!this.paused) {
 

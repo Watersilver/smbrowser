@@ -20,7 +20,12 @@ export type Entity = {
     velocity: Vec2d;
     acceleration: Vec2d;
   };
-  player?: boolean;
+  player?: {
+    coins: number;
+    lives: number;
+    gainedPow?: boolean;
+    gainedOneUp?: boolean;
+  };
   marioInput?: {
     inputs: {
       jump?: boolean;
@@ -93,8 +98,6 @@ export type Entity = {
     surface?: boolean;
     big?: boolean;
     changedSize?: boolean;
-    gainedPow?: boolean;
-    gainedOneUp?: boolean;
     ducking?: boolean;
     forcedDucking?: boolean;
     grounded?: boolean;
@@ -104,8 +107,6 @@ export type Entity = {
     shot?: boolean;
     powerup?: "fire";
     star?: number;
-    coins: number;
-    lives: number;
     invinsibility?: number;
     climbing?: Entity;
     climbingCooldown?: number;
@@ -123,6 +124,11 @@ export type Entity = {
       zIndex?: number;
       nonIdle?: boolean;
     };
+
+    onSpring?: {
+      spring: Entity;
+      vx: number;
+    }
   };
   fireball?: {
     parent?: Entity;
@@ -183,7 +189,9 @@ export type Entity = {
   powerup?: boolean;
   star?: boolean;
   bonked?: boolean;
-  coinFromBlockLife?: number;
+  collectedCoin?: {
+    lifetime: number;
+  };
   followCam?: boolean;
   pipe?: {
     path: Points;
@@ -194,6 +202,10 @@ export type Entity = {
   sensor?: boolean;
   moving?: boolean;
   coinGotCollected?: boolean;
+  spring?: {
+    h: number;
+    progress?: number;
+  }
 };
 
 export function newEntity(init?: Partial<Entity>): Entity {

@@ -47,4 +47,5 @@ export type LevelData = {
   noMarioInputZones?: Zone[];
   pipes?: Points[];
   vines?: Vine[];
+  trampolines?: Vine[];
 };

@@ -47,9 +47,11 @@ export default function renderEdit(g: Graphics, o: Graphics, zones: {
   },
   pipes: Points[],
   vines: Vine[],
+  trampolines: Vine[],
   currentZone?: Zone,
   currentPipe?: Points,
-  currentVine?: Vine
+  currentVine?: Vine,
+  currentTrampoline?: Vine
 ) {
   const [l, t] = display.fromViewport(0, 0);
   const [r, b] = display.fromViewport(display.getViewportWidth(), display.getViewportHeight());
@@ -195,5 +197,13 @@ export default function renderEdit(g: Graphics, o: Graphics, zones: {
 
   if (currentVine) {
     drawVine(o, currentVine, 0x00ffff);
+  }
+
+  for (const vine of trampolines) {
+    drawVine(o, vine, 0xff0000);
+  }
+
+  if (currentTrampoline) {
+    drawVine(o, currentTrampoline, 0xff9933);
   }
 }

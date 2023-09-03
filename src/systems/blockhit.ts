@@ -155,7 +155,7 @@ export default function blockhit(dt: number) {
               delete e.vineCreator;
             } else {
               newCoinFromBlock(e.position.x, e.position.y);
-              if (e.mario) e.mario.coins++;
+              if (e.player) e.player.coins++;
             }
             delete e.coinblock;
             if (e.smb1TilesAnimations) {
@@ -180,7 +180,7 @@ export default function blockhit(dt: number) {
             }
           } else {
             newCoinFromBlock(e.position.x, e.position.y);
-            if (e.mario) e.mario.coins++;
+            if (e.player) e.player.coins++;
 
             if (e.coinblockDeathTimer === undefined) {
               e.coinblockDeathTimer = 3.8;

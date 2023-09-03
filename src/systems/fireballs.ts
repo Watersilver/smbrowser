@@ -12,7 +12,13 @@ export default function fireballs() {
   for (const e of entities.view(['mario'])) {
     if (e.mario?.shot) {
       const direction = e.mario.skidding ? -e.mario.facing : e.mario.facing;
-      const f = newFireball(e.position.x + direction * 3, e.position.y, e);
+      let x = e.position.x;
+      let y = e.position.y;
+      if (e.smb1MarioAnimations) {
+        x = e.smb1MarioAnimations.container.position.x;
+        y = e.smb1MarioAnimations.container.position.y;
+      }
+      const f = newFireball(x + direction * 3, y, e);
       if (f.smb1ObjectsAnimations) {
         f.smb1ObjectsAnimations.container.scale.x = direction;
       }

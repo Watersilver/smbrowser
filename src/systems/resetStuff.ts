@@ -24,12 +24,12 @@ export default function resetStuff() {
     }
   }
 
-  for (const ent of entities.view(['mario'])) {
-    if (ent.mario) {
+  for (const ent of entities.view(['mario', 'player'])) {
+    if (ent.mario && ent.player) {
       ent.mario.changedSize = false;
-      ent.mario.gainedPow = false;
+      ent.player.gainedPow = false;
       ent.mario.shot = false;
-      ent.mario.gainedOneUp = false;
+      ent.player.gainedOneUp = false;
     }
   }
 

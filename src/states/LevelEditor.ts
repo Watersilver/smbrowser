@@ -27,6 +27,7 @@ export type LevelEditorOut = {
   zones: LevelEditor['zones'];
   pipes: Points[];
   vines: Vine[];
+  trampolines: Vine[];
 }
 
 type HistoryStep = {type: 'add' | 'remove', ents: LevelData['entities'][number][], layer: 1 | 2};
@@ -57,11 +58,15 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
 
   currentVine?: Vine;
   vines: Vine[] = [];
-  vineSelected: boolean = false;
+  vineSelected = false;
 
   currentPipe?: Points;
   pipes: Points[] = [];
-  pipeSelected: boolean = false;
+  pipeSelected = false;
+
+  currentTrampoline?: Vine;
+  trampolines: Vine[] = [];
+  trampolineSelected = false;
 
   mouseX = 0;
   mouseY = 0;
@@ -120,6 +125,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
   entityCount: HTMLDivElement;
   mousePosDisplay: HTMLDivElement;
   vineSelect: HTMLButtonElement;
+  trampolineSelect: HTMLButtonElement;
   pipeSelect: HTMLButtonElement;
   zoneSelect: HTMLButtonElement;
   marioSelect: HTMLButtonElement;
@@ -456,6 +462,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       this.pipeSelected = false;
       this.vineSelected = false;
       this.zoneSelected = true;
+      this.trampolineSelected = false;
     };
     const renderZSName = () => {
       switch (this.selectedZone) {
@@ -543,6 +550,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       this.zoneSelected = false;
       this.vineSelected = false;
       this.pipeSelected = true;
+      this.trampolineSelected = false;
     };
 
     this.vineSelect = document.createElement('button');
@@ -552,9 +560,20 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       this.zoneSelected = false;
       this.pipeSelected = false;
       this.vineSelected = true;
+      this.trampolineSelected = false;
     };
 
-    this.tileSelectors.append(this.zoneSelect, this.pipeSelect, this.vineSelect, this.marioSelect, this.solidSelect, this.brickSelect, this.blockSelect, this.coinSelect, this.clutterSelect);
+    this.trampolineSelect = document.createElement('button');
+    this.trampolineSelect.innerHTML = 'trampoline';
+    this.trampolineSelect.onclick = () => {
+      this.selected = null;
+      this.zoneSelected = false;
+      this.pipeSelected = false;
+      this.vineSelected = false;
+      this.trampolineSelected = true;
+    };
+
+    this.tileSelectors.append(this.zoneSelect, this.pipeSelect, this.vineSelect, this.trampolineSelect, this.marioSelect, this.solidSelect, this.brickSelect, this.blockSelect, this.coinSelect, this.clutterSelect);
 
     this.mousePosDisplay = document.createElement('div');
 
@@ -602,6 +621,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
 
       if (ld.parsed.pipes) this.pipes = ld.parsed.pipes;
       if (ld.parsed.vines) this.vines = ld.parsed.vines;
+      if (ld.parsed.trampolines) this.trampolines = ld.parsed.trampolines;
     }
     this.toggleTransparency('layer');
 
@@ -617,7 +637,14 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       const save = (e: KeyboardEvent) => {
         if (e.ctrlKey && e.code === "KeyS") {
           e.preventDefault();
-          const ld: LevelData = {entities: [], entities2: [], ...this.zones, pipes: this.pipes, vines: this.vines};
+          const ld: LevelData = {
+            entities: [],
+            entities2: [],
+            ...this.zones,
+            pipes: this.pipes,
+            vines: this.vines,
+            trampolines: this.trampolines
+          };
           for (const d of Object.values(this.grid)) {
             ld.entities.push(d.init);
           }
@@ -665,7 +692,8 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       input,
       zones: this.zones,
       pipes: this.pipes,
-      vines: this.vines
+      vines: this.vines,
+      trampolines: this.trampolines
     }, "gameplay"];
   }
 
@@ -676,9 +704,11 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       this.zoneSelected = false;
       this.pipeSelected = false;
       this.vineSelected = false;
+      this.trampolineSelected = false;
       this.currentZone = undefined;
       this.currentPipe = undefined;
       this.currentVine = undefined;
+      this.currentTrampoline = undefined;
     }
 
     if (this.zoneSelected) {
@@ -697,6 +727,12 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       this.vineSelect.classList.add('selected');
     } else {
       this.vineSelect.classList.remove('selected');
+    }
+
+    if (this.trampolineSelected) {
+      this.trampolineSelect.classList.add('selected');
+    } else {
+      this.trampolineSelect.classList.remove('selected');
     }
 
     if (this.selected !== this.prevSelected) {
@@ -760,6 +796,8 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
           }
         } else if (this.vineSelected) {
           this.vines.pop();
+        } else if (this.trampolineSelect) {
+          this.trampolines.pop();
         }
       }
     }
@@ -1015,6 +1053,36 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       }
     }
 
+    if (this.trampolineSelected) {
+      if (this.input.isPressed('Delete') || this.input.isPressed('Backspace')) {
+        this.currentTrampoline = undefined;
+      }
+
+      if (this.input.isPressed('MouseMain')) {
+        const del = this.input.isHeld('ControlLeft');
+
+        if (del) {
+          const trampoline = this.trampolines.find(t => Math.abs(t.x - mxgrid) < 16 && Math.abs(t.y - mygrid) < 16);
+          if (trampoline) {
+            const set = new Set(this.trampolines);
+            set.delete(trampoline);
+            this.trampolines = [...set];
+          }
+        } else {
+          if (this.currentTrampoline) {
+            this.trampolines.push(this.currentTrampoline);
+            this.currentTrampoline = undefined;
+          } else {
+            this.currentTrampoline = {x: mxgrid + 8, y: mygrid + 8, h: 0};
+          }
+        }
+      }
+
+      if (this.currentTrampoline) {
+        this.currentTrampoline.h = Math.abs(mygrid - this.currentTrampoline.y);
+      }
+    }
+
     // Level edit mode
     mouseCamMove(dt, display, this.input, this);
 
@@ -1023,7 +1091,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     debugRender(this.graphics);
     renderSmb1Mario(dt);
     renderSmb1Stuff(dt, true);
-    renderEdit(this.graphics, this.graphicsOverlay, this.zones, this.pipes, this.vines, this.currentZone, this.currentPipe, this.currentVine);
+    renderEdit(this.graphics, this.graphicsOverlay, this.zones, this.pipes, this.vines, this.trampolines, this.currentZone, this.currentPipe, this.currentVine, this.currentTrampoline);
     marioSmb1Sounds();
 
     return true;

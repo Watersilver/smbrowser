@@ -48,7 +48,30 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
       const wasDucking = mario.ducking;
       const ducking = mario.forcedDucking || mario.ducking || wasDucking;
 
-      if (mario.climbing) {
+      if (mario.onSpring) {
+        if (mario.onSpring.spring.spring?.progress === undefined) {
+          mario.jumpCooldown = 5 / 60;
+          // find the maximum height of a projectile:
+          // h = v0 ^ 2 * sin(theta) / (2 * g)
+          // Theta is 0 because we are throwing vertically (at 90 deg) thus:
+          // v0 ^ 2 = 2 * h * g =>
+          // v0 = sqrt(2*h*g)
+          let h = (mario.onSpring.spring.spring?.h ?? 0);
+          h -= 24;
+          if (h < 0) h = 0;
+          const vyFree = ((mario.jumpSpeed ?? 0) + dynamic.velocity.y);
+          const vyJump = Math.max(vyFree, Math.sqrt(2 * h * config.walkJumpGravity));
+          dynamic.acceleration.y = i.jumping ? -vyJump / dt : -vyFree / dt;
+          dynamic.acceleration.x = 0.25 * mario.onSpring.vx / dt;
+          
+          delete mario.onSpring;
+        } else {
+          dynamic.velocity.x = 0;
+          dynamic.velocity.y = 0;
+          dynamic.acceleration.x = 0;
+          dynamic.acceleration.y = 0;
+        }
+      } else if (mario.climbing) {
         const prevFacing = mario.facing;
         if (i.leftPress && mario.facing === -1) {
           mario.facing = 1;
@@ -58,6 +81,7 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
         }
         dynamic.velocity.x = 0;
         dynamic.velocity.y = 0;
+        dynamic.acceleration.x = 0;
         dynamic.acceleration.y = 0;
         if (i.climbUp) {
           dynamic.acceleration.y = -50 / dt;

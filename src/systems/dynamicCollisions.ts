@@ -47,14 +47,16 @@ export default function dynamicCollisions() {
         if (other.powerup) {
           if (e.mario.big) {
             e.mario.powerup = 'fire';
-            e.mario.gainedPow = true;
+            if (e.player) e.player.gainedPow = true;
           } else {
             e.mario.big = true;
             e.mario.changedSize = true;
           }
         } else if (other.oneUp) {
-          e.mario.gainedOneUp = true;
-          e.mario.lives++;
+          if (e.player) {
+            e.player.gainedOneUp = true;
+            e.player.lives++;
+          }
         } else if (other.star) {
           e.mario.star = 30;
         }

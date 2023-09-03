@@ -155,6 +155,10 @@ export default function renderSmb1Mario(dt: number) {
         a.loopsPerSecond = 0;
       }
 
+      if (mario.onSpring) {
+        a.container.position.y += Math.sin(mario.onSpring.spring.spring?.progress ?? 0) * 16;
+      }
+
       if (mario.climbing) {
         if (e.positionPrev.y !== e.position.y) {
           a.loopsPerSecond = 3;

@@ -82,13 +82,14 @@ export default function renderSmb1Stuff(dt: number, editMode?: boolean) {
       if (changed) s.container.scale.x = -s.container.scale.x;
     }
 
-    for (const e of entities.view(['coinFromBlockLife'])) {
-      e.position.y -= dt * 111;
-      if (e.coinFromBlockLife) {
-        e.coinFromBlockLife -= dt;
-        if (e.coinFromBlockLife <= 0) {
+    for (const e of entities.view(['collectedCoin'])) {
+      if (e.collectedCoin) {
+        e.collectedCoin.lifetime += dt;
+        if (e.collectedCoin.lifetime >= 0.5) {
           entities.remove(e);
         }
+        const displacement = Math.sin(e.collectedCoin.lifetime * Math.PI / 0.6);
+        e.position.y = e.positionStart.y - displacement * 48;
       }
       if (e.smb1ObjectsAnimations && e.positionStart.y - e.position.y > 25) {
         e.smb1ObjectsAnimations.container.zIndex = 2;

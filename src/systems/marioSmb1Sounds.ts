@@ -39,16 +39,18 @@ export default function marioSmb1Sounds() {
         }
       }
 
-      if (m.gainedPow) {
-        audio.sounds.play('powerup');
-      }
-
       if (m.shot) {
         audio.sounds.play('fireball');
       }
 
-      if (m.gainedOneUp) {
-        audio.sounds.play('oneUp', {stopPrev: {name: 'coin'}});
+      if (e.player) {
+        if (e.player.gainedPow) {
+          audio.sounds.play('powerup');
+        }
+  
+        if (e.player.gainedOneUp) {
+          audio.sounds.play('oneUp', {stopPrev: {name: 'coin'}});
+        }
       }
     }
   }

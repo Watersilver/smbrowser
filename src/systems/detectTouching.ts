@@ -8,6 +8,18 @@ const collidee = {pos: new Vec2d(0, 0), size: new Vec2d(0, 0)};
 
 const touchDistance = .1;
 
+const opposites: {
+  touchingDown: "touchingUp",
+  touchingUp: "touchingDown",
+  touchingRight: "touchingLeft",
+  touchingLeft: "touchingRight"
+} = {
+  touchingDown: "touchingUp",
+  touchingUp: "touchingDown",
+  touchingRight: "touchingLeft",
+  touchingLeft: "touchingRight"
+}
+
 const checkSide = (check: "touchingDown" | "touchingUp" | "touchingRight" | "touchingLeft") => {
   collider.dr.x = check === "touchingLeft" ? -touchDistance : check === "touchingRight" ? touchDistance : 0;
   collider.dr.y = check === "touchingUp" ? -touchDistance : check === "touchingDown" ? touchDistance : 0;
@@ -31,6 +43,9 @@ const checkSide = (check: "touchingDown" | "touchingUp" | "touchingRight" | "tou
 
       if (hit) {
         c.push(u.userData);
+
+        const other = u.userData[opposites[check]];
+        if (other) {other.push(ent);}
       }
     }
 
