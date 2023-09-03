@@ -84,6 +84,14 @@ export default class AnimationsGroup<T extends {[animation: string]: Texture<Res
     return this.animation;
   }
 
+  /**
+   * @param progress 0-1
+   */
+  setProgress(progress: number) {
+    this.index = Math.floor(progress * this.frames.length);
+    this.updateTexture();
+  }
+
   getFrames() {
     return this.frames.length;
   }
