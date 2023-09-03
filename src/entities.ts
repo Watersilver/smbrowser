@@ -216,6 +216,7 @@ export type Entity = {
       phase: number;
     };
     fall?: boolean;
+    crumble?: boolean;
     moveTo?: {
       location: Vec2d;
       dieWhenReached?: boolean;

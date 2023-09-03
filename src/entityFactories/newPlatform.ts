@@ -20,7 +20,7 @@ export default function newPlatform(x: number, y: number, frame?: Smb1ObjectsSpr
       acceleration: new Vec2d(0, 0)
     },
     smb1ObjectsSprites,
-    platform: {},
+    platform: {crumble: true},
     touchingUp: []
   }));
 }

@@ -50,7 +50,7 @@ export default function platforms(dt: number) {
           delete p.moveTo;
         };
       }
-    } else {
+    } else if (p.crumble) {
       const m = e.touchingUp?.find(m => m.mario);
       if (m) {
         if (e.kinematic) {
