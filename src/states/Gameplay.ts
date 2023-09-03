@@ -31,7 +31,7 @@ import fireballs from "../systems/fireballs";
 import type LevelEditor from "./LevelEditor";
 import zones from "../zones";
 import camera from "../systems/camera";
-import { OscillationInit, Points, Vine } from "../types";
+import { LineSeg, OscillationInit, Points, Vine } from "../types";
 import newPipe from "../entityFactories/newPipe";
 import pipes from "../systems/pipes";
 import coins from "../systems/coins";
@@ -72,6 +72,7 @@ export type GameplayInit = {
   vines: Vine[];
   trampolines: Vine[];
   oscillations: OscillationInit[];
+  platformRoutes: LineSeg[];
 }
 export type GameplayOut = {
   graphics: Graphics;
@@ -174,7 +175,24 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
           continue;
         }
       }
-    })
+    });
+    init.platformRoutes.forEach(o => {
+      bb.l = o.p1.x - 1;
+      bb.t = o.p1.y - 1;
+      collider.pos.x = bb.l;
+      collider.pos.y = bb.t;
+      for (const u of worldGrid.kinematics.findNear(bb.l, bb.t, bb.w, bb.h)) {
+        const uu = u.userData;
+        collidee.set(uu);
+        if (aabb.rectVsRect(collider, collidee)) {
+          uu.platform = {
+            moveTo: {
+              location: new Vec2d(o.p2.x, o.p2.y)
+            }
+          };
+        }
+      }
+    });
   }
 
   override onEnd(): [output: GameplayOut | null, next: 'editor'] {
@@ -232,10 +250,10 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
 
     if (!this.paused) {
 
+      detectTouching();
+
       platforms(dt);
 
-      // Sensors
-      detectTouching();
       detectFloorSpeed();
 
       // Inputs

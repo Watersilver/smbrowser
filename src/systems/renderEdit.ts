@@ -1,6 +1,6 @@
 import { Graphics } from "pixi.js";
 import display from "../display";
-import { OscillationInit, Points, Vine } from "../types";
+import { LineSeg, OscillationInit, Points, Vine } from "../types";
 
 type Zone = {x: number; y: number; w: number; h: number;};
 
@@ -50,6 +50,10 @@ const drawOscillation = (g: Graphics, o: OscillationInit, color: number) => {
   .moveTo(o.p1.x, o.p1.y)
   .lineTo(o.p2.x, o.p2.y)
   .endFill();
+  g.lineStyle(0,0)
+  .beginFill(0xffffff,1)
+  .drawCircle(o.p2.x, o.p2.y, 4 / scale)
+  .endFill();
 
   g.lineStyle(0,0)
   .beginFill(color,1)
@@ -59,6 +63,34 @@ const drawOscillation = (g: Graphics, o: OscillationInit, color: number) => {
   .beginFill(0,0)
   .moveTo(o.pstart.x, o.pstart.y)
   .lineTo(o.p1.x, o.p1.y)
+  .moveTo(o.p1.x, o.p1.y)
+  .lineTo(o.p2.x, o.p2.y)
+  .endFill();
+  g.lineStyle(0,0)
+  .beginFill(color,1)
+  .drawCircle(o.p2.x, o.p2.y, 3 / scale)
+  .endFill();
+};
+
+const drawPlatformRoute = (g: Graphics, o: LineSeg, color: number) => {
+  const scale = display.getScale();
+
+  g.lineStyle(0,0)
+  .beginFill(0xffffff,1)
+  .drawCircle(o.p1.x, o.p1.y, 4 / scale)
+  .endFill();
+  g.lineStyle(4 / scale, 0xffffff)
+  .beginFill(0,0)
+  .moveTo(o.p1.x, o.p1.y)
+  .lineTo(o.p2.x, o.p2.y)
+  .endFill();
+
+  g.lineStyle(0,0)
+  .beginFill(color,1)
+  .drawCircle(o.p1.x, o.p1.y, 3 / scale)
+  .endFill();
+  g.lineStyle(2 / scale, color)
+  .beginFill(0,0)
   .moveTo(o.p1.x, o.p1.y)
   .lineTo(o.p2.x, o.p2.y)
   .endFill();
@@ -77,11 +109,13 @@ export default function renderEdit(g: Graphics, o: Graphics, zones: {
   vines: Vine[],
   trampolines: Vine[],
   oscillations: OscillationInit[],
+  platformRoutes: LineSeg[],
   currentZone?: Zone,
   currentPipe?: Points,
   currentVine?: Vine,
   currentTrampoline?: Vine,
   currentOscillation?: OscillationInit,
+  currentPlatformRoute?: LineSeg,
 ) {
   const [l, t] = display.fromViewport(0, 0);
   const [r, b] = display.fromViewport(display.getViewportWidth(), display.getViewportHeight());
@@ -243,5 +277,13 @@ export default function renderEdit(g: Graphics, o: Graphics, zones: {
 
   if (currentOscillation) {
     drawOscillation(o, currentOscillation, 0xaa00ff);
+  }
+
+  for (const p of platformRoutes) {
+    drawPlatformRoute(o, p, 0x0000ff);
+  }
+
+  if (currentPlatformRoute) {
+    drawPlatformRoute(o, currentPlatformRoute, 0xaa00ff);
   }
 }

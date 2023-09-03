@@ -59,4 +59,7 @@ export type LevelData = {
   pipes?: Points[];
   vines?: Vine[];
   trampolines?: Vine[];
+  oscillations?: OscillationInit[];
+  platformRoutes?: LineSeg[];
+  platformConnections?: PlatformConnection[];
 };

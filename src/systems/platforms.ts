@@ -1,6 +1,8 @@
 import { Vec2d } from "../engine";
 import entities from "../entities";
 
+const routeSpeed = 75;
+
 export default function platforms(dt: number) {
   for (const e of entities.view(['platform'])) {
     const p = e.platform;
@@ -25,19 +27,29 @@ export default function platforms(dt: number) {
         e.kinematic.velocity.x = dx / dt;
         e.kinematic.velocity.y = dy / dt;
       }
+    }
 
-      // for (const ent of entities.view(['kinematic'])) {
-      //   const xstart = ent.positionStart.x;
-      //   const ystart = ent.positionStart.y;
-      //   const x = xstart + xdis;
-      //   const y = ystart + ydis;
-      //   if (ent.kinematic) {
-      //     const dx = x - ent.position.x;
-      //     const dy = y - ent.position.y;
-      //     ent.kinematic.velocity.x = dx / dt;
-      //     ent.kinematic.velocity.y = dy / dt;
-      //   }
-      // }
+    if (p.moveTo) {
+      if (e.touchingUp?.find(m => m.mario)) {
+        delete e.touchingUp;
+        if (e.kinematic) {
+          const v = p.moveTo.location.sub(e.position).unit().mul(routeSpeed);
+          e.kinematic.velocity.x = v.x;
+          e.kinematic.velocity.y = v.y;
+        }
+      }
+
+      if (e.kinematic) {
+        if (
+          p.moveTo.location.sub(e.position).length() <= e.kinematic.velocity.mul(dt).length() ||
+          p.moveTo.location.sub(e.positionStart).dot(p.moveTo.location.sub(e.position)) < -1
+        ) {
+          e.position = p.moveTo.location;
+          e.kinematic.velocity.x = 0;
+          e.kinematic.velocity.y = 0;
+          delete p.moveTo;
+        };
+      }
     }
   }
 }

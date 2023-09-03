@@ -60,6 +60,9 @@ const checkSide = (check: "touchingDown" | "touchingUp" | "touchingRight" | "tou
 
       if (hit) {
         c.push(u.userData);
+
+        const other = u.userData[opposites[check]];
+        if (other) {other.push(ent);}
       }
     }
   }

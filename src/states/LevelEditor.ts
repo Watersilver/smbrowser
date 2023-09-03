@@ -30,6 +30,8 @@ export type LevelEditorOut = {
   vines: Vine[];
   trampolines: Vine[];
   oscillations: OscillationInit[];
+  platformRoutes: LineSeg[];
+  platformConnections: PlatformConnection[];
 }
 
 type HistoryStep = {type: 'add' | 'remove', ents: LevelData['entities'][number][], layer: 1 | 2};
@@ -659,7 +661,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       }
     };
     renderPRName();
-    this.platformRouteSelect.onclick = () => {
+    const selectPR = () => {
       this.selected = null;
       this.zoneSelected = false;
       this.vineSelected = false;
@@ -677,6 +679,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
         this.platformRouteSelected = true;
       }
     };
+    this.platformRouteSelect.onclick = selectPR;
     this.platformRouteSelect.addEventListener('wheel', e => {
       if (Math.sign(e.deltaY) > 0) {
         switch (this.platformRouteIndex) {
@@ -704,6 +707,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
         }
       }
       renderPRName();
+      if (this.platformRouteSelected || this.platformConnectionSelected || this.oscillationSelected) selectPR();
     });
 
     this.tileSelectors.append(this.zoneSelect, this.pipeSelect, this.vineSelect, this.trampolineSelect, this.platformRouteSelect, this.marioSelect, this.solidSelect, this.brickSelect, this.blockSelect, this.coinSelect, this.platformSelect, this.clutterSelect);
@@ -755,6 +759,9 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       if (ld.parsed.pipes) this.pipes = ld.parsed.pipes;
       if (ld.parsed.vines) this.vines = ld.parsed.vines;
       if (ld.parsed.trampolines) this.trampolines = ld.parsed.trampolines;
+      if (ld.parsed.oscillations) this.oscillations = ld.parsed.oscillations;
+      if (ld.parsed.platformRoutes) this.platformRoutes = ld.parsed.platformRoutes;
+      if (ld.parsed.platformConnections) this.platformConnections = ld.parsed.platformConnections;
     }
     this.toggleTransparency('layer');
 
@@ -776,7 +783,10 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
             ...this.zones,
             pipes: this.pipes,
             vines: this.vines,
-            trampolines: this.trampolines
+            trampolines: this.trampolines,
+            oscillations: this.oscillations,
+            platformRoutes: this.platformRoutes,
+            platformConnections: this.platformConnections
           };
           for (const d of Object.values(this.grid)) {
             ld.entities.push(d.init);
@@ -827,7 +837,9 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       pipes: this.pipes,
       vines: this.vines,
       trampolines: this.trampolines,
-      oscillations: this.oscillations
+      oscillations: this.oscillations,
+      platformRoutes: this.platformRoutes,
+      platformConnections: this.platformConnections
     }, "gameplay"];
   }
 
@@ -1294,6 +1306,44 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       }
     }
 
+    if (this.platformRouteSelected) {
+      if (this.input.isPressed('Delete') || this.input.isPressed('Backspace')) {
+        this.currentPlatformRoute = undefined;
+      }
+
+      if (this.input.isPressed('MouseMain')) {
+        const del = this.input.isHeld('ControlLeft');
+
+        if (del) {
+          const osc = this.platformRoutes.find(o => (
+            Math.abs(o.p1.x - mxgrid) < 16 && Math.abs(o.p1.y - mygrid) < 16
+          ) || (
+            Math.abs(o.p2.x - mxgrid) < 16 && Math.abs(o.p2.y - mygrid) < 16
+          ));
+          if (osc) {
+            const set = new Set(this.platformRoutes);
+            set.delete(osc);
+            this.platformRoutes = [...set];
+          }
+        } else {
+          if (this.currentPlatformRoute) {
+            this.platformRoutes.push(this.currentPlatformRoute);
+            this.currentPlatformRoute = undefined;
+          } else {
+            this.currentPlatformRoute = {
+              p1: new Vec2d(mxgrid + 8, mygrid + 8),
+              p2: new Vec2d(mxgrid + 8, mygrid + 8)
+            };
+          }
+        }
+      }
+
+      if (this.currentPlatformRoute) {
+        this.currentPlatformRoute.p2.x = mxgrid + 8;
+        this.currentPlatformRoute.p2.y = mygrid + 8;
+      }
+    }
+
     // Level edit mode
     mouseCamMove(dt, display, this.input, this);
 
@@ -1310,11 +1360,13 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       this.vines,
       this.trampolines,
       this.oscillations,
+      this.platformRoutes,
       this.currentZone,
       this.currentPipe,
       this.currentVine,
       this.currentTrampoline,
-      this.currentOscillation
+      this.currentOscillation,
+      this.currentPlatformRoute
     );
     marioSmb1Sounds();
 
