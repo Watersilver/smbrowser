@@ -205,7 +205,28 @@ export type Entity = {
   spring?: {
     h: number;
     progress?: number;
-  }
+  };
+  platform?: {
+    oscillate?: {
+      from: Vec2d;
+      to: Vec2d;
+      middle: Vec2d;
+      freq: number;
+      t: number;
+      phase: number;
+    };
+    fall?: boolean;
+    moveTo?: {
+      location: Vec2d;
+      dieWhenReached?: boolean;
+    }
+  };
+  platformConnection?: {
+    p1: Entity;
+    p2: Entity;
+    p1H: number;
+    ropeLength: number;
+  };
 };
 
 export function newEntity(init?: Partial<Entity>): Entity {

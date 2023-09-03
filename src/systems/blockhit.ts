@@ -10,6 +10,7 @@ import newMushroom from "../entityFactories/newMushroom";
 import newStar from "../entityFactories/newStar";
 import newVine from "../entityFactories/newVine";
 import smb1Sprites from "../sprites/smb1";
+import Collidable from "../utils/collidable";
 import worldGrid from "../world-grid";
 
 function didHitHead(e: Entity) {
@@ -28,7 +29,7 @@ function didHitHead(e: Entity) {
 }
 
 const collider = {pos: new Vec2d(0, 0), size: new Vec2d(0, 0), dr: new Vec2d(0, -1)};
-const collidee = {pos: new Vec2d(0, 0), size: new Vec2d(0, 0)};
+const collidee = new Collidable;
 const bb = {l: 0, t: 0, w: 0, h: 0};
 
 const hitAnimDuration = 0.4;
@@ -192,6 +193,19 @@ export default function blockhit(dt: number) {
           if (e.bonkCooldown) continue;
           m.bonk = true;
         }
+      }
+    }
+
+    for (const u of worldGrid.kinematics.findNear(bb.l, bb.t, bb.w, bb.h)) {
+      const e = u.userData;
+      if (e === m) continue;
+
+      collidee.set(e);
+
+      const [hit] = dynamicRectVsRect(collider, collidee);
+      if (hit) {
+        if (e.bonkCooldown) continue;
+        m.bonk = true;
       }
     }
   }

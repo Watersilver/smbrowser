@@ -7,6 +7,7 @@ import newMario from "../entityFactories/newMario";
 import { EntityTypeMapping, LevelData } from "../types";
 import newBrick from "../entityFactories/newBrick";
 import newCoin from "../entityFactories/newCoin";
+import newPlatform from "../entityFactories/newPlatform";
 
 export default function parseLevel(levelData: string | LevelData) {
   // No type checking. GOOD LUCK!!
@@ -61,15 +62,9 @@ export default function parseLevel(levelData: string | LevelData) {
           ent = newCoinblock(entInit[1], entInit[2], frame);
           break;
         }
-        case EntityTypeMapping.kinematic: {
-          ent = entities.createEntity(newEntity({
-            position: new Vec2d(144, 22),
-            size: new Vec2d(22, 6),
-            kinematic: {
-              velocity: new Vec2d(0, 0),
-              acceleration: new Vec2d(0, 0)
-            }
-          }));
+        case EntityTypeMapping.platform: {
+          const frame = entInit[3]?.objectFrame;
+          ent = newPlatform(entInit[1], entInit[2], frame);
           break;
         }
       }

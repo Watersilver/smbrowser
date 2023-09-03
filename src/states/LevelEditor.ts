@@ -8,13 +8,14 @@ import renderSmb1Mario from "../systems/renderSmb1Mario";
 import marioSmb1Sounds from "../systems/marioSmb1Sounds";
 import entities, { Entity } from "../entities";
 import parseLevel from "../systems/parseLevel";
-import { EntityTypeMapping, LevelData, Points, Vine } from "../types";
+import { EntityTypeMapping, LevelData, LineSeg, OscillationInit, PlatformConnection, Points, Vine } from "../types";
 import culling from "../systems/culling";
 import renderSmb1Stuff from "../systems/renderSmb1Stuff";
 import smb1marioFactory from "../sprites/loaders/smb1/mario";
 import smb1tilesFactory, { Smb1TilesSprites } from "../sprites/loaders/smb1/tiles";
 import level from '../assets/level.json';
 import renderEdit from "../systems/renderEdit";
+import smb1objectsFactory, { Smb1ObjectsSprites } from "../sprites/loaders/smb1/objects";
 
 export type LevelEditorInit = {
   graphics: Graphics;
@@ -28,6 +29,7 @@ export type LevelEditorOut = {
   pipes: Points[];
   vines: Vine[];
   trampolines: Vine[];
+  oscillations: OscillationInit[];
 }
 
 type HistoryStep = {type: 'add' | 'remove', ents: LevelData['entities'][number][], layer: 1 | 2};
@@ -67,6 +69,20 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
   currentTrampoline?: Vine;
   trampolines: Vine[] = [];
   trampolineSelected = false;
+
+  platformRouteIndex: 'oscillation' | 'route' | 'connection' = 'oscillation';
+
+  currentOscillation?: OscillationInit;
+  oscillations: OscillationInit[] = [];
+  oscillationSelected = false;
+
+  currentPlatformRoute?: LineSeg;
+  platformRoutes: LineSeg[] = [];
+  platformRouteSelected = false;
+
+  currentPlatformConnection?: PlatformConnection;
+  platformConnections: PlatformConnection[] = [];
+  platformConnectionSelected = false;
 
   mouseX = 0;
   mouseY = 0;
@@ -124,6 +140,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
   toolsCont: HTMLDivElement;
   entityCount: HTMLDivElement;
   mousePosDisplay: HTMLDivElement;
+  platformRouteSelect: HTMLButtonElement;
   vineSelect: HTMLButtonElement;
   trampolineSelect: HTMLButtonElement;
   pipeSelect: HTMLButtonElement;
@@ -133,6 +150,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
   brickSelect: HTMLButtonElement;
   blockSelect: HTMLButtonElement;
   coinSelect: HTMLButtonElement;
+  platformSelect: HTMLButtonElement;
   clutterSelect: HTMLButtonElement;
   tileSelectors: HTMLDivElement;
   prevSelected: EntityTypeMapping | null = null;
@@ -144,6 +162,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
   brickFrame?: Smb1TilesSprites['frame'] = undefined;
   blockFrame?: Smb1TilesSprites['frame'] = undefined;
   clutterFrame?: Smb1TilesSprites['frame'] = undefined;
+  platformFrame?: Smb1ObjectsSprites['frame'] = undefined;
   layer: 1 | 2 = 1;
   history: HistoryStep[] = [];
   historyIndex = 0;
@@ -455,6 +474,46 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       img.src = dURL;
     });
 
+    this.platformSelect = document.createElement('button');
+    this.platformSelect.innerHTML = "platforms";
+    this.platformSelect.onclick = () => this.selected = EntityTypeMapping.platform;
+
+    const platforms = smb1objectsFactory.new();
+    this.platformFrame = 'platformBig';
+    platforms.setFrame(this.platformFrame);
+    platforms?.whenReady().then(() => {
+      this.platformSelect.innerHTML = '';
+      const img = document.createElement('img');
+      img.style.width = "48px";
+      img.style.height = '48px';
+      img.alt = 'platform';
+      const text = document.createElement('div');
+      text.innerHTML = this.platformFrame ?? img.alt;
+      this.platformSelect.append(img, text);
+
+      const dURL = platforms.getDataUrl();
+      if (!dURL) return;
+      img.src = dURL;
+
+      this.platformSelect.addEventListener('wheel', e => {
+        const frames = platforms.getFrames();
+        let i = frames.findIndex(f => f === platforms.getFrame());
+        let valid: boolean | undefined = false;
+        while (valid === false) {
+          i = (i + Math.sign(e.deltaY)) % frames.length;
+          this.platformFrame = frames.at(i);
+          valid = this.platformFrame?.includes('platform') || this.platformFrame?.includes('cloud');
+        }
+        if (this.platformFrame) {
+          platforms.setFrame(this.platformFrame);
+        }
+
+        const dURL = platforms.getDataUrl();
+        if (!dURL) return;
+        img.src = dURL;
+      });
+    });
+
     this.zoneSelect = document.createElement('button');
     this.zoneSelect.innerHTML = 'camera<br>zone';
     this.zoneSelect.onclick = () => {
@@ -463,6 +522,10 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       this.vineSelected = false;
       this.zoneSelected = true;
       this.trampolineSelected = false;
+
+      this.platformRouteSelected = false;
+      this.platformConnectionSelected = false;
+      this.oscillationSelected = false;
     };
     const renderZSName = () => {
       switch (this.selectedZone) {
@@ -551,6 +614,10 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       this.vineSelected = false;
       this.pipeSelected = true;
       this.trampolineSelected = false;
+
+      this.platformRouteSelected = false;
+      this.platformConnectionSelected = false;
+      this.oscillationSelected = false;
     };
 
     this.vineSelect = document.createElement('button');
@@ -561,6 +628,10 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       this.pipeSelected = false;
       this.vineSelected = true;
       this.trampolineSelected = false;
+
+      this.platformRouteSelected = false;
+      this.platformConnectionSelected = false;
+      this.oscillationSelected = false;
     };
 
     this.trampolineSelect = document.createElement('button');
@@ -571,9 +642,71 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       this.pipeSelected = false;
       this.vineSelected = false;
       this.trampolineSelected = true;
+
+      this.platformRouteSelected = false;
+      this.platformConnectionSelected = false;
+      this.oscillationSelected = false;
     };
 
-    this.tileSelectors.append(this.zoneSelect, this.pipeSelect, this.vineSelect, this.trampolineSelect, this.marioSelect, this.solidSelect, this.brickSelect, this.blockSelect, this.coinSelect, this.clutterSelect);
+    this.platformRouteSelect = document.createElement('button');
+    const renderPRName = () => {
+      if (this.platformRouteIndex === 'connection') {
+        this.platformRouteSelect.innerHTML = 'platform<br>connection';
+      } else if (this.platformRouteIndex === 'oscillation') {
+        this.platformRouteSelect.innerHTML = 'platform<br>oscillation';
+      } else {
+        this.platformRouteSelect.innerHTML = 'platform<br>route';
+      }
+    };
+    renderPRName();
+    this.platformRouteSelect.onclick = () => {
+      this.selected = null;
+      this.zoneSelected = false;
+      this.vineSelected = false;
+      this.pipeSelected = false;
+      this.trampolineSelected = false;
+
+      this.platformRouteSelected = false;
+      this.platformConnectionSelected = false;
+      this.oscillationSelected = false;
+      if (this.platformRouteIndex === 'connection') {
+        this.platformConnectionSelected = true;
+      } else if (this.platformRouteIndex === 'oscillation') {
+        this.oscillationSelected = true;
+      } else {
+        this.platformRouteSelected = true;
+      }
+    };
+    this.platformRouteSelect.addEventListener('wheel', e => {
+      if (Math.sign(e.deltaY) > 0) {
+        switch (this.platformRouteIndex) {
+          case 'oscillation':
+            this.platformRouteIndex = 'route';
+            break;
+          case 'route':
+            this.platformRouteIndex = 'connection';
+            break;
+          default:
+            this.platformRouteIndex = 'oscillation';
+            break;
+        }
+      } else {
+        switch (this.platformRouteIndex) {
+          case 'oscillation':
+            this.platformRouteIndex = 'connection';
+            break;
+          case 'connection':
+            this.platformRouteIndex = 'route';
+            break;
+          default:
+            this.platformRouteIndex = 'oscillation';
+            break;
+        }
+      }
+      renderPRName();
+    });
+
+    this.tileSelectors.append(this.zoneSelect, this.pipeSelect, this.vineSelect, this.trampolineSelect, this.platformRouteSelect, this.marioSelect, this.solidSelect, this.brickSelect, this.blockSelect, this.coinSelect, this.platformSelect, this.clutterSelect);
 
     this.mousePosDisplay = document.createElement('div');
 
@@ -693,7 +826,8 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       zones: this.zones,
       pipes: this.pipes,
       vines: this.vines,
-      trampolines: this.trampolines
+      trampolines: this.trampolines,
+      oscillations: this.oscillations
     }, "gameplay"];
   }
 
@@ -705,10 +839,18 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       this.pipeSelected = false;
       this.vineSelected = false;
       this.trampolineSelected = false;
+
+      this.platformRouteSelected = false;
+      this.platformConnectionSelected = false;
+      this.oscillationSelected = false;
+
       this.currentZone = undefined;
       this.currentPipe = undefined;
       this.currentVine = undefined;
       this.currentTrampoline = undefined;
+      this.currentOscillation = undefined;
+      this.currentPlatformConnection = undefined;
+      this.currentPlatformRoute = undefined;
     }
 
     if (this.zoneSelected) {
@@ -733,6 +875,12 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       this.trampolineSelect.classList.add('selected');
     } else {
       this.trampolineSelect.classList.remove('selected');
+    }
+
+    if (this.platformRouteSelected || this.platformConnectionSelected || this.oscillationSelected) {
+      this.platformRouteSelect.classList.add('selected');
+    } else {
+      this.platformRouteSelect.classList.remove('selected');
     }
 
     if (this.selected !== this.prevSelected) {
@@ -763,6 +911,10 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
         }
         case EntityTypeMapping.coin: {
           this.coinSelect.classList.add('selected');
+          break;
+        }
+        case EntityTypeMapping.platform: {
+          this.platformSelect.classList.add('selected');
           break;
         }
       }
@@ -876,6 +1028,14 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
               h = this.add([
                 this.selected,
                 xstart, ystart
+              ]);
+              break;
+            }
+            case EntityTypeMapping.platform: {
+              h = this.add([
+                this.selected,
+                xstart, ystart,
+                {objectFrame: this.platformFrame}
               ]);
               break;
             }
@@ -1083,6 +1243,57 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       }
     }
 
+    if (this.oscillationSelected) {
+      if (this.input.isPressed('Delete') || this.input.isPressed('Backspace')) {
+        this.currentOscillation = undefined;
+      }
+
+      if (this.input.isPressed('MouseMain')) {
+        const del = this.input.isHeld('ControlLeft');
+
+        if (del) {
+          const osc = this.oscillations.find(o => (
+            Math.abs(o.p1.x - mxgrid) < 16 && Math.abs(o.p1.y - mygrid) < 16
+          ) || (
+            Math.abs(o.p2.x - mxgrid) < 16 && Math.abs(o.p2.y - mygrid) < 16
+          ) || (
+            Math.abs(o.pstart.x - mxgrid) < 16 && Math.abs(o.pstart.y - mygrid) < 16
+          ));
+          if (osc) {
+            const set = new Set(this.oscillations);
+            set.delete(osc);
+            this.oscillations = [...set];
+          }
+        } else {
+          if (this.currentOscillation) {
+            if (this.currentOscillation.setting === 'p1') {
+              this.currentOscillation.setting = 'p2';
+            } else {
+              this.oscillations.push(this.currentOscillation);
+              this.currentOscillation = undefined;
+            }
+          } else {
+            this.currentOscillation = {
+              pstart: new Vec2d(mxgrid + 8, mygrid + 8),
+              p1: new Vec2d(mxgrid + 8, mygrid + 8),
+              p2: new Vec2d(mxgrid + 8, mygrid + 8),
+              setting: 'p1'
+            };
+          }
+        }
+      }
+
+      if (this.currentOscillation) {
+        if (this.currentOscillation.setting === 'p1') {
+          this.currentOscillation.p1.x = mxgrid + 8;
+          this.currentOscillation.p1.y = mygrid + 8;
+        } else if (this.currentOscillation.setting === 'p2') {
+          this.currentOscillation.p2.x = mxgrid + 8;
+          this.currentOscillation.p2.y = mygrid + 8;
+        }
+      }
+    }
+
     // Level edit mode
     mouseCamMove(dt, display, this.input, this);
 
@@ -1091,7 +1302,20 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     debugRender(this.graphics);
     renderSmb1Mario(dt);
     renderSmb1Stuff(dt, true);
-    renderEdit(this.graphics, this.graphicsOverlay, this.zones, this.pipes, this.vines, this.trampolines, this.currentZone, this.currentPipe, this.currentVine, this.currentTrampoline);
+    renderEdit(
+      this.graphics,
+      this.graphicsOverlay,
+      this.zones,
+      this.pipes,
+      this.vines,
+      this.trampolines,
+      this.oscillations,
+      this.currentZone,
+      this.currentPipe,
+      this.currentVine,
+      this.currentTrampoline,
+      this.currentOscillation
+    );
     marioSmb1Sounds();
 
     return true;

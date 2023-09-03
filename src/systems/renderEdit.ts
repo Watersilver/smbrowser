@@ -1,6 +1,6 @@
 import { Graphics } from "pixi.js";
 import display from "../display";
-import { Points, Vine } from "../types";
+import { OscillationInit, Points, Vine } from "../types";
 
 type Zone = {x: number; y: number; w: number; h: number;};
 
@@ -34,7 +34,35 @@ const drawVine = (o: Graphics, vine: Vine, color: number) => {
   .beginFill(color,1)
   .drawRect(vine.x - 9 / scale, vine.y - vine.h - 1 / scale, 18 / scale, 2 / scale)
   .endFill();
-}
+};
+
+const drawOscillation = (g: Graphics, o: OscillationInit, color: number) => {
+  const scale = display.getScale();
+
+  g.lineStyle(0,0)
+  .beginFill(0xffffff,1)
+  .drawCircle(o.pstart.x, o.pstart.y, 4 / scale)
+  .endFill();
+  g.lineStyle(4 / scale, 0xffffff)
+  .beginFill(0,0)
+  .moveTo(o.pstart.x, o.pstart.y)
+  .lineTo(o.p1.x, o.p1.y)
+  .moveTo(o.p1.x, o.p1.y)
+  .lineTo(o.p2.x, o.p2.y)
+  .endFill();
+
+  g.lineStyle(0,0)
+  .beginFill(color,1)
+  .drawCircle(o.pstart.x, o.pstart.y, 3 / scale)
+  .endFill();
+  g.lineStyle(2 / scale, color)
+  .beginFill(0,0)
+  .moveTo(o.pstart.x, o.pstart.y)
+  .lineTo(o.p1.x, o.p1.y)
+  .moveTo(o.p1.x, o.p1.y)
+  .lineTo(o.p2.x, o.p2.y)
+  .endFill();
+};
 
 export default function renderEdit(g: Graphics, o: Graphics, zones: {
     camZones: Zone[];
@@ -48,10 +76,12 @@ export default function renderEdit(g: Graphics, o: Graphics, zones: {
   pipes: Points[],
   vines: Vine[],
   trampolines: Vine[],
+  oscillations: OscillationInit[],
   currentZone?: Zone,
   currentPipe?: Points,
   currentVine?: Vine,
-  currentTrampoline?: Vine
+  currentTrampoline?: Vine,
+  currentOscillation?: OscillationInit,
 ) {
   const [l, t] = display.fromViewport(0, 0);
   const [r, b] = display.fromViewport(display.getViewportWidth(), display.getViewportHeight());
@@ -205,5 +235,13 @@ export default function renderEdit(g: Graphics, o: Graphics, zones: {
 
   if (currentTrampoline) {
     drawVine(o, currentTrampoline, 0xff9933);
+  }
+
+  for (const osc of oscillations) {
+    drawOscillation(o, osc, 0x0000ff);
+  }
+
+  if (currentOscillation) {
+    drawOscillation(o, currentOscillation, 0xaa00ff);
   }
 }

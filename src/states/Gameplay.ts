@@ -31,7 +31,7 @@ import fireballs from "../systems/fireballs";
 import type LevelEditor from "./LevelEditor";
 import zones from "../zones";
 import camera from "../systems/camera";
-import { Points, Vine } from "../types";
+import { OscillationInit, Points, Vine } from "../types";
 import newPipe from "../entityFactories/newPipe";
 import pipes from "../systems/pipes";
 import coins from "../systems/coins";
@@ -40,8 +40,29 @@ import Collidable from "../utils/collidable";
 import vines from "../systems/vines";
 import newTrampoline from "../entityFactories/newTrampoline";
 import springs from "../systems/springs";
+import platforms from "../systems/platforms";
 
 const audio = getSmb1Audio();
+
+const _zero2D: [x: number, y: number] = [0, 0];
+function _vectorToSegment2D(t: number, P: [x: number, y: number], A: [x: number, y: number], B: [x: number, y: number]): [x: number, y: number] {
+  return [
+    (1 - t) * A[0] + t * B[0] - P[0],
+    (1 - t) * A[1] + t * B[1] - P[1],
+  ];
+}
+function _sqDiag2D(P: [x: number, y: number]) { return P[0] ** 2 + P[1] ** 2; }
+function closestPointBetween2D(P: [x: number, y: number], A: [x: number, y: number], B: [x: number, y: number]) {
+  const v: [x: number, y: number] = [B[0] - A[0], B[1] - A[1]];
+  const u: [x: number, y: number] = [A[0] - P[0], A[1] - P[1]];
+  const vu = v[0] * u[0] + v[1] * u[1];
+  const vv = v[0] ** 2 + v[1] ** 2;
+  const t = -vu / vv;
+  if (t >= 0 && t <= 1) return _vectorToSegment2D(t, _zero2D, A, B);
+  const g0 = _sqDiag2D(_vectorToSegment2D(0, P, A, B));
+  const g1 = _sqDiag2D(_vectorToSegment2D(1, P, A, B));
+  return g0 <= g1 ? A : B;
+}
 
 export type GameplayInit = {
   graphics: Graphics;
@@ -50,6 +71,7 @@ export type GameplayInit = {
   pipes: Points[];
   vines: Vine[];
   trampolines: Vine[];
+  oscillations: OscillationInit[];
 }
 export type GameplayOut = {
   graphics: Graphics;
@@ -68,7 +90,6 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
 
   scale = 1;
 
-  private t = 0;
   private paused = false;
 
   override onStart(init: GameplayInit | null): void {
@@ -114,6 +135,46 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
     init.trampolines.forEach(t => {
       newTrampoline(t.x, t.y, t.h);
     });
+    init.oscillations.forEach(o => {
+      bb.l = o.pstart.x - 1;
+      bb.t = o.pstart.y - 1;
+      collider.pos.x = bb.l;
+      collider.pos.y = bb.t;
+      for (const u of worldGrid.kinematics.findNear(bb.l, bb.t, bb.w, bb.h)) {
+        const uu = u.userData;
+        collidee.set(uu);
+        if (aabb.rectVsRect(collider, collidee)) {
+          uu.platform = {};
+          const middle = new Vec2d(o.p1.x, o.p1.y).add(new Vec2d(o.p2.x, o.p2.y).sub(o.p1).mul(0.5));
+
+          const c = closestPointBetween2D([o.pstart.x, o.pstart.y], [o.p1.x, o.p1.y], [o.p2.x, o.p2.y]);
+          const cv2d = new Vec2d(c[0], c[1]);
+          const direction = Math.sign(middle.sub(cv2d).unit().dot(middle.sub(o.p1).unit()));
+
+          const x0 = direction * middle.sub(cv2d).length();
+
+          const amplitude = new Vec2d(o.p1.x, o.p1.y).sub(o.p2).length() * 0.5;
+
+          let phase = -Math.acos(x0 / amplitude) || 0;
+
+          uu.position.x = cv2d.x;
+          uu.position.y = cv2d.y;
+          uu.positionStart.x = cv2d.x;
+          uu.positionStart.y = cv2d.y;
+          uu.positionPrev.x = cv2d.x;
+          uu.positionPrev.y = cv2d.y;
+          uu.platform.oscillate = {
+            from: new Vec2d(o.p1.x, o.p1.y),
+            to: new Vec2d(o.p2.x, o.p2.y),
+            middle,
+            freq: 1,
+            t: 0,
+            phase
+          };
+          continue;
+        }
+      }
+    })
   }
 
   override onEnd(): [output: GameplayOut | null, next: 'editor'] {
@@ -153,24 +214,6 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
 
     entities.update();
 
-    this.t += dt;
-    while (this.t > Math.PI * 2) this.t -= Math.PI * 2;
-    const xdis = Math.sin(this.t) * 33;
-    const ydis = Math.sin(this.t) * 33;
-
-    for (const ent of entities.view(['kinematic'])) {
-      const xstart = ent.positionStart.x;
-      const ystart = ent.positionStart.y;
-      const x = xstart + xdis;
-      const y = ystart + ydis;
-      if (ent.kinematic) {
-        const dx = x - ent.position.x;
-        const dy = y - ent.position.y;
-        ent.kinematic.velocity.x = dx / dt;
-        ent.kinematic.velocity.y = dy / dt;
-      }
-    }
-
     for (const ent of entities.view(['mario'])) {
       if (this.input.isPressed('KeyH')) {
         if (ent.mario) {
@@ -188,6 +231,8 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
     this.graphics.clear();
 
     if (!this.paused) {
+
+      platforms(dt);
 
       // Sensors
       detectTouching();
