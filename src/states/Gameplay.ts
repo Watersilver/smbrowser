@@ -193,6 +193,27 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
         }
       }
     });
+
+    init.zones.descendingPlatformZones.forEach(z => {
+      bb.l = z.x;
+      bb.t = z.y;
+      bb.w = z.w;
+      bb.h = z.h;
+      collider.pos.x = bb.l;
+      collider.pos.y = bb.t;
+      collider.size.x = bb.w;
+      collider.size.y = bb.h;
+      for (const u of worldGrid.kinematics.findNear(bb.l, bb.t, bb.w, bb.h)) {
+        const uu = u.userData;
+        if (aabb.pointVsRect(uu.position, collider)) {
+          uu.platform = {
+            bounded: {height: z.h, bottom: z.y + z.h}
+          };
+          if (!uu.kinematic) uu.kinematic = {velocity: new Vec2d(0, 0), acceleration: new Vec2d(0, 0)};
+          uu.kinematic.velocity.y = 25;
+        }
+      }
+    });
   }
 
   override onEnd(): [output: GameplayOut | null, next: 'editor'] {

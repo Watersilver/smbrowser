@@ -50,6 +50,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     whirlpoolZones: Zone[];
     surfaceZones: Zone[];
     noMarioInputZones: Zone[];
+    descendingPlatformZones: Zone[];
   } = {
     camZones: [],
     camPreserveZones: [],
@@ -57,7 +58,8 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     underwaterZones: [],
     whirlpoolZones: [],
     surfaceZones: [],
-    noMarioInputZones: []
+    noMarioInputZones: [],
+    descendingPlatformZones: []
   };
 
   currentVine?: Vine;
@@ -157,7 +159,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
   tileSelectors: HTMLDivElement;
   prevSelected: EntityTypeMapping | null = null;
   selected: EntityTypeMapping | null = null;
-  selectedZone: 'cam' | 'campreserve' | 'death' | 'underwater' | 'whirlpool' | 'surface' | 'noMInput' = 'cam';
+  selectedZone: 'cam' | 'campreserve' | 'death' | 'underwater' | 'whirlpool' | 'surface' | 'noMInput' | 'descPlatform' = 'cam';
   zoneSelected: boolean = false;
   currentZone?: {x: number; y: number; w: number; h: number;};
   solidFrame?: Smb1TilesSprites['frame'] = undefined;
@@ -549,6 +551,9 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
         case 'whirlpool':
           this.zoneSelect.innerHTML = 'whirlpool<br>zone';
           break;
+        case 'descPlatform':
+          this.zoneSelect.innerHTML = 'desc. platform<br>zone';
+          break;
         default:
           this.zoneSelect.innerHTML = 'death<br>zone';
           break;
@@ -576,6 +581,9 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
           case 'whirlpool':
             this.selectedZone = 'death';
             break;
+          case 'death':
+            this.selectedZone = 'descPlatform';
+            break;
           default:
             this.selectedZone = 'cam';
             break;
@@ -583,7 +591,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       } else {
         switch (this.selectedZone) {
           case 'cam':
-            this.selectedZone = 'death';
+            this.selectedZone = 'descPlatform';
             break;
           case 'campreserve':
             this.selectedZone = 'cam';
@@ -600,8 +608,11 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
           case 'whirlpool':
             this.selectedZone = 'surface';
             break;
-          default:
+          case 'death':
             this.selectedZone = 'whirlpool';
+            break;
+          default:
+            this.selectedZone = 'death';
             break;
         }
       }
@@ -1073,16 +1084,16 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
         if (del) {
           this.currentZone = undefined;
 
-          for (const [zonesGroup, zones] of Object.entries(this.zones)) {
-            const zone = zones
-            .sort((a, b) => a.w * a.h - b.w * b.h) // smallest first
-            .find(z => aabb.pointVsRect(new Vec2d(mx, my), {pos: new Vec2d(z.x, z.y), size: new Vec2d(z.w, z.h)}));
-            if (zone) {
-              const set = new Set((this.zones as any)[zonesGroup]);
-              set.delete(zone);
-              (this.zones as any)[zonesGroup] = [...set];
-              break;
-            }
+          const z = Object.entries(this.zones).flatMap(z => {
+            return z[1].map(zone => ({type: z[0], zone}));
+          })
+          .sort((a, b) => a.zone.w * a.zone.h - b.zone.w * b.zone.h) // smallest first
+          .find(z => aabb.pointVsRect(new Vec2d(mx, my), {pos: new Vec2d(z.zone.x, z.zone.y), size: new Vec2d(z.zone.w, z.zone.h)}));
+
+          if (z) {
+            const set = new Set((this.zones as any)[z.type]);
+            set.delete(z.zone);
+            (this.zones as any)[z.type] = [...set];
           }
         } else {
           this.currentZone = {x, y, w: 16, h: 16};
@@ -1154,7 +1165,11 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
             case 'whirlpool':
               this.zones.whirlpoolZones.push({x,y,w,h});
               break;
+            case 'descPlatform':
+              this.zones.descendingPlatformZones.push({x,y,w,h});
+              break;
           }
+          this.currentZone = undefined;
         }
       }
     }

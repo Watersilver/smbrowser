@@ -40,15 +40,27 @@ export default function platforms(dt: number) {
       }
 
       if (e.kinematic) {
-        if (
-          p.moveTo.location.sub(e.position).length() <= e.kinematic.velocity.mul(dt).length() ||
-          p.moveTo.location.sub(e.positionStart).dot(p.moveTo.location.sub(e.position)) < -1
-        ) {
-          e.position = p.moveTo.location;
+        if (p.moveTo.stop) {
           e.kinematic.velocity.x = 0;
           e.kinematic.velocity.y = 0;
           delete p.moveTo;
-        };
+        } else {
+          if (p.moveTo.location.sub(e.position).length() <= e.kinematic.velocity.mul(dt).length()) {
+            const dr = p.moveTo.location.sub(e.position);
+            e.kinematic.velocity.x = dr.x / dt;
+            e.kinematic.velocity.y = dr.y / dt;
+            p.moveTo.stop = true;
+          }
+  
+          if (
+            p.moveTo.location.sub(e.positionStart).dot(p.moveTo.location.sub(e.position)) < -1
+          ) {
+            e.position = p.moveTo.location;
+            e.kinematic.velocity.x = 0;
+            e.kinematic.velocity.y = 0;
+            delete p.moveTo;
+          };
+        }
       }
     } else if (p.crumble) {
       const m = e.touchingUp?.find(m => m.mario);
@@ -64,6 +76,10 @@ export default function platforms(dt: number) {
           e.kinematic.acceleration.y = 0;
           e.kinematic.velocity.y = 0;
         }
+      }
+    } else if (p.bounded) {
+      while (e.position.y > p.bounded.bottom) {
+        e.position.y -= p.bounded.height;
       }
     }
   }

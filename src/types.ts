@@ -56,6 +56,7 @@ export type LevelData = {
   whirlpoolZones?: Zone[];
   surfaceZones?: Zone[];
   noMarioInputZones?: Zone[];
+  descendingPlatformZones?: Zone[];
   pipes?: Points[];
   vines?: Vine[];
   trampolines?: Vine[];

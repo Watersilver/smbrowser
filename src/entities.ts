@@ -220,6 +220,11 @@ export type Entity = {
     moveTo?: {
       location: Vec2d;
       dieWhenReached?: boolean;
+      stop?: boolean;
+    };
+    bounded?: {
+      height: number;
+      bottom: number;
     }
   };
   platformConnection?: {

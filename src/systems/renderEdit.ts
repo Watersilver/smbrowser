@@ -167,9 +167,11 @@ export default function renderEdit(g: Graphics, o: Graphics, zones: {
       ? 0x00ff00
       : name === 'surfaceZones'
       ? 0x00ffff
+      : name === 'descendingPlatformZones'
+      ? 0x0000ff
       : 0xff00ff;
     z.forEach(zone => {
-      o.lineStyle(4 / scale, 0xffffff)
+      o.lineStyle(4 / scale, name === 'descendingPlatformZones' ? 0 : 0xffffff)
       .beginFill(0, 0)
       .drawRect(zone.x, zone.y, zone.w, zone.h)
       .endFill();
@@ -177,6 +179,62 @@ export default function renderEdit(g: Graphics, o: Graphics, zones: {
       .beginFill(0, 0)
       .drawRect(zone.x, zone.y, zone.w, zone.h)
       .endFill();
+
+      if (name === 'descendingPlatformZones') {
+        o.lineStyle(4 / scale, 0)
+        .beginFill(0, 0)
+        .moveTo(zone.x + 8, zone.y + 8)
+        .lineTo(zone.x + 8, zone.y + zone.h - 8)
+        .endFill();
+        o.lineStyle(4 / scale, 0)
+        .beginFill(0, 0)
+        .drawPolygon(
+          zone.x + 8 - 2, zone.y + zone.h - 8,
+          zone.x + 8 + 2, zone.y + zone.h - 8,
+          zone.x + 8, zone.y + zone.h - 8 + 2
+        )
+        .endFill();
+        o.lineStyle(2 / scale, col)
+        .beginFill(0, 0)
+        .moveTo(zone.x + 8, zone.y + 8)
+        .lineTo(zone.x + 8, zone.y + zone.h - 8)
+        .endFill();
+        o.lineStyle(2 / scale, col)
+        .beginFill(0, 0)
+        .drawPolygon(
+          zone.x + 8 - 2, zone.y + zone.h - 8,
+          zone.x + 8 + 2, zone.y + zone.h - 8,
+          zone.x + 8, zone.y + zone.h - 8 + 2
+        )
+        .endFill();
+
+        o.lineStyle(4 / scale, 0)
+        .beginFill(0, 0)
+        .moveTo(zone.x + zone.w - 8, zone.y + 8)
+        .lineTo(zone.x + zone.w - 8, zone.y + zone.h - 8)
+        .endFill();
+        o.lineStyle(4 / scale, 0)
+        .beginFill(0, 0)
+        .drawPolygon(
+          zone.x + zone.w - 8 - 2, zone.y + zone.h - 8,
+          zone.x + zone.w - 8 + 2, zone.y + zone.h - 8,
+          zone.x + zone.w - 8, zone.y + zone.h - 8 + 2
+        )
+        .endFill();
+        o.lineStyle(2 / scale, col)
+        .beginFill(0, 0)
+        .moveTo(zone.x + zone.w - 8, zone.y + 8)
+        .lineTo(zone.x + zone.w - 8, zone.y + zone.h - 8)
+        .endFill();
+        o.lineStyle(2 / scale, col)
+        .beginFill(0, 0)
+        .drawPolygon(
+          zone.x + zone.w - 8 - 2, zone.y + zone.h - 8,
+          zone.x + zone.w - 8 + 2, zone.y + zone.h - 8,
+          zone.x + zone.w - 8, zone.y + zone.h - 8 + 2
+        )
+        .endFill();
+      }
     })
   }
 
