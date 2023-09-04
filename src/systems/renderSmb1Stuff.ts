@@ -110,4 +110,24 @@ export default function renderSmb1Stuff(dt: number, editMode?: boolean) {
       }
     }
   }
+
+  for (const e of entities.view(['platformConnection'])) {
+    const p = e.platformConnection;
+    if (!p) continue;
+    const r1 = p.rope1.smb1TilesSprites;
+    const r2 = p.rope2.smb1TilesSprites;
+    if (!r1 || !r2) continue;
+
+    const scaley1 = p.p1H / 16;
+
+    r1.container.scale.y = scaley1;
+
+    r1.container.position.y = p.rope1.position.y + p.p1H * 0.5 - 8;
+
+    const scaley2 = p.p2H / 16;
+
+    r2.container.scale.y = scaley2;
+
+    r2.container.position.y = p.rope2.position.y + p.p2H * 0.5 - 8;
+  }
 }

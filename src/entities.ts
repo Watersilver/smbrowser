@@ -231,8 +231,12 @@ export type Entity = {
     p1: Entity;
     p2: Entity;
     p1H: number;
-    ropeLength: number;
+    p2H: number;
+    rope1: Entity;
+    rope2: Entity;
+    cut?: boolean;
   };
+  platformConnectionIsConnected?: boolean;
 };
 
 export function newEntity(init?: Partial<Entity>): Entity {

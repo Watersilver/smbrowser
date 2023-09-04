@@ -1359,6 +1359,55 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       }
     }
 
+    if (this.platformConnectionSelected) {
+      if (this.input.isPressed('Delete') || this.input.isPressed('Backspace')) {
+        this.currentPlatformConnection = undefined;
+      }
+
+      if (this.input.isPressed('MouseMain')) {
+        const del = this.input.isHeld('ControlLeft');
+
+        if (del) {
+          const con = this.platformConnections.find(o => (
+            Math.abs(o.pin.x + o.w * 0.5 - mxgrid - 8) < 16 && Math.abs(o.pin.y - mygrid) < 16
+          ));
+          if (con) {
+            const set = new Set(this.platformConnections);
+            set.delete(con);
+            this.platformConnections = [...set];
+          }
+        } else {
+          if (this.currentPlatformConnection) {
+            if (this.currentPlatformConnection.setting === 'w') {
+              this.currentPlatformConnection.setting = 'h1';
+            } else if (this.currentPlatformConnection.setting === 'h1') {
+              this.currentPlatformConnection.setting = 'h2';
+            } else if (this.currentPlatformConnection.setting === 'h2') {
+              this.platformConnections.push(this.currentPlatformConnection);
+              this.currentPlatformConnection = undefined;
+            }
+          } else {
+            this.currentPlatformConnection = {
+              pin: new Vec2d(mxgrid + 8, mygrid + 8),
+              h1: 0, h2: 0,
+              w: 0,
+              setting: 'w'
+            };
+          }
+        }
+      }
+
+      if (this.currentPlatformConnection) {
+        if (this.currentPlatformConnection.setting === 'w') {
+          this.currentPlatformConnection.w = Math.abs(mxgrid + 8 - this.currentPlatformConnection.pin.x);
+        } else if (this.currentPlatformConnection.setting === 'h1') {
+          this.currentPlatformConnection.h1 = Math.abs(mygrid + 8 - this.currentPlatformConnection.pin.y);
+        } else if (this.currentPlatformConnection.setting === 'h2') {
+          this.currentPlatformConnection.h2 = Math.abs(mygrid + 8 - this.currentPlatformConnection.pin.y);
+        }
+      }
+    }
+
     // Level edit mode
     mouseCamMove(dt, display, this.input, this);
 
@@ -1376,12 +1425,14 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       this.trampolines,
       this.oscillations,
       this.platformRoutes,
+      this.platformConnections,
       this.currentZone,
       this.currentPipe,
       this.currentVine,
       this.currentTrampoline,
       this.currentOscillation,
-      this.currentPlatformRoute
+      this.currentPlatformRoute,
+      this.currentPlatformConnection
     );
     marioSmb1Sounds();
 

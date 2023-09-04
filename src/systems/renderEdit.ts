@@ -1,6 +1,6 @@
 import { Graphics } from "pixi.js";
 import display from "../display";
-import { LineSeg, OscillationInit, Points, Vine } from "../types";
+import { LineSeg, OscillationInit, PlatformConnection, Points, Vine } from "../types";
 
 type Zone = {x: number; y: number; w: number; h: number;};
 
@@ -96,6 +96,50 @@ const drawPlatformRoute = (g: Graphics, o: LineSeg, color: number) => {
   .endFill();
 };
 
+const drawPlatformConnection = (g: Graphics, o: PlatformConnection, color: number) => {
+  const scale = display.getScale();
+
+  g.lineStyle(4 / scale, 0xffffff)
+  .beginFill(0,0)
+  .moveTo(o.pin.x, o.pin.y + o.h1)
+  .lineTo(o.pin.x, o.pin.y)
+  .lineTo(o.pin.x + o.w, o.pin.y)
+  .lineTo(o.pin.x + o.w, o.pin.y + o.h2)
+  .endFill();
+  g.lineStyle(0,0)
+  .beginFill(0xffffff,1)
+  .drawCircle(o.pin.x, o.pin.y + o.h1, 4 / scale)
+  .endFill();
+  g.lineStyle(0,0)
+  .beginFill(0xffffff,1)
+  .drawCircle(o.pin.x + o.w * 0.5, o.pin.y, 4 / scale)
+  .endFill();
+  g.lineStyle(0,0)
+  .beginFill(0xffffff,1)
+  .drawCircle(o.pin.x + o.w, o.pin.y + o.h2, 4 / scale)
+  .endFill();
+
+  g.lineStyle(2 / scale, color)
+  .beginFill(0,0)
+  .moveTo(o.pin.x, o.pin.y + o.h1)
+  .lineTo(o.pin.x, o.pin.y)
+  .lineTo(o.pin.x + o.w, o.pin.y)
+  .lineTo(o.pin.x + o.w, o.pin.y + o.h2)
+  .endFill();
+  g.lineStyle(0,0)
+  .beginFill(color,1)
+  .drawCircle(o.pin.x, o.pin.y + o.h1, 3 / scale)
+  .endFill();
+  g.lineStyle(0,0)
+  .beginFill(color,1)
+  .drawCircle(o.pin.x + o.w * 0.5, o.pin.y, 3 / scale)
+  .endFill();
+  g.lineStyle(0,0)
+  .beginFill(color,1)
+  .drawCircle(o.pin.x + o.w, o.pin.y + o.h2, 3 / scale)
+  .endFill();
+};
+
 export default function renderEdit(g: Graphics, o: Graphics, zones: {
     camZones: Zone[];
     camPreserveZones: Zone[];
@@ -110,12 +154,14 @@ export default function renderEdit(g: Graphics, o: Graphics, zones: {
   trampolines: Vine[],
   oscillations: OscillationInit[],
   platformRoutes: LineSeg[],
+  platformConnections: PlatformConnection[],
   currentZone?: Zone,
   currentPipe?: Points,
   currentVine?: Vine,
   currentTrampoline?: Vine,
   currentOscillation?: OscillationInit,
   currentPlatformRoute?: LineSeg,
+  currentPlatformConnection?: PlatformConnection
 ) {
   const [l, t] = display.fromViewport(0, 0);
   const [r, b] = display.fromViewport(display.getViewportWidth(), display.getViewportHeight());
@@ -343,5 +389,13 @@ export default function renderEdit(g: Graphics, o: Graphics, zones: {
 
   if (currentPlatformRoute) {
     drawPlatformRoute(o, currentPlatformRoute, 0xaa00ff);
+  }
+
+  for (const p of platformConnections) {
+    drawPlatformConnection(o, p, 0x0000ff);
+  }
+
+  if (currentPlatformConnection) {
+    drawPlatformConnection(o, currentPlatformConnection, 0xaa00ff);
   }
 }

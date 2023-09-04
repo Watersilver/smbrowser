@@ -24,7 +24,7 @@ export type Vine = {x: number, y: number, h: number;};
 
 export type LineSeg = {p1: Vec2dData; p2: Vec2dData;};
 
-export type PlatformConnection = {p1: Vec2dData; p2: Vec2dData; h1: number; h2: number;};
+export type PlatformConnection = {pin: Vec2dData; w: number; h1: number; h2: number; setting?: 'w' | 'h1' | 'h2'};
 
 export type OscillationInit = {p1: Vec2dData; p2: Vec2dData; pstart: Vec2dData; setting?: 'p1' | 'p2'};
 

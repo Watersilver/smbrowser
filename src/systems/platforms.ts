@@ -1,9 +1,19 @@
+import display from "../display";
 import { Vec2d } from "../engine";
 import entities from "../entities";
+import Collidable from "../utils/collidable";
 
 const routeSpeed = 75;
 
 const maxDescendSpeed = 100;
+
+const maxFallSpeed = 200;
+
+const maxConnectedSpeed = 100;
+
+const connectedAccel = 25;
+
+const platformRect = new Collidable();
 
 export default function platforms(dt: number) {
   for (const e of entities.view(['platform'])) {
@@ -51,10 +61,8 @@ export default function platforms(dt: number) {
             e.kinematic.velocity.y = dr.y / dt;
             p.moveTo.stop = true;
           }
-  
-          if (
-            p.moveTo.location.sub(e.positionStart).dot(p.moveTo.location.sub(e.position)) < -1
-          ) {
+
+          if (p.moveTo.location.sub(e.positionStart).dot(p.moveTo.location.sub(e.position)) < -1) {
             e.position = p.moveTo.location;
             e.kinematic.velocity.x = 0;
             e.kinematic.velocity.y = 0;
@@ -69,6 +77,7 @@ export default function platforms(dt: number) {
           e.kinematic.acceleration.y = m.gravity ?? 0;
           if (e.kinematic.velocity.y > maxDescendSpeed) {
             e.kinematic.acceleration.y = 0;
+            e.kinematic.velocity.y = maxDescendSpeed;
           }
         }
       } else {
@@ -80,6 +89,65 @@ export default function platforms(dt: number) {
     } else if (p.bounded) {
       while (e.position.y > p.bounded.bottom) {
         e.position.y -= p.bounded.height;
+      }
+    } else if (p.fall) {
+      if (e.kinematic) {
+        e.kinematic.acceleration.y = 200;
+        if (e.kinematic.velocity.y > maxFallSpeed) {
+          e.kinematic.acceleration.y = 0;
+          e.kinematic.velocity.y = maxFallSpeed;
+        }
+
+        platformRect.set(e);
+        if (!display.overlapsRectBroad(platformRect)) {
+          entities.remove(e);
+        }
+      }
+    }
+  }
+  
+  for (const e of entities.view(['platformConnection', 'platformConnectionIsConnected'])) {
+    const pc = e.platformConnection;
+
+    if (!pc) continue;
+
+    const k1 = pc.p1.kinematic
+    const k2 = pc.p2.kinematic;
+
+    if (!k1 || !k2) continue;
+
+    let onAPlatform = false;
+    for (const platform of ['p1', 'p2'] as ('p1' | 'p2')[]) {
+      const k = platform === 'p1' ? k1 : k2;
+      const kother = platform === 'p1' ? k2 : k1;
+
+      if (pc[platform].touchingUp?.find(m => m.mario)) {
+        onAPlatform = true;
+        k.acceleration.y = connectedAccel;
+        if (k.velocity.y > maxConnectedSpeed) {
+          k.acceleration.y = 0;
+          k.velocity.y = maxConnectedSpeed;
+          kother.velocity.y = -k.velocity.y;
+        } else {
+          kother.acceleration.y = -k.acceleration.y;
+          kother.velocity.y = -k.velocity.y;
+        }
+      }
+    }
+
+    if (!onAPlatform) {
+      // decel when not on platform
+      if (k1.velocity.y) {
+        const v1dir = Math.sign(k1.velocity.y);
+        k1.acceleration.y = -connectedAccel * v1dir;
+        if (Math.sign(k1.velocity.y + k1.acceleration.y * dt) !== v1dir) {
+          k1.acceleration.y = 0;
+          k1.velocity.y = 0;
+          k2.velocity.y = 0;
+          k2.acceleration.y = 0;
+        } else {
+          k2.acceleration.y = -k1.acceleration.y;
+        }
       }
     }
   }

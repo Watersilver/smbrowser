@@ -19,7 +19,7 @@ import debugRender from "../systems/debugRender";
 import renderSmb1Mario from "../systems/renderSmb1Mario";
 import marioSmb1Sounds from "../systems/marioSmb1Sounds";
 import resetStuff from "../systems/resetStuff";
-import entities from "../entities";
+import entities, { Entity } from "../entities";
 import culling from "../systems/culling";
 import renderSmb1Stuff from "../systems/renderSmb1Stuff";
 import blockhit from "../systems/blockhit";
@@ -31,7 +31,7 @@ import fireballs from "../systems/fireballs";
 import type LevelEditor from "./LevelEditor";
 import zones from "../zones";
 import camera from "../systems/camera";
-import { LineSeg, OscillationInit, Points, Vine } from "../types";
+import { LineSeg, OscillationInit, PlatformConnection, Points, Vine } from "../types";
 import newPipe from "../entityFactories/newPipe";
 import pipes from "../systems/pipes";
 import coins from "../systems/coins";
@@ -41,6 +41,8 @@ import vines from "../systems/vines";
 import newTrampoline from "../entityFactories/newTrampoline";
 import springs from "../systems/springs";
 import platforms from "../systems/platforms";
+import newPlatformConnection from "../entityFactories/newPlatformConnection";
+import platformConnections from "../systems/platformConnectors";
 
 const audio = getSmb1Audio();
 
@@ -73,6 +75,7 @@ export type GameplayInit = {
   trampolines: Vine[];
   oscillations: OscillationInit[];
   platformRoutes: LineSeg[];
+  platformConnections: PlatformConnection[];
 }
 export type GameplayOut = {
   graphics: Graphics;
@@ -194,6 +197,45 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
       }
     });
 
+    init.platformConnections.forEach(z => {
+      const p1 = {...z.pin};
+      p1.y += z.h1;
+      const p2 = {...z.pin};
+      p2.x += z.w;
+      p2.y += z.h2;
+
+      let platform1: Entity | null = null;
+      let platform2: Entity | null = null;
+
+      bb.l = p1.x - 1;
+      bb.t = p1.y - 1;
+      collider.pos.x = bb.l;
+      collider.pos.y = bb.t;
+      for (const u of worldGrid.kinematics.findNear(bb.l, bb.t, bb.w, bb.h)) {
+        const uu = u.userData;
+        if (aabb.pointVsRect(uu.position, collider)) {
+          uu.platform = {};
+          platform1 = uu;
+          break;
+        }
+      }
+
+      bb.l = p2.x - 1;
+      bb.t = p2.y - 1;
+      collider.pos.x = bb.l;
+      collider.pos.y = bb.t;
+      for (const u of worldGrid.kinematics.findNear(bb.l, bb.t, bb.w, bb.h)) {
+        const uu = u.userData;
+        if (aabb.pointVsRect(uu.position, collider)) {
+          uu.platform = {};
+          platform2 = uu;
+          break;
+        }
+      }
+
+      if (platform1 && platform2) newPlatformConnection(z.pin.x, z.pin.y, platform1, platform2, z.h1, z.h1 + z.h2);
+    });
+
     init.zones.descendingPlatformZones.forEach(z => {
       bb.l = z.x;
       bb.t = z.y;
@@ -306,6 +348,8 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
 
       // Reset velocities to state before components were added
       removeSpeedComponents();
+
+      platformConnections();
 
       // Check if hit block with head
       blockhit(dt);
