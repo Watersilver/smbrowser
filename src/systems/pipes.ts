@@ -6,7 +6,9 @@ import worldGrid from "../world-grid";
 const collider = new Collidable();
 const collidee = new Collidable();
 
-const pipeSpeed = 200;
+const initSpeed = 200;
+const pipeEnterExitSpeed = 100;
+const pipeSpeed = 444;
 
 export default function pipes(input: Input, dt: number) {
   for (const e of entities.view(['pipe'])) {
@@ -95,7 +97,8 @@ export default function pipes(input: Input, dt: number) {
         if (before.length() < 1) {
           p.iTarget++;
         } else {
-          const dr = e.position.sub(target).unit().mul(-pipeSpeed * dt);
+          const speed = p.iTarget === 0 ? initSpeed : p.iTarget === 1 || p.iTarget === p.path.length - 1 ? pipeEnterExitSpeed : pipeSpeed;
+          const dr = e.position.sub(target).unit().mul(-speed * dt);
           e.position.x += dr.x;
           e.position.y += dr.y;
 
@@ -114,17 +117,17 @@ export default function pipes(input: Input, dt: number) {
       } else {
 
         p.exiting = p.exiting ?? {
-          x: e.position.x,
-          y: e.position.y
+          x: p.path.at(-1)?.[0] ?? e.position.x,
+          y: p.path.at(-1)?.[1] ?? e.position.y
         };
 
         const dr = p.to === 'd'
-          ? {x: 0, y: pipeSpeed * dt}
+          ? {x: 0, y: pipeEnterExitSpeed * dt}
           : p.to === 'u'
-          ? {x: 0, y: -pipeSpeed * dt}
+          ? {x: 0, y: -pipeEnterExitSpeed * dt}
           : p.to === 'r'
-          ? {x: pipeSpeed * dt, y: 0}
-          : {x: -pipeSpeed * dt, y: 0};
+          ? {x: pipeEnterExitSpeed * dt, y: 0}
+          : {x: -pipeEnterExitSpeed * dt, y: 0};
 
         e.position.x += dr.x;
         e.position.y += dr.y;

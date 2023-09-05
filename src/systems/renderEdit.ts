@@ -140,6 +140,56 @@ const drawPlatformConnection = (g: Graphics, o: PlatformConnection, color: numbe
   .endFill();
 };
 
+const drawPipe = (g: Graphics, pipe: Points, color: number) => {
+  const scale = display.getScale();
+
+  const outer = g.lineStyle(4 / scale, 0x000000).beginFill(0,0);
+  for (let i = 1; i < pipe.length; i++) {
+    const prev = pipe[i - 1];
+    const current = pipe[i];
+    if (prev && current) {
+      outer.moveTo(prev[0], prev[1]);
+      outer.lineTo(current[0], current[1]);
+    }
+  }
+  outer.endFill();
+
+  const p1 = pipe[1];
+  const p2 = pipe.at(-2);
+
+  if (p1) {
+    g.lineStyle(0,0)
+    .beginFill(0x000000,1)
+    .drawCircle(p1[0], p1[1], 4 / scale)
+    .endFill();
+    g.lineStyle(0,0)
+    .beginFill(color,1)
+    .drawCircle(p1[0], p1[1], 3 / scale)
+    .endFill();
+  }
+  if (p2) {
+    g.lineStyle(0,0)
+    .beginFill(0x000000,1)
+    .drawCircle(p2[0], p2[1], 4 / scale)
+    .endFill();
+    g.lineStyle(0,0)
+    .beginFill(color,1)
+    .drawCircle(p2[0], p2[1], 3 / scale)
+    .endFill();
+  }
+
+  const inner = g.lineStyle(2 / scale, color).beginFill(0,0);
+  for (let i = 1; i < pipe.length; i++) {
+    const prev = pipe[i - 1];
+    const current = pipe[i];
+    if (prev && current) {
+      outer.moveTo(prev[0], prev[1]);
+      outer.lineTo(current[0], current[1]);
+    }
+  }
+  inner.endFill();
+}
+
 export default function renderEdit(g: Graphics, o: Graphics, zones: {
     camZones: Zone[];
     camPreserveZones: Zone[];
@@ -312,51 +362,12 @@ export default function renderEdit(g: Graphics, o: Graphics, zones: {
 
   for (const pipe of pipes) {
     if (pipe) {
-      const outer = o.lineStyle(4 / scale, 0x000000).beginFill(0,0);
-      for (let i = 1; i < pipe.length; i++) {
-        const prev = pipe[i - 1];
-        const current = pipe[i];
-        if (prev && current) {
-          outer.moveTo(prev[0], prev[1]);
-          outer.lineTo(current[0], current[1]);
-        }
-      }
-      outer.endFill();
-      const inner = o.lineStyle(2 / scale, 0xffff00).beginFill(0,0);
-      for (let i = 1; i < pipe.length; i++) {
-        const prev = pipe[i - 1];
-        const current = pipe[i];
-        if (prev && current) {
-          outer.moveTo(prev[0], prev[1]);
-          outer.lineTo(current[0], current[1]);
-        }
-      }
-      inner.endFill();
+      drawPipe(o, pipe, 0xffff00);
     }
   }
 
   if (currentPipe) {
-    const pipe = currentPipe;
-    const outer = o.lineStyle(4 / scale, 0x000000).beginFill(0,0);
-    for (let i = 1; i < pipe.length; i++) {
-      const prev = pipe[i - 1];
-      const current = pipe[i];
-      if (prev && current) {
-        outer.moveTo(prev[0], prev[1]);
-        outer.lineTo(current[0], current[1]);
-      }
-    }
-    outer.endFill();
-    const inner = o.lineStyle(2 / scale, 0xffffff).beginFill(0,0);
-    for (let i = 1; i < pipe.length; i++) {
-      const prev = pipe[i - 1];
-      const current = pipe[i];
-      if (prev && current) {
-        outer.moveTo(prev[0], prev[1]);
-        outer.lineTo(current[0], current[1]);
-      }
-    }
-    inner.endFill();
+    drawPipe(o, currentPipe, 0xffffff);
   }
 
   for (const vine of vines) {
