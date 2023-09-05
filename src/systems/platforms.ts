@@ -87,8 +87,18 @@ export default function platforms(dt: number) {
         }
       }
     } else if (p.bounded) {
-      while (e.position.y > p.bounded.bottom) {
-        e.position.y -= p.bounded.height;
+      if (e.kinematic) {
+        if (e.kinematic.velocity.y > 0) {
+          while (e.position.y > p.bounded.bottom) {
+            const h = p.bounded.bottom - p.bounded.top;
+            e.position.y -= h;
+          }
+        } else {
+          while (e.position.y < p.bounded.top) {
+            const h = p.bounded.bottom - p.bounded.top;
+            e.position.y += h;
+          }
+        }
       }
     } else if (p.fall) {
       if (e.kinematic) {

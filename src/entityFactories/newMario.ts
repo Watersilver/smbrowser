@@ -13,7 +13,7 @@ export default function newMario(x: number, y: number) {
     touchingRight: [],
     hits: [],
     prevHits: [],
-    size: new Vec2d(14, 15),
+    size: new Vec2d(12, 15),
     dynamic: {
       velocity: new Vec2d(0, 0),
       acceleration: new Vec2d(0, 0)

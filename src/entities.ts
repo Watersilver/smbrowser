@@ -223,7 +223,7 @@ export type Entity = {
       stop?: boolean;
     };
     bounded?: {
-      height: number;
+      top: number;
       bottom: number;
     }
   };

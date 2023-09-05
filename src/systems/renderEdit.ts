@@ -262,9 +262,9 @@ export default function renderEdit(g: Graphics, o: Graphics, zones: {
         o.lineStyle(4 / scale, 0)
         .beginFill(0, 0)
         .drawPolygon(
-          zone.x + zone.w - 8 - 2, zone.y + zone.h - 8,
-          zone.x + zone.w - 8 + 2, zone.y + zone.h - 8,
-          zone.x + zone.w - 8, zone.y + zone.h - 8 + 2
+          zone.x + zone.w - 8 - 2, zone.y + 8,
+          zone.x + zone.w - 8 + 2, zone.y + 8,
+          zone.x + zone.w - 8, zone.y + 8 - 2
         )
         .endFill();
         o.lineStyle(2 / scale, col)
@@ -275,9 +275,9 @@ export default function renderEdit(g: Graphics, o: Graphics, zones: {
         o.lineStyle(2 / scale, col)
         .beginFill(0, 0)
         .drawPolygon(
-          zone.x + zone.w - 8 - 2, zone.y + zone.h - 8,
-          zone.x + zone.w - 8 + 2, zone.y + zone.h - 8,
-          zone.x + zone.w - 8, zone.y + zone.h - 8 + 2
+          zone.x + zone.w - 8 - 2, zone.y + 8,
+          zone.x + zone.w - 8 + 2, zone.y + 8,
+          zone.x + zone.w - 8, zone.y + 8 - 2
         )
         .endFill();
       }

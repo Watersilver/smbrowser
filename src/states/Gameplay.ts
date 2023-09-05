@@ -43,6 +43,7 @@ import springs from "../systems/springs";
 import platforms from "../systems/platforms";
 import newPlatformConnection from "../entityFactories/newPlatformConnection";
 import platformConnections from "../systems/platformConnectors";
+import newClutter from "../entityFactories/newClutter";
 
 const audio = getSmb1Audio();
 
@@ -245,14 +246,30 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
       collider.pos.y = bb.t;
       collider.size.x = bb.w;
       collider.size.y = bb.h;
+
+      const dx = !!init.oscillations.find(r => aabb.pointVsRect(r.pstart, collider)) ? 8 : 0;
+
+      const moveUp = !!init.platformRoutes.find(r => aabb.pointVsRect(r.p1, collider) && r.p2.y < r.p1.y);
+
       for (const u of worldGrid.kinematics.findNear(bb.l, bb.t, bb.w, bb.h)) {
         const uu = u.userData;
         if (aabb.pointVsRect(uu.position, collider)) {
           uu.platform = {
-            bounded: {height: z.h, bottom: z.y + z.h}
+            bounded: {top: z.y, bottom: z.y + z.h}
           };
           if (!uu.kinematic) uu.kinematic = {velocity: new Vec2d(0, 0), acceleration: new Vec2d(0, 0)};
-          uu.kinematic.velocity.y = 25;
+          uu.kinematic.velocity.y = 25 * (moveUp ? -1 : 1);
+          uu.position.x += dx;
+        }
+      }
+
+      const rope = !!init.platformConnections.find(r => aabb.pointVsRect(r.pin, collider));
+
+      if (rope) {
+        const c = newClutter(collider.pos.x + collider.size.x * 0.5 + dx, collider.pos.y + collider.size.y * 0.5, {type: 'tile', frame: 'clutterSuspenderRopeVertical'});
+        if (c.smb1TilesSprites) {
+          c.smb1TilesSprites.container.scale.y = collider.size.y / 16;
+          c.smb1TilesSprites.container.zIndex -= 1;
         }
       }
     });
