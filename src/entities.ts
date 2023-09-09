@@ -132,6 +132,7 @@ export type Entity = {
   };
   fireball?: {
     parent?: Entity;
+    startVelocity: number;
   };
   fireballHit?: boolean;
   filters?: Filter[];

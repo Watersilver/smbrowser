@@ -36,7 +36,8 @@ const hitAnimDuration = 0.4;
 
 const audio = getSmb1Audio();
 entities.onAdding(['grow'], () => {
-  audio.sounds.play('powerup_appears', {stopPrev: {same: true}});
+  audio.sounds.get('vine').forEach(s => s.stop());
+  audio.sounds.play('powerup_appears');
 });
 
 function cooldowns(dt: number) {

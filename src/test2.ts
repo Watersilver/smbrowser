@@ -392,7 +392,7 @@ class MainLoop extends Loop {
       } else if (vel3.y < 0 && this.grounded) {
         pl.userData.vel.y = -155
         this.jumped = true;
-        sp.play('jump', {sleep: 0.2});
+        sp.play('jump');
       }
     }
 

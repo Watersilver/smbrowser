@@ -44,6 +44,7 @@ import platforms from "../systems/platforms";
 import newPlatformConnection from "../entityFactories/newPlatformConnection";
 import platformConnections from "../systems/platformConnectors";
 import newClutter from "../entityFactories/newClutter";
+import deathZones from "../systems/deathZones";
 
 const audio = getSmb1Audio();
 
@@ -95,10 +96,19 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
 
   scale = 1;
 
+  // Lowest point for dynamics before they are destroyed
+  lowestY = Infinity;
+
   private paused = false;
 
   override onStart(init: GameplayInit | null): void {
     this.paused = false;
+
+    this.lowestY = entities.view().reduce((a, c) => {
+      const l = c.position.y;
+      if (l > a) return l;
+      return a;
+    }, -Infinity);
 
     if (!init) return;
     this.graphics = init.graphics;
@@ -310,6 +320,7 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
       audio.sounds.play('pause');
     }
 
+    deathZones(this.lowestY);
     entities.update();
 
     for (const ent of entities.view(['mario'])) {
@@ -345,7 +356,7 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
       gravity();
       marioMovement(dt);
 
-      fireballs();
+      fireballs(dt);
 
       // Modification of velocities
       acceleration(dt);

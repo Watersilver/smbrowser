@@ -228,11 +228,17 @@ class MusicPlayer<T extends string> extends AudioContainer<T> {
   }
 }
 
+export type Sound = {
+  name: string;
+  stop: () => void;
+  playing: () => boolean;
+  tags?: string[];
+};
+
 class SoundPlayer<T extends string> extends AudioContainer<T> {
 
-  private activeSound?: AudioBufferSourceNode;
   private readonly cached: Set<string> = new Set();
-  private readonly playing: Map<AudioBufferSourceNode, {volume: GainNode, name: string}> = new Map();
+  private readonly playing: Map<AudioBufferSourceNode, {volume: GainNode, name: string, sound: Sound}> = new Map();
   private volume = 1;
 
   private getFinalVolume() {
@@ -258,79 +264,48 @@ class SoundPlayer<T extends string> extends AudioContainer<T> {
 
   /**
    * @param name name of sound to be played. Ignore to play no sound
-   * @param options.stopPrev stops currently playing sound. Either immediatelly when provided true, or after seconds given by timeout. If same is true, only stops prev if it is the same sound. If name is given only stops given names.
-   * @param options.sleep prevents the same sound from being played again for given seconds
    */
-  play(name?: T | null, options?: {stopPrev?: boolean | {timeout?: number, same?: boolean, name?: T | T[]}, sleep?: number}) {
+  play(name?: T | null, tags?: string[]): Sound | null {
     // Only allow a particular sound to be played once per task
     if (name) {
-      if (this.cached.has(name)) return;
+      if (this.cached.has(name)) return null;
       this.cached.add(name);
-      setTimeout(() => {this.cached.delete(name)}, options?.sleep ? options.sleep * 1000 : undefined);
+      setTimeout(() => {this.cached.delete(name)});
     }
 
-    const {stopPrev} = options ?? {};
-    if (stopPrev && this.activeSound) {
-      const prev = this.activeSound;
-      if (stopPrev === true) {
-        prev.stop();
-        prev.disconnect();
-        prev.onended = null;
-        this.playing.delete(prev);
-      } else {
-        const timeout = stopPrev.timeout;
-        let stop = true;
-        if (stopPrev.same) {
-          stop = false;
-          for (const p of this.playing.values()) {
-            if (p.name === name) {
-              stop = true;
-              break;
-            }
-          }
-        }
-        if (stopPrev.name) {
-          for (const p of this.playing.values()) {
-            if (typeof stopPrev.name === 'string' ? stopPrev.name === p.name : stopPrev.name.findIndex(n => p.name === n) !== -1) {
-              p.volume.gain.value = 0;
-              break;
-            }
-          }
-        }
-        if (stop) {
-          if (timeout !== undefined) {
-            setTimeout(() => {
-              prev.stop();
-              prev.disconnect();
-              prev.onended = null;
-              this.playing.delete(prev);
-            }, timeout * 1000);
-          } else {
-            prev.stop();
-            prev.disconnect();
-            prev.onended = null;
-            this.playing.delete(prev);
-          }
-        }
-      }
-    }
-
-    if (!name) return;
+    if (!name) return null;
     const b = this.loaded[name];
-    if (!b) return;
+    if (!b) return null;
     const newActiveSound = this.context.createBufferSource();
     newActiveSound.buffer = b;
-    this.activeSound = newActiveSound;
     const volume = this.context.createGain();
     volume.gain.value = this.getFinalVolume();
     connectNodes(newActiveSound, volume, this.context.destination);
-    this.playing.set(newActiveSound, {volume, name});
-    newActiveSound.onended = () => {
+    let stop = () => {
+      stop = () => {};
       this.playing.delete(newActiveSound);
       newActiveSound.disconnect();
       newActiveSound.onended = null;
-    }
+    };
+    newActiveSound.onended = stop;
     newActiveSound.start();
+    const sound = {
+      name,
+      playing: () => this.playing.has(newActiveSound),
+      stop,
+      tags
+    }
+    this.playing.set(newActiveSound, {volume, name, sound});
+
+    return sound;
+  }
+
+  get(name?: T | null) {
+    const v = [...this.playing.values()].map(s => s.sound);
+    if (name === undefined || name === null) {
+      return v;
+    }
+    return v.filter(s => s.name === name);
   }
 }
 

@@ -1,12 +1,16 @@
 import { getSmb1Audio } from "../audio";
+import { Sound } from "../engine/audio-controller";
 import entities from "../entities";
 
 const audio = getSmb1Audio();
 
-const swimSoundOptions = {stopPrev: {same: true}};
+let coinSound: Sound | null = null;
 
 entities.onPropChange('coinGotCollected', e => {
-  if (e.coinGotCollected) audio.sounds.play('coin');
+  if (e.coinGotCollected) {
+    coinSound?.stop();
+    audio.sounds.play('coin');
+  }
 });
 
 export default function marioSmb1Sounds() {
@@ -21,7 +25,7 @@ export default function marioSmb1Sounds() {
     if (m) {
       if (m.jumped) {
         if (e.underwater) {
-          audio.sounds.play('stomp', swimSoundOptions);
+          audio.sounds.play('stomp');
         } else {
           if (m.big) {
             audio.sounds.play('jumpBig');
@@ -49,7 +53,7 @@ export default function marioSmb1Sounds() {
         }
   
         if (e.player.gainedOneUp) {
-          audio.sounds.play('oneUp', {stopPrev: {name: 'coin'}});
+          audio.sounds.play('oneUp');
         }
       }
     }
@@ -69,6 +73,7 @@ export default function marioSmb1Sounds() {
 
   for (const e of entities.view(['vineStart'])) {
     if (e.vineStart) {
+      audio.sounds.get('powerup_appears').forEach(s => s.stop());
       audio.sounds.play('vine');
     }
     delete e.vineStart;
