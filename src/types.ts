@@ -1,5 +1,6 @@
 import { Vec2dData } from "./engine/Vec2d";
 import { Entity } from "./entities";
+import { Smb1EnemiesAnimations } from "./sprites/loaders/smb1/enemies";
 import { Smb1ObjectsSprites } from "./sprites/loaders/smb1/objects";
 import { Smb1TilesSprites } from "./sprites/loaders/smb1/tiles";
 
@@ -13,7 +14,8 @@ export enum EntityTypeMapping {
   coin = "c",
   kinematic = "k",
   clutter = 'd',
-  platform = 'p'
+  platform = 'p',
+  enemy = 'e'
 }
 
 export type Zone = {x: number; y: number; w: number; h: number;};
@@ -36,6 +38,7 @@ export type LevelData = {
     init?: {
       tileFrame?: Smb1TilesSprites['frame'];
       objectFrame?: Smb1ObjectsSprites['frame'];
+      enemyAnim?: Smb1EnemiesAnimations['animation'];
     },
     custom?: Entity
   ][];
@@ -46,6 +49,7 @@ export type LevelData = {
     init?: {
       tileFrame?: Smb1TilesSprites['frame'];
       objectFrame?: Smb1ObjectsSprites['frame'];
+      enemyAnim?: Smb1EnemiesAnimations['animation'];
     },
     custom?: Entity
   ][];

@@ -8,7 +8,8 @@ type RenderProps =
 | 'smb1ObjectsAnimations'
 | 'smb1TilesSpritesEditMode'
 | 'smb1TilesAnimations'
-| 'smb1MarioAnimations';
+| 'smb1MarioAnimations'
+| 'smb1EnemiesAnimations';
 
 const handledRenderables: Set<string> = new Set();
 

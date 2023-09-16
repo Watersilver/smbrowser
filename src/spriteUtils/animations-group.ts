@@ -84,6 +84,10 @@ export default class AnimationsGroup<T extends {[animation: string]: Texture<Res
     return this.animation;
   }
 
+  getAnimations() {
+    return Object.keys(this.textures) as (keyof T)[];
+  }
+
   /**
    * @param progress 0-1
    */

@@ -4,6 +4,7 @@ import systemUtils from "./utils";
 systemUtils.addRemoveRenderable('smb1MarioAnimations');
 systemUtils.addRemoveRenderable('smb1ObjectsSprites');
 systemUtils.addRemoveRenderable('smb1ObjectsAnimations');
+systemUtils.addRemoveRenderable('smb1EnemiesAnimations');
 systemUtils.addRemoveRenderable('smb1TilesAnimations');
 systemUtils.addRemoveRenderable('smb1TilesSprites');
 systemUtils.addRemoveRenderable('smb1TilesSpritesEditMode');
@@ -55,6 +56,7 @@ export default function renderSmb1Stuff(dt: number, editMode?: boolean) {
   systemUtils.updateRenderable('smb1ObjectsSprites');
   systemUtils.updateRenderable('smb1TilesSprites');
   systemUtils.updateRenderable('smb1ObjectsAnimations');
+  systemUtils.updateRenderable('smb1EnemiesAnimations');
 
   if (editMode) {
     systemUtils.updateRenderable('smb1TilesSpritesEditMode');
@@ -98,6 +100,12 @@ export default function renderSmb1Stuff(dt: number, editMode?: boolean) {
 
     for (const e of entities.view(['smb1ObjectsAnimations'])) {
       const a = e.smb1ObjectsAnimations;
+      if (!a) continue;
+      a.update(dt);
+    }
+
+    for (const e of entities.view(['smb1EnemiesAnimations'])) {
+      const a = e.smb1EnemiesAnimations;
       if (!a) continue;
       a.update(dt);
     }

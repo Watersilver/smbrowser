@@ -7,7 +7,7 @@ import detectFloorSpeed from "../systems/detectFloorSpeed";
 import marioPlayerInput from "../systems/marioPlayerInput";
 import gravity from "../systems/gravity";
 import marioMovement from "../systems/marioMovement";
-import acceleration from "../systems/acceleration";
+import velocityChanges from "../systems/velocityChanges";
 import addSpeedComponents from "../systems/addSpeedComponents";
 import speedLimit from "../systems/speedLimit";
 import physics from "../systems/physics";
@@ -45,6 +45,10 @@ import newPlatformConnection from "../entityFactories/newPlatformConnection";
 import platformConnections from "../systems/platformConnectors";
 import newClutter from "../entityFactories/newClutter";
 import deathZones from "../systems/deathZones";
+import enemyActivator from "../systems/enemyActivator";
+import stuffVsEnemies from "../systems/stuffVsEnemies";
+import iframes from "../systems/iframes";
+import deleteTimer from "../systems/deleteTimer";
 
 const audio = getSmb1Audio();
 
@@ -320,7 +324,7 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
       audio.sounds.play('pause');
     }
 
-    deathZones(this.lowestY);
+    deathZones(this.lowestY, display);
     entities.update();
 
     for (const ent of entities.view(['mario'])) {
@@ -359,7 +363,7 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
       fireballs(dt);
 
       // Modification of velocities
-      acceleration(dt);
+      velocityChanges(dt);
       addSpeedComponents();
 
       // Limiting velocities
@@ -388,11 +392,17 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
 
       springs(dt);
 
-      movement();
+      movement(dt);
+
+      stuffVsEnemies(dt);
+
+      iframes(dt);
 
       dynamicCollisions();
 
       marioPowerups(dt);
+
+      deleteTimer(dt);
     }
 
     // Render
@@ -408,6 +418,7 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
     }
 
     camera(display);
+    enemyActivator(display);
 
     if (!this.paused) {
 

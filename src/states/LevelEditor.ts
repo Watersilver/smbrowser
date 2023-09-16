@@ -16,6 +16,7 @@ import smb1tilesFactory, { Smb1TilesSprites } from "../sprites/loaders/smb1/tile
 import level from '../assets/level.json';
 import renderEdit from "../systems/renderEdit";
 import smb1objectsFactory, { Smb1ObjectsSprites } from "../sprites/loaders/smb1/objects";
+import smb1enemiesanimationsFactory, { Smb1EnemiesAnimations } from "../sprites/loaders/smb1/enemies";
 
 export type LevelEditorInit = {
   graphics: Graphics;
@@ -155,6 +156,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
   blockSelect: HTMLButtonElement;
   coinSelect: HTMLButtonElement;
   platformSelect: HTMLButtonElement;
+  enemySelect: HTMLButtonElement;
   clutterSelect: HTMLButtonElement;
   tileSelectors: HTMLDivElement;
   prevSelected: EntityTypeMapping | null = null;
@@ -167,6 +169,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
   blockFrame?: Smb1TilesSprites['frame'] = undefined;
   clutterFrame?: Smb1TilesSprites['frame'] = undefined;
   platformFrame?: Smb1ObjectsSprites['frame'] = undefined;
+  enemyFrame?: Smb1EnemiesAnimations['animation'] = undefined;
   layer: 1 | 2 = 1;
   history: HistoryStep[] = [];
   historyIndex = 0;
@@ -244,6 +247,9 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     }
     if (e.smb1TilesSpritesEditMode) {
       e.smb1TilesSpritesEditMode.container.alpha = alpha;
+    }
+    if (e.smb1EnemiesAnimations) {
+      e.smb1EnemiesAnimations.container.alpha = alpha;
     }
   }
 
@@ -518,6 +524,61 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       });
     });
 
+    this.enemySelect = document.createElement('button');
+    this.enemySelect.innerHTML = "enemies";
+    this.enemySelect.onclick = () => this.selected = EntityTypeMapping.enemy;
+
+    const enemies = smb1enemiesanimationsFactory.new();
+    this.enemyFrame = 'goomba';
+    enemies.setAnimation(this.enemyFrame);
+    function camelCaseToWords(s: string) {
+      const result = s.replace(/([A-Z])/g, ' $1');
+      return result.charAt(0).toUpperCase() + result.slice(1);
+    }
+    enemies?.whenReady().then(() => {
+      this.enemySelect.innerHTML = '';
+      const img = document.createElement('img');
+      img.style.width = "48px";
+      img.style.height = '48px';
+      img.alt = this.enemyFrame || 'enemy';
+      const text = document.createElement('div');
+      text.innerHTML = camelCaseToWords(this.enemyFrame?.replace('OpenMouth', '') ?? img.alt);
+      this.enemySelect.append(img, text);
+
+      const dURL = enemies.getDataUrl();
+      if (!dURL) return;
+      img.src = dURL;
+
+      this.enemySelect.addEventListener('wheel', e => {
+        const frames = enemies.getAnimations();
+        let i = frames.findIndex(a => a === enemies.getAnimation());
+        let valid: boolean | undefined = false;
+        while (valid === false) {
+          i = (i + Math.sign(e.deltaY)) % frames.length;
+          this.enemyFrame = frames.at(i);
+          valid =
+            !this.enemyFrame?.includes('Dead')
+            && !this.enemyFrame?.includes('shell')
+            && !this.enemyFrame?.includes('Attack')
+            && !this.enemyFrame?.includes('bulletbill')
+            && !this.enemyFrame?.includes('spiny')
+            && this.enemyFrame !== 'lavaBubble'
+            && this.enemyFrame !== 'lakitu'
+            && this.enemyFrame !== 'bowserfire'
+            && !this.enemyFrame?.includes('ClosedMouth');
+        }
+        if (this.enemyFrame) {
+          enemies.setAnimation(this.enemyFrame);
+          img.alt = this.enemyFrame;
+          text.innerHTML = camelCaseToWords(this.enemyFrame.replace('OpenMouth', ''));
+        }
+
+        const dURL = enemies.getDataUrl();
+        if (!dURL) return;
+        img.src = dURL;
+      });
+    });
+
     this.zoneSelect = document.createElement('button');
     this.zoneSelect.innerHTML = 'camera<br>zone';
     this.zoneSelect.onclick = () => {
@@ -721,7 +782,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       if (this.platformRouteSelected || this.platformConnectionSelected || this.oscillationSelected) selectPR();
     });
 
-    this.tileSelectors.append(this.zoneSelect, this.pipeSelect, this.vineSelect, this.trampolineSelect, this.platformRouteSelect, this.marioSelect, this.solidSelect, this.brickSelect, this.blockSelect, this.coinSelect, this.platformSelect, this.clutterSelect);
+    this.tileSelectors.append(this.zoneSelect, this.pipeSelect, this.vineSelect, this.trampolineSelect, this.platformRouteSelect, this.marioSelect, this.solidSelect, this.brickSelect, this.blockSelect, this.coinSelect, this.platformSelect, this.clutterSelect, this.enemySelect);
 
     this.mousePosDisplay = document.createElement('div');
 
@@ -940,6 +1001,10 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
           this.platformSelect.classList.add('selected');
           break;
         }
+        case EntityTypeMapping.enemy: {
+          this.enemySelect.classList.add('selected');
+          break;
+        }
       }
     }
 
@@ -1059,6 +1124,14 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
                 this.selected,
                 xstart, ystart,
                 {objectFrame: this.platformFrame}
+              ]);
+              break;
+            }
+            case EntityTypeMapping.enemy: {
+              h = this.add([
+                this.selected,
+                xstart, ystart,
+                {enemyAnim: this.enemyFrame}
               ]);
               break;
             }

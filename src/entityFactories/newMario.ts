@@ -4,7 +4,7 @@ import smb1Sprites from "../sprites/smb1";
 
 export default function newMario(x: number, y: number) {
   const smb1MarioAnimations = smb1Sprites.getFactory('mario').new();
-  smb1MarioAnimations.container.zIndex = 1;
+  smb1MarioAnimations.container.zIndex = 10;
   return entities.createEntity(newEntity({
     position: new Vec2d(x, y),
     touchingUp: [],

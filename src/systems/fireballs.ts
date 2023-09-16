@@ -82,7 +82,7 @@ export default function fireballs(dt: number) {
         e.smb1ObjectsAnimations.setFrame(0);
         e.smb1ObjectsAnimations.loopsPerSecond = 5;
         e.smb1ObjectsAnimations.setAnimation('firework');
-        audio.sounds.play('bump');
+        if (!e.fireballHitEnemy) audio.sounds.play('bump');
       }
     }
   }

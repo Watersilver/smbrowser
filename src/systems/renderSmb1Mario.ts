@@ -268,6 +268,12 @@ export default function renderSmb1Mario(dt: number) {
       }
 
       a.update(dt);
+
+      if (e.iframesSecs) {
+        a.container.alpha = 0.5;
+      } else {
+        a.container.alpha = 1;
+      }
     }
   }
 }

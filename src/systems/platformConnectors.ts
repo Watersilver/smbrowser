@@ -1,7 +1,5 @@
 import entities from "../entities";
 
-const maxConnectedSpeed = 100;
-
 export default function platformConnections() {
   
   for (const e of entities.view(['platformConnection', 'platformConnectionIsConnected'])) {

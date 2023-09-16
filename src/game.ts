@@ -40,7 +40,7 @@ levelEditor.connect(gameplay, 'gameplay');
 gameplay.connect(levelEditor, 'editor');
 
 class Game extends Loop {
-  state = "loading"
+  state = "loading";
 
   input = new Input(display.getCanvas());
   graphics = new Graphics();

@@ -6,6 +6,7 @@ import { Smb1MarioSprites } from "./sprites/loaders/smb1/mario";
 import { Smb1ObjectsSprites } from "./sprites/loaders/smb1/objects";
 import { Smb1TilesSprites } from "./sprites/loaders/smb1/tiles";
 import { Points, Vine } from "./types";
+import { Smb1EnemiesAnimations } from "./sprites/loaders/smb1/enemies";
 
 export type Entity = {
   positionStart: Vec2d;
@@ -83,6 +84,7 @@ export type Entity = {
     surfaceJumpGravity: number;
   };
   mario?: {
+    dead?: boolean;
     running?: boolean;
     skidding?: boolean;
     skidDecel?: boolean;
@@ -135,6 +137,7 @@ export type Entity = {
     startVelocity: number;
   };
   fireballHit?: boolean;
+  fireballHitEnemy?: boolean;
   filters?: Filter[];
   gravity?: number;
   underwater?: boolean;
@@ -156,6 +159,7 @@ export type Entity = {
   smb1ObjectsSprites?: Smb1ObjectsSprites;
   smb1TilesAnimations?: Smb1TilesAnimations;
   smb1ObjectsAnimations?: Smb1ObjectsAnimations;
+  smb1EnemiesAnimations?: Smb1EnemiesAnimations;
   smb1TilesSpritesEditMode?: Smb1TilesSprites;
   invisibleBlock?: boolean;
   brick?: boolean;
@@ -184,7 +188,21 @@ export type Entity = {
     bounce?: number;
     bounceNow?: boolean;
     bounceOnce?: boolean;
+    flipEachOther?: boolean;
   };
+  enemActivateOnVisible?: 'goomba' | 'buzzy' | 'koopaG' | 'koopaR' | 'bouncyKoop' | 'flyingKoopa' | 'plant' | 'cheep' | 'hammerbro' | 'bowser' | 'bruce';
+  enemStompRecovery?: number;
+  enemy?: {
+    stomp: boolean;
+    fireball: boolean | number;
+    star: boolean;
+  };
+  gotHit?: {
+    x: number;
+    y: number;
+    by: 'fireball' | 'bonk' | 'star' | 'shell';
+  };
+  goThrougWalls?: boolean;
   mushroom?: boolean;
   oneUp?: boolean;
   powerup?: boolean;
@@ -238,6 +256,9 @@ export type Entity = {
     cut?: boolean;
   };
   platformConnectionIsConnected?: boolean;
+  iframesSecs?: number;
+  deleteOutOfCam?: boolean;
+  deleteTimer?: number;
 };
 
 export function newEntity(init?: Partial<Entity>): Entity {

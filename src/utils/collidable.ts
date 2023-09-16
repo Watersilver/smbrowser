@@ -18,9 +18,14 @@ export default class Collidable {
   size = new Vec2d(0, 0);
   dr = new Vec2d(0, 0);
 
-  set(data: {position: Vec2dData, size: Vec2dData, dynamic?: {velocity: Vec2dData}}, dt?: number) {
-    this.l = data.position.x - data.size.x * 0.5;
-    this.t = data.position.y - data.size.y * 0.5;
+  set(data: {position: Vec2dData, positionPrev: Vec2dData, size: Vec2dData, dynamic?: {velocity: Vec2dData}}, dt?: number, prev?: boolean) {
+    if (prev) {
+      this.l = data.positionPrev.x - data.size.x * 0.5;
+      this.t = data.positionPrev.y - data.size.y * 0.5;
+    } else {
+      this.l = data.position.x - data.size.x * 0.5;
+      this.t = data.position.y - data.size.y * 0.5;
+    }
     this.w = data.size.x;
     this.h = data.size.y;
 

@@ -81,7 +81,7 @@ export default function physics(dt: number) {
   }
 
   for (const d of dynamicsList) {
-    if (!d.userData.dynamic) continue;
+    if (!d.userData.dynamic || d.userData.goThrougWalls) continue;
 
     const dr = d.userData.dynamic.velocity.mul(dt);
 

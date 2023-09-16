@@ -1,5 +1,4 @@
-import { Vec2d } from "../engine";
-import entities, { Entity, newEntity } from "../entities";
+import entities, { Entity } from "../entities";
 import newCoinblock from "../entityFactories/newCoinblock";
 import newBlock from "../entityFactories/newBlock";
 import newClutter from "../entityFactories/newClutter";
@@ -8,6 +7,7 @@ import { EntityTypeMapping, LevelData } from "../types";
 import newBrick from "../entityFactories/newBrick";
 import newCoin from "../entityFactories/newCoin";
 import newPlatform from "../entityFactories/newPlatform";
+import newEnemy from "../entityFactories/newEnemy";
 
 export default function parseLevel(levelData: string | LevelData) {
   // No type checking. GOOD LUCK!!
@@ -65,6 +65,11 @@ export default function parseLevel(levelData: string | LevelData) {
         case EntityTypeMapping.platform: {
           const frame = entInit[3]?.objectFrame;
           ent = newPlatform(entInit[1], entInit[2], frame);
+          break;
+        }
+        case EntityTypeMapping.enemy: {
+          const frame = entInit[3]?.enemyAnim;
+          ent = newEnemy(entInit[1], entInit[2], frame);
           break;
         }
       }
