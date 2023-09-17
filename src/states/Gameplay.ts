@@ -49,6 +49,7 @@ import enemyActivator from "../systems/enemyActivator";
 import stuffVsEnemies from "../systems/stuffVsEnemies";
 import iframes from "../systems/iframes";
 import deleteTimer from "../systems/deleteTimer";
+import deathAndRespawn from "../systems/deathAndRespawn";
 
 const audio = getSmb1Audio();
 
@@ -99,6 +100,8 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
   spanVel = new Vec2d(0, 0);
 
   scale = 1;
+
+  respawnTimer?: number;
 
   // Lowest point for dynamics before they are destroyed
   lowestY = Infinity;
@@ -291,6 +294,7 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
 
   override onEnd(): [output: GameplayOut | null, next: 'editor'] {
     this.paused = false;
+    this.respawnTimer = undefined;
     display.stopMoveTo();
 
     zones.camera.length = 0;
@@ -403,6 +407,8 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
       marioPowerups(dt);
 
       deleteTimer(dt);
+
+      deathAndRespawn(dt, this);
     }
 
     // Render

@@ -112,6 +112,7 @@ export type Entity = {
     invinsibility?: number;
     climbing?: Entity;
     climbingCooldown?: number;
+    respawnPoint?: {x: number; y: number;};
 
     // Use same mechanism for wind and whirlpools
     wind?: number;
@@ -259,6 +260,9 @@ export type Entity = {
   iframesSecs?: number;
   deleteOutOfCam?: boolean;
   deleteTimer?: number;
+
+  /** In degrees */
+  angVel?: number;
 };
 
 export function newEntity(init?: Partial<Entity>): Entity {

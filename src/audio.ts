@@ -12,6 +12,7 @@ import jumpSmall from "./assets/sfx/smb_jump-small.mp3"
 import jumpBig from "./assets/sfx/smb_jump-super.mp3"
 import kick from "./assets/sfx/smb_kick.mp3"
 import mariodie from "./assets/sfx/smb_mariodie.mp3"
+import mariodiestart from "./assets/sfx/smb_mariodiestart.mp3"
 import pause from "./assets/sfx/smb_pause.mp3"
 import pipe from "./assets/sfx/smb_pipe.mp3"
 import powerup from "./assets/sfx/smb_powerup.mp3"
@@ -29,6 +30,7 @@ export function getSmb1Audio() {
   if (smbCache) return smbCache as typeof audio;
   const ac = new AudioController();
   const sounds = ac.createSoundPlayer({
+    mariodiestart,
     oneUp,
     bowserfalls,
     bowserfire,

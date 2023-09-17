@@ -6,7 +6,13 @@ const rect = new Collidable();
 
 export default function deathZones(lowestY: number, display: Display) {
   for (const e of entities.view(['dynamic'])) {
-    if (e.position.y > lowestY) entities.remove(e);
+    if (e.position.y > lowestY) {
+      if (e.mario) {
+        e.mario.dead = true;
+      } else {
+        entities.remove(e);
+      }
+    }
   }
 
   for (const e of entities.view(['deleteOutOfCam'])) {

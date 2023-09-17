@@ -59,7 +59,7 @@ const systemUtils = {
     });
   },
 
-  updateRenderable(p: RenderProps) {
+  updateRenderable(p: RenderProps, dt: number) {
     for (const e of entities.view(['dynamic', p])) {
       const a = e[p];
       if (!a) continue;
@@ -79,6 +79,13 @@ const systemUtils = {
       if (!a) continue;
       a.container.position.x = e.position.x;
       a.container.position.y = e.position.y;
+    }
+
+    for (const e of entities.view(['angVel'])) {
+      if (!e.angVel) continue;
+      const a = e[p];
+      if (!a) continue;
+      a.container.angle += e.angVel * dt;
     }
   }
 }
