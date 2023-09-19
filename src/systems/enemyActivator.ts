@@ -5,7 +5,9 @@ import Collidable from "../utils/collidable";
 
 const rect = new Collidable();
 
-export default function enemyActivator(display: Display) {
+const enemyGravity = 600;
+
+export default function enemyActivator(dt: number, display: Display) {
   
   for (const e of entities.view(['enemActivateOnVisible'])) {
     
@@ -24,35 +26,96 @@ export default function enemyActivator(display: Display) {
     let dontDelete = false;
 
     switch (eaov) {
+      case 'bouncyKoop':
+        if (e.smb1EnemiesAnimations) e.smb1EnemiesAnimations.loopsPerSecond = 3;
+        e.movement = {
+          horizontal: -33,
+          horizontalNow: true,
+          flipEachOther: true,
+          bounce: true
+        };
+        e.dynamic = {velocity: new Vec2d(0, 0), acceleration: new Vec2d(0, 0)};
+        e.hits = [];
+        e.gravity = enemyGravity;
+        e.enemy = {
+          star: true,
+          stomp: true,
+          fireball: true,
+          shell: true,
+          lookTowards: 'direction'
+        };
+        e.touchingDown = [];
+        break;
+      case 'koopaG':
+      case 'koopaR':
+      case 'buzzy':
+      case 'koopaG':
       case 'goomba':
         e.movement = {
           horizontal: -50,
           horizontalNow: true,
-          flipEachOther: true
+          flipEachOther: true,
+          dontFallOff: eaov === 'koopaR'
         };
         e.dynamic = {velocity: new Vec2d(0, 0), acceleration: new Vec2d(0, 0)};
         e.hits = [];
-        e.gravity = 600;
+        e.gravity = enemyGravity;
         e.enemy = {
           star: true,
           stomp: true,
-          fireball: true
+          fireball: eaov !== 'buzzy',
+          shell: true,
+          lookTowards: 'direction'
         };
         e.touchingDown = [];
         break;
-      case 'bouncyKoop':
       case 'bowser':
       case 'bruce':
       case 'cheep':
       case 'flyingKoopa':
       case 'hammerbro':
-      case 'koopaG':
-      case 'koopaR':
       case 'plant':
       default:
         dontDelete = true;
     }
 
     if (!dontDelete) delete e.enemActivateOnVisible;
+  }
+
+  // Reactivate shells
+  for (const e of entities.view(['enemy'])) {
+    if (!e.enemy?.isStillShell || e.enemy.shellTimer === undefined) continue;
+
+    e.enemy.shellTimer -= dt;
+
+    if (e.smb1EnemiesAnimations && e.enemy.shellTimer <= 1) {
+      e.smb1EnemiesAnimations.loopsPerSecond = 3;
+    }
+
+    if (e.enemy.shellTimer < 0) {
+      const anim = e.smb1EnemiesAnimations?.getAnimation();
+      e.smb1EnemiesAnimations?.setAnimation(anim === 'buzzyShell' ? 'buzzy' : anim === 'redKoopashell' ? 'redKoopa' : 'greenKoopa');
+      if (e.smb1EnemiesAnimations) {
+        e.smb1EnemiesAnimations.loopsPerSecond = 4;
+        e.smb1EnemiesAnimations.container.angle = 0;
+      }
+      e.movement = {
+        horizontal: 50 * (Math.sign(Math.random() || 1)),
+        horizontalNow: true,
+        flipEachOther: true,
+        dontFallOff: anim === 'redKoopashell'
+      };
+      e.dynamic = {velocity: new Vec2d(0, 0), acceleration: new Vec2d(0, 0)};
+      e.hits = [];
+      e.gravity = enemyGravity;
+      e.enemy = {
+        star: true,
+        stomp: true,
+        fireball: anim === 'buzzyShell',
+        shell: true,
+        lookTowards: 'direction'
+      };
+      e.touchingDown = [];
+    }
   }
 }

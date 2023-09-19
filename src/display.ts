@@ -280,7 +280,9 @@ class Display {
     this.targetY = y;
   }
 
+  /** pixels */
   getViewportWidth() { return this.width; }
+  /** pixels */
   getViewportHeight() { return this.height; }
 
   getScale() { return this.scale; }

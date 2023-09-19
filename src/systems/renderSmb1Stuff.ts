@@ -58,6 +58,25 @@ export default function renderSmb1Stuff(dt: number, editMode?: boolean) {
   systemUtils.updateRenderable('smb1ObjectsAnimations', dt);
   systemUtils.updateRenderable('smb1EnemiesAnimations', dt);
 
+  // Enemy facing
+  for (const e of entities.view(['smb1EnemiesAnimations', 'enemy'])) {
+    if (!e.smb1EnemiesAnimations || !e.enemy) continue;
+
+    let dir = 0;
+    switch (e.enemy.lookTowards) {
+      case 'direction':
+        dir = Math.sign(e.dynamic?.velocity.x || e.kinematic?.velocity.x || 0);
+        break;
+      case 'mario':
+        const m = entities.view(['mario'])[0];
+        if (m) {
+          dir = Math.sign(m.position.x - e.position.x);
+        }
+        break;
+    }
+    if (dir) e.smb1EnemiesAnimations.container.scale.x = -dir;
+  }
+
   if (editMode) {
     systemUtils.updateRenderable('smb1TilesSpritesEditMode', dt);
   } else {

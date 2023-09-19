@@ -1,3 +1,13 @@
+@font-face {
+  font-family: 'Mario';
+  src: url('./assets/Super\ Mario\ Bros.\ NES.ttf') format('truetype');
+}
+
+* {
+  font-family: 'Mario';
+  font-size: 8px;
+}
+
 body {
   background-color: black;
 }

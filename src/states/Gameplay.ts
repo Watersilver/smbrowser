@@ -396,9 +396,9 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
 
       springs(dt);
 
-      movement(dt);
+      movement(dt, display);
 
-      stuffVsEnemies(dt);
+      stuffVsEnemies(dt, display);
 
       iframes(dt);
 
@@ -424,7 +424,7 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
     }
 
     camera(display);
-    enemyActivator(display);
+    enemyActivator(dt, display);
 
     if (!this.paused) {
 

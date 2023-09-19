@@ -20,6 +20,8 @@ export default function velocityChanges(dt: number) {
 
   // horizontal direction change by hit from below
   for (const e of entities.view(['movement', 'touchingDown'])) {
+    if (!e.movement || e.movement.ignoreSoftHits) continue;
+
     const farthestHit = e.touchingDown?.reduce((a: Entity | undefined, c): Entity | undefined => {
       if (c.hitAnim === undefined) return a;
       if (!a) return c;
@@ -33,7 +35,7 @@ export default function velocityChanges(dt: number) {
       return a;
     }, undefined);
     if (farthestHit) {
-      if (e.movement?.horizontal) {
+      if (e.movement.horizontal) {
         const dir = Math.sign(e.position.x - farthestHit.position.x);
         e.movement.horizontal = Math.abs(e.movement.horizontal) * dir;
         e.movement.horizontalNow = true;
@@ -59,7 +61,7 @@ export default function velocityChanges(dt: number) {
     const m = e.movement;
     if (d && m) {
       if (m.bounceNow) {
-        d.velocity.y = m.bounce ?? d.velocity.y;
+        d.velocity.y = typeof m.bounce === 'number' ? m.bounce : -d.velocity.y;
         if (m.bounceOnce) {
           m.bounce = undefined;
         }

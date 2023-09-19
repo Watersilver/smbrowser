@@ -1,8 +1,10 @@
+import { Sprite, Text } from "pixi.js";
 import { getSmb1Audio } from "../audio";
 import { Vec2d, aabb } from "../engine";
-import entities from "../entities";
+import entities, { Entity } from "../entities";
 import Collidable from "../utils/collidable";
 import worldGrid from "../world-grid";
+import { Display } from "../display";
 
 const audio = getSmb1Audio();
 
@@ -10,6 +12,17 @@ const e1 = new Collidable();
 const ep = new Collidable();
 const u1 = new Collidable();
 const up = new Collidable();
+
+const text8000 = new Text('8000', {
+  fontFamily: "Mario",
+  fill: 'white'
+});
+const tAR = text8000.width / text8000.height;
+text8000.width = 18;
+text8000.height = text8000.width / tAR;
+text8000.updateText(false);
+
+const texts: {s: Sprite, life: number}[] = [];
 
 function *dynamicsAndSensors(c: Collidable) {
   yield* worldGrid.dynamics.findNear(c.l, c.t, c.w, c.h);
@@ -21,13 +34,26 @@ function *solids(c: Collidable) {
   yield* worldGrid.kinematics.findNear(c.l, c.t, c.w, c.h);
 }
 
-export default function stuffVsEnemies(dt: number) {
+export default function stuffVsEnemies(dt: number, display: Display) {
+  for (let i = texts.length - 1; i === 0; i--) {
+    const text = texts[i];
+
+    if (text) {
+      text.s.position.y -= dt * 15;
+      text.life -= dt;
+
+      if (text.life <= 0) {
+        texts.splice(i, 1);
+        text.s.removeFromParent();
+      }
+    }
+  }
 
   // See if mario hit
   for (const e of entities.view(['mario'])) {
     const m = e.mario;
 
-    if (!m) continue;
+    if (!m || m.dead) continue;
 
     e1.set(e);
 
@@ -55,94 +81,190 @@ export default function stuffVsEnemies(dt: number) {
 
           // Can stomp or get damaged only if previously not hit
           if (!prevHit) {
+            const isStillShell = uu.enemy.isStillShell;
+            const isMovingShel = uu.enemy.isMovingShell;
+
+            let kickShell = false;
+            let stopShell = false;
+
             if (uu.enemy.stomp && (e.positionPrev.y + e.size.y * 0.5 <= uu.positionPrev.y - uu.size.y * 0.5)) {
+              if (isStillShell) {
+                kickShell = true;
+              } else {
+                stopShell = true;
+                const top = uu.position.y - uu.size.y * 0.5;
+                highestStomp = highestStomp === null ? top : highestStomp < top ? highestStomp : top;
 
-              const top = uu.position.y - uu.size.y * 0.5;
-              highestStomp = highestStomp === null ? top : highestStomp < top ? highestStomp : top;
+                if (e.dynamic) {
+                  e.dynamic.velocity.y = -150;
+                }
 
-              if (e.dynamic) {
-                e.dynamic.velocity.y = -150;
+                const a = uu.smb1EnemiesAnimations?.getAnimation();
+
+                delete uu.movement;
+                if (uu.dynamic) {
+                  uu.dynamic.velocity.x = 0;
+                }
+
+                // Sprite
+                switch (a) {
+                  case 'greenKoopashell':
+                  case 'redKoopashell':
+                  case 'buzzyShell':
+                    break;
+                  case 'greenParakoopa':
+                    uu.smb1EnemiesAnimations?.setAnimation('greenKoopa');
+                    break;
+                  case 'greenKoopa':
+                    if (uu.smb1EnemiesAnimations) {
+                      uu.smb1EnemiesAnimations.setAnimation('greenKoopashell');
+                      uu.smb1EnemiesAnimations.loopsPerSecond = 0;
+                      uu.smb1EnemiesAnimations.setFrame(0);
+                    }
+                    break;
+                  case 'redParakoopa':
+                    uu.smb1EnemiesAnimations?.setAnimation('redKoopa');
+                    break;
+                  case 'redKoopa':
+                    if (uu.smb1EnemiesAnimations) {
+                      uu.smb1EnemiesAnimations.setAnimation('redKoopashell');
+                      uu.smb1EnemiesAnimations.loopsPerSecond = 0;
+                      uu.smb1EnemiesAnimations.setFrame(0);
+                    }
+                    break;
+                  case 'buzzy':
+                    uu.smb1EnemiesAnimations?.setAnimation('buzzyShell');
+                    break;
+                  case 'goomba':
+                    if (uu.smb1EnemiesAnimations) {
+                      uu.smb1EnemiesAnimations.setAnimation('goombaDead');
+                      uu.smb1EnemiesAnimations.container.zIndex -= 1;
+                    }
+                    break;
+                  default:
+                    if (uu.smb1EnemiesAnimations) {
+                      uu.smb1EnemiesAnimations.container.angle = 180;
+                    }
+                    break;
+                }
+
+                // Reaction
+                switch (a) {
+                  case 'greenKoopashell':
+                  case 'redKoopashell':
+                  case 'buzzyShell':
+                    break;
+                  case 'redParakoopa':
+                  case 'greenParakoopa':
+                    uu.movement = {
+                      horizontal: -50 * Math.sign(uu.smb1EnemiesAnimations?.container.scale.x ?? 1),
+                      horizontalNow: true,
+                      flipEachOther: true,
+                      dontFallOff: a === 'redParakoopa'
+                    };
+                    uu.dynamic = {velocity: new Vec2d(0, 0), acceleration: new Vec2d(0, 0)};
+                    uu.hits = [];
+                    uu.gravity = 600;
+                    uu.enemy = {
+                      star: true,
+                      stomp: true,
+                      fireball: true,
+                      shell: true,
+                      lookTowards: 'direction'
+                    };
+                    uu.touchingDown = [];
+                    break;
+                  case 'redKoopa':
+                  case 'greenKoopa':
+                  case 'buzzy':
+                    uu.movement = {
+                      horizontal: 0,
+                      horizontalNow: true,
+                      ignoreSoftHits: true
+                    };
+                    uu.enemy.isStillShell = true;
+                    uu.enemy.shellTimer = 5;
+                    break;
+                  case 'goomba':
+                    delete uu.enemy;
+                    uu.deleteOutOfCam = true;
+                    uu.deleteTimer = 1;
+                    break;
+                  default:
+                    delete uu.enemy;
+                    uu.goThrougWalls = true;
+                    uu.deleteOutOfCam = true;
+                    break;
+                }
+
+                // Sound
+                switch (a) {
+                  case 'greenKoopashell':
+                  case 'redKoopashell':
+                  case 'buzzyShell':
+                    if (isMovingShel) audio.sounds.play('stomp');
+                    break;
+                  default:
+                    audio.sounds.play('stomp');
+                    break;
+                }
               }
+            } else {
+              kickShell = true;
+              if (!e.iframesSecs && !isStillShell && !e.enemy?.harmless) {
+                e.iframesSecs = 3;
 
-              const a = uu.smb1EnemiesAnimations?.getAnimation();
-
-              delete uu.movement;
-              delete uu.enemy;
-              if (uu.dynamic) {
-                uu.dynamic.velocity.x = 0;
+                if (m.big) {
+                  m.big = false;
+                  m.changedSize = true;
+                } else if (m.powerup) {
+                  delete m.powerup;
+                  m.changedSize = true;
+                } else if (m) {
+                  delete e.iframesSecs;
+                  m.dead = true;
+                }
               }
+            }
 
-              // Sprite
-              switch (a) {
-                case 'greenKoopa':
-                case 'greenParakoopa':
-                  uu.smb1EnemiesAnimations?.setAnimation('greenKoopashell');
-                  break;
-                case 'redKoopa':
-                case 'redParakoopa':
-                  uu.smb1EnemiesAnimations?.setAnimation('redKoopashell');
-                  break;
-                case 'buzzy':
-                  uu.smb1EnemiesAnimations?.setAnimation('buzzyShell');
-                  break;
-                case 'goomba':
-                  if (uu.smb1EnemiesAnimations) {
-                    uu.smb1EnemiesAnimations.setAnimation('goombaDead');
-                    uu.smb1EnemiesAnimations.container.zIndex -= 1;
-                  }
-                  break;
-                default:
-                  if (uu.smb1EnemiesAnimations) {
-                    uu.smb1EnemiesAnimations.container.angle = 180;
-                  }
-                  break;
+            if (kickShell && isStillShell) {
+              if (!uu.touchingDown?.length || (uu.enemy?.shellTimer !== undefined && uu.enemy.shellTimer < 0.05)) {
+                const text = new Sprite(text8000.texture);
+                text.position.x = uu.position.x;
+                text.position.y = uu.position.y;
+                text.width = text8000.width;
+                text.height = text8000.height;
+                text.anchor.set(.5);
+                display.add(text);
+                texts.push({s: text, life: 0.75});
               }
-
-              // Reaction
-              switch (a) {
-                case 'greenKoopashell':
-                case 'redKoopashell':
-                case 'buzzyShell':
-                  break;
-                case 'greenKoopa':
-                case 'greenParakoopa':
-                case 'redKoopa':
-                case 'redParakoopa':
-                case 'buzzy':
-                  break;
-                case 'goomba':
-                  uu.deleteOutOfCam = true;
-                  uu.deleteTimer = 1;
-                  break;
-                default:
-                  uu.goThrougWalls = true;
-                  uu.deleteOutOfCam = true;
-                  break;
+              if (uu.enemy) {
+                if (uu.smb1EnemiesAnimations) {
+                  uu.smb1EnemiesAnimations.loopsPerSecond = 0;
+                  uu.smb1EnemiesAnimations.setFrame(0);
+                }
+                uu.enemy.isMovingShell = true;
+                uu.enemy.isStillShell = false;
+                delete uu.enemy.shellTimer;
+                uu.enemy.harmless = 0.05;
               }
-
-              // Sound
-              switch (a) {
-                case 'greenKoopashell':
-                case 'redKoopashell':
-                case 'buzzyShell':
-                  break;
-                default:
-                  audio.sounds.play('stomp');
-                  break;
+              uu.movement = {
+                horizontalNow: true,
+                flipEachOther: false,
+                horizontal: (Math.sign(uu.position.x - e.position.x) || 1) * 222
+              };
+              audio.sounds.play('kick');
+            } else if (stopShell && isMovingShel) {
+              if (uu.enemy) {
+                uu.enemy.isMovingShell = false;
+                uu.enemy.isStillShell = true;
+                uu.enemy.shellTimer = 5;
               }
-            } else if (!e.iframesSecs) {
-              e.iframesSecs = 3;
-
-              if (m.big) {
-                m.big = false;
-                m.changedSize = true;
-              } else if (m.powerup) {
-                delete m.powerup;
-                m.changedSize = true;
-              } else if (m) {
-                delete e.iframesSecs;
-                m.dead = true;
-              }
+              uu.movement = {
+                horizontalNow: true,
+                flipEachOther: true,
+                horizontal: 0
+              };
             }
           }
         }
@@ -169,28 +291,8 @@ export default function stuffVsEnemies(dt: number) {
     }
   }
 
-  for (const e of entities.view(['enemy'])) {
-    const h = e.touchingDown?.find(h => h.bonked);
-    if (h) e.gotHit = {x: h.position.x, y: h.position.y, by: 'bonk'};
-
-    if (!e.enemy) continue;
-    if (e.enemy.fireball === false) continue;
-
-    e1.set(e);
-    for (const u of worldGrid.dynamics.findNear(e1.l, e1.t, e1.w, e1.h)) {
-      if (!u.userData.fireball) continue;
-
-      u1.set(u.userData);
-
-      if (aabb.rectVsRect(e1, u1)) {
-        if (u.userData.dynamic) u.userData.dynamic.velocity.x = 0;
-        u.userData.fireballHitEnemy = true;
-        e.gotHit = {x: u.userData.position.x, y: u.userData.position.y, by: 'fireball'};
-      }
-    }
-  }
-
-  // TODO: shells
+  // TODO: shell revive
+  // TODO: 8000 kick PLUS grounded 8000 kick (kick when about to wake up)
 
   for (const e of entities.view(['enemy', 'gotHit'])) {
     const s = e.smb1EnemiesAnimations;
@@ -199,22 +301,118 @@ export default function stuffVsEnemies(dt: number) {
 
     switch (s.getAnimation()) {
       default:
-        audio.sounds.play('kick');
-        delete e.movement;
-        delete e.enemy;
-        s.container.angle = 180;
-        s.container.zIndex = 15;
-        s.loopsPerSecond = 0;
-        e.gravity = 600;
-        e.goThrougWalls = true;
-        e.dynamic = {
-          velocity: new Vec2d(
-            Math.sign(e.position.x - e.gotHit.x) * 50,
-            -133
-          ),
-          acceleration: new Vec2d(0, 0)
+        const shellFlip =
+          (
+            e.gotHit.by === 'soft-bonk'
+            && e.smb1EnemiesAnimations?.getAnimation() === 'greenParakoopa'
+          ) ||
+          (
+            e.gotHit.by === 'bonk'
+            && (
+              e.enemy?.isMovingShell
+              || e.enemy?.isStillShell
+              || e.smb1EnemiesAnimations?.getAnimation().toLowerCase().includes('koopa')
+              || e.smb1EnemiesAnimations?.getAnimation() === 'buzzy'
+            )
+          )
+
+        if (shellFlip) {
+          audio.sounds.play('kick');
+          e.movement = {
+            horizontal: (Math.sign(e.position.x - e.gotHit.x) || 1) * 60,
+            horizontalNow: true,
+            bounce: -155,
+            bounceOnce: true,
+            bounceNow: true,
+            bounceStopHorizontal: true,
+            ignoreSoftHits: true
+          };
+          if (e.enemy) {
+            e.enemy.isStillShell = true;
+            e.enemy.shellTimer = 5;
+          }
+
+          if (e.smb1EnemiesAnimations) {
+            if (e.smb1EnemiesAnimations.getAnimation().toLowerCase().includes('red')) {
+              e.smb1EnemiesAnimations.setAnimation('redKoopashell');
+            } else if (e.smb1EnemiesAnimations.getAnimation().toLowerCase().includes('green')) {
+              e.smb1EnemiesAnimations.setAnimation('greenKoopashell');
+            } else {
+              e.smb1EnemiesAnimations.setAnimation('buzzyShell');
+            }
+            e.smb1EnemiesAnimations.container.angle = 180;
+          }
+
+          s.loopsPerSecond = 0;
+          s.setFrame(0);
+        } else if (e.gotHit.by !== 'soft-bonk') {
+          audio.sounds.play('kick');
+          delete e.movement;
+          delete e.enemy;
+          s.container.angle = 180;
+          s.container.scale.x = -s.container.scale.x;
+          s.container.zIndex = 15;
+          s.loopsPerSecond = 0;
+          e.gravity = 600;
+          e.goThrougWalls = true;
+          e.dynamic = {
+            velocity: new Vec2d(
+              Math.sign(e.position.x - e.gotHit.x) * 50,
+              -133
+            ),
+            acceleration: new Vec2d(0, 0)
+          }
         }
         break;
+    }
+    delete e.gotHit;
+  }
+
+  for (const e of entities.view(['enemy'])) {
+    const h = e.touchingDown?.find(h => h.bonked);
+    if (h) {
+      e.gotHit = {x: h.position.x, y: h.position.y, by: 'bonk'};
+    } else {
+      const w = e.touchingDown?.reduce((a: Entity | undefined, c) => {
+        if (!a && typeof c.hitAnim === 'number') return c;
+        return (a?.hitAnim ?? 0) > (c.hitAnim ?? Infinity) ? c : a;
+      }, undefined);
+      if (w?.hitAnim && w.hitAnim < 0.1) e.gotHit = {x: w.position.x, y: w.position.y, by: 'soft-bonk'};
+    }
+
+    if (!e.enemy) continue;
+
+    if (e.enemy.harmless !== undefined) {
+      e.enemy.harmless -= dt;
+      if (e.enemy.harmless <= 0) {
+        delete e.enemy.harmless;
+      }
+    }
+
+    e1.set(e);
+    for (const u of worldGrid.dynamics.findNear(e1.l, e1.t, e1.w, e1.h)) {
+      if (u.userData.fireball) {
+        u1.set(u.userData);
+  
+        if (aabb.rectVsRect(e1, u1)) {
+          if (u.userData.dynamic) u.userData.dynamic.velocity.x = 0;
+          if (e.enemy.fireball) {
+            u.userData.fireballHitEnemy = true;
+            e.gotHit = {x: u.userData.position.x, y: u.userData.position.y, by: 'fireball'};
+          }
+        }
+      } else if (u.userData.enemy?.isMovingShell) {
+        if (u.userData === e) continue;
+
+        u1.set(u.userData);
+  
+        if (aabb.rectVsRect(e1, u1)) {
+          if (e.enemy.shell) {
+            u.userData.fireballHitEnemy = true;
+            e.gotHit = {x: u.userData.position.x, y: u.userData.position.y, by: 'shell'};
+          }
+        }
+      }
     }
   }
 }

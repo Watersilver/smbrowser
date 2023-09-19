@@ -1,4 +1,4 @@
-import { Filter } from "pixi.js";
+import { Filter, Text } from "pixi.js";
 import { Ecs, Vec2d } from "./engine"
 import { Smb1ObjectsAnimations } from "./sprites/loaders/smb1/animated-objects";
 import { Smb1TilesAnimations } from "./sprites/loaders/smb1/animated-tiles";
@@ -184,12 +184,15 @@ export type Entity = {
   };
   grow?: number;
   movement?: {
+    dontFallOff?: boolean;
     horizontal?: number;
     horizontalNow?: boolean;
-    bounce?: number;
+    bounce?: number | true;
     bounceNow?: boolean;
     bounceOnce?: boolean;
     flipEachOther?: boolean;
+    bounceStopHorizontal?: boolean;
+    ignoreSoftHits?: boolean;
   };
   enemActivateOnVisible?: 'goomba' | 'buzzy' | 'koopaG' | 'koopaR' | 'bouncyKoop' | 'flyingKoopa' | 'plant' | 'cheep' | 'hammerbro' | 'bowser' | 'bruce';
   enemStompRecovery?: number;
@@ -197,11 +200,17 @@ export type Entity = {
     stomp: boolean;
     fireball: boolean | number;
     star: boolean;
+    shell: boolean;
+    isStillShell?: boolean;
+    isMovingShell?: boolean;
+    lookTowards?: "direction" | "mario";
+    harmless?: number;
+    shellTimer?: number;
   };
   gotHit?: {
     x: number;
     y: number;
-    by: 'fireball' | 'bonk' | 'star' | 'shell';
+    by: 'fireball' | 'bonk' | 'star' | 'shell' | 'soft-bonk';
   };
   goThrougWalls?: boolean;
   mushroom?: boolean;

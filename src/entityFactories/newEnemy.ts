@@ -7,22 +7,29 @@ export default function newEnemy(x: number, y: number, frame?: Smb1EnemiesAnimat
   const smb1EnemiesAnimations = smb1Sprites.getFactory('enemies').new();
   smb1EnemiesAnimations.setAnimation(frame || 'goomba');
 
-  y = y - smb1EnemiesAnimations.container.height * 0.5 + 8;
-  smb1EnemiesAnimations.container.zIndex = 2;
+  let height = 14;
 
-  if (frame === 'goomba') {
-    smb1EnemiesAnimations.loopsPerSecond = 4;
-    return entities.createEntity(newEntity({
-      position: new Vec2d(x, y),
-      size: new Vec2d(14, 14),
-      smb1EnemiesAnimations,
-      enemActivateOnVisible: 'goomba'
-    }));
-  }
+  y = y + 8 - height * 0.5;
+  smb1EnemiesAnimations.container.zIndex = 2;
+  smb1EnemiesAnimations.loopsPerSecond = 4;
+  
   return entities.createEntity(newEntity({
     position: new Vec2d(x, y),
-    size: new Vec2d(8, 16),
-    dynamic: {velocity: new Vec2d(0, 0), acceleration: new Vec2d(0, 0)},
-    smb1EnemiesAnimations
+    size: new Vec2d(14, height),
+    smb1EnemiesAnimations,
+    enemActivateOnVisible:
+      frame === 'goomba'
+      ? 'goomba'
+      : frame === 'redKoopa'
+      ? 'koopaR'
+      : frame === 'greenKoopa'
+      ? 'koopaG'
+      : frame === 'greenParakoopa'
+      ? 'bouncyKoop'
+      : frame === 'redParakoopa'
+      ? 'flyingKoopa'
+      : frame === 'buzzy'
+      ? 'buzzy'
+      : 'goomba'
   }));
 }

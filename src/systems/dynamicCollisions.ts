@@ -9,7 +9,7 @@ const bb: {l: number; t: number; w: number; h: number;} = {l: 0, t: 0, w: 0, h: 
 
 export default function dynamicCollisions() {
   for (const e of entities.view(['mario'])) {
-    if (!e.mario) continue;
+    if (!e.mario || e.mario.dead) continue;
     const pos = e.position;
     const prevPos = e.positionPrev;
     const size = e.size;
