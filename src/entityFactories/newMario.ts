@@ -20,7 +20,8 @@ export default function newMario(x: number, y: number) {
     },
     player: {
       coins: 0,
-      lives: 3
+      lives: 3,
+      kicks8k: 0
     },
     marioInput: {inputs: {}},
     marioMovementConfig: {

@@ -7,15 +7,29 @@ export default function newEnemy(x: number, y: number, frame?: Smb1EnemiesAnimat
   const smb1EnemiesAnimations = smb1Sprites.getFactory('enemies').new();
   smb1EnemiesAnimations.setAnimation(frame || 'goomba');
 
+  let width = 14;
   let height = 14;
+
+  const plant = frame === 'greenPiranhaPlant';
+
+  if (plant) {
+    width = 10;
+    height = 24;
+  }
 
   y = y + 8 - height * 0.5;
   smb1EnemiesAnimations.container.zIndex = 2;
   smb1EnemiesAnimations.loopsPerSecond = 4;
+
+  if (plant) {
+    height = 10;
+    smb1EnemiesAnimations.loopsPerSecond = 2;
+    smb1EnemiesAnimations.container.zIndex = -2;
+  }
   
   return entities.createEntity(newEntity({
     position: new Vec2d(x, y),
-    size: new Vec2d(14, height),
+    size: new Vec2d(width, height),
     smb1EnemiesAnimations,
     enemActivateOnVisible:
       frame === 'goomba'
@@ -30,6 +44,16 @@ export default function newEnemy(x: number, y: number, frame?: Smb1EnemiesAnimat
       ? 'flyingKoopa'
       : frame === 'buzzy'
       ? 'buzzy'
-      : 'goomba'
+      : plant
+      ? 'plant'
+      : 'goomba',
+    ...(
+      plant ? {
+        displace: {
+          x: 8,
+          y: 24
+        }
+      } : null
+    )
   }));
 }

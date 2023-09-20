@@ -53,7 +53,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
   for (const e of entities.view(['mario'])) {
     const m = e.mario;
 
-    if (!m || m.dead) continue;
+    if (!m || m.dead || m.inPipe) continue;
 
     e1.set(e);
 
@@ -68,8 +68,8 @@ export default function stuffVsEnemies(dt: number, display: Display) {
       u1.set(uu);
 
       if (aabb.rectVsRect(e1, u1)) {
-        // Will collide but what will happen?
 
+        // Will collide but what will happen?
         if (m.star) {
           if (uu.enemy.star) {
             uu.gotHit = {x: e.position.x, y: e.position.y, by: 'star'};
@@ -87,26 +87,26 @@ export default function stuffVsEnemies(dt: number, display: Display) {
             let kickShell = false;
             let stopShell = false;
 
+            // Mario touched enemy, but how?
             if (uu.enemy.stomp && (e.positionPrev.y + e.size.y * 0.5 <= uu.positionPrev.y - uu.size.y * 0.5)) {
+              // Stomped
               if (isStillShell) {
                 kickShell = true;
               } else {
                 stopShell = true;
+
+                // Mario moves out of enemy as much as possible because of stomp, unless something solid is blocking
                 const top = uu.position.y - uu.size.y * 0.5;
                 highestStomp = highestStomp === null ? top : highestStomp < top ? highestStomp : top;
 
+                // Mario stomp bounce
                 if (e.dynamic) {
                   e.dynamic.velocity.y = -150;
                 }
 
                 const a = uu.smb1EnemiesAnimations?.getAnimation();
 
-                delete uu.movement;
-                if (uu.dynamic) {
-                  uu.dynamic.velocity.x = 0;
-                }
-
-                // Sprite
+                // Stomped sprite
                 switch (a) {
                   case 'greenKoopashell':
                   case 'redKoopashell':
@@ -148,7 +148,11 @@ export default function stuffVsEnemies(dt: number, display: Display) {
                     break;
                 }
 
-                // Reaction
+                // Reaction to getting stomped
+                delete uu.movement;
+                if (uu.dynamic) {
+                  uu.dynamic.velocity.x = 0;
+                }
                 switch (a) {
                   case 'greenKoopashell':
                   case 'redKoopashell':
@@ -210,6 +214,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
                 }
               }
             } else {
+              // Touch but no stomp
               kickShell = true;
               if (!e.iframesSecs && !isStillShell && !e.enemy?.harmless) {
                 e.iframesSecs = 3;
@@ -227,6 +232,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
               }
             }
 
+            // Shell kick and stop logic
             if (kickShell && isStillShell) {
               if (!uu.touchingDown?.length || (uu.enemy?.shellTimer !== undefined && uu.enemy.shellTimer < 0.05)) {
                 const text = new Sprite(text8000.texture);
@@ -237,6 +243,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
                 text.anchor.set(.5);
                 display.add(text);
                 texts.push({s: text, life: 0.75});
+                if (e.player) e.player.kicks8k++;
               }
               if (uu.enemy) {
                 if (uu.smb1EnemiesAnimations) {
@@ -266,6 +273,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
                 horizontal: 0
               };
             }
+
           }
         }
       }
@@ -291,84 +299,90 @@ export default function stuffVsEnemies(dt: number, display: Display) {
     }
   }
 
-  // TODO: shell revive
-  // TODO: 8000 kick PLUS grounded 8000 kick (kick when about to wake up)
-
+  // Reactions to getting hit by stuff
   for (const e of entities.view(['enemy', 'gotHit'])) {
     const s = e.smb1EnemiesAnimations;
 
     if (!s || !e.gotHit) continue;
 
-    switch (s.getAnimation()) {
-      default:
-        const shellFlip =
-          (
-            e.gotHit.by === 'soft-bonk'
-            && e.smb1EnemiesAnimations?.getAnimation() === 'greenParakoopa'
-          ) ||
-          (
-            e.gotHit.by === 'bonk'
-            && (
-              e.enemy?.isMovingShell
-              || e.enemy?.isStillShell
-              || e.smb1EnemiesAnimations?.getAnimation().toLowerCase().includes('koopa')
-              || e.smb1EnemiesAnimations?.getAnimation() === 'buzzy'
-            )
-          )
+    // If true, reaction will be to become a flipped shell
+    const shellFlip =
+      (
+        e.gotHit.by === 'soft-bonk'
+        && e.smb1EnemiesAnimations?.getAnimation() === 'greenParakoopa'
+      ) ||
+      (
+        e.gotHit.by === 'bonk'
+        && (
+          e.enemy?.isMovingShell
+          || e.enemy?.isStillShell
+          || e.smb1EnemiesAnimations?.getAnimation().toLowerCase().includes('koopa')
+          || e.smb1EnemiesAnimations?.getAnimation() === 'buzzy'
+        )
+      )
 
-        if (shellFlip) {
-          audio.sounds.play('kick');
-          e.movement = {
-            horizontal: (Math.sign(e.position.x - e.gotHit.x) || 1) * 60,
-            horizontalNow: true,
-            bounce: -155,
-            bounceOnce: true,
-            bounceNow: true,
-            bounceStopHorizontal: true,
-            ignoreSoftHits: true
-          };
-          if (e.enemy) {
-            e.enemy.isStillShell = true;
-            e.enemy.shellTimer = 5;
-          }
+    if (shellFlip) {
+      // Become a flipped shell
+      audio.sounds.play('kick');
+      e.movement = {
+        horizontal: (Math.sign(e.position.x - e.gotHit.x) || 1) * 60,
+        horizontalNow: true,
+        bounce: -155,
+        bounceOnce: true,
+        bounceNow: true,
+        bounceStopHorizontal: true,
+        ignoreSoftHits: true
+      };
+      if (e.enemy) {
+        e.enemy.isStillShell = true;
+        e.enemy.shellTimer = 5;
+      }
 
-          if (e.smb1EnemiesAnimations) {
-            if (e.smb1EnemiesAnimations.getAnimation().toLowerCase().includes('red')) {
-              e.smb1EnemiesAnimations.setAnimation('redKoopashell');
-            } else if (e.smb1EnemiesAnimations.getAnimation().toLowerCase().includes('green')) {
-              e.smb1EnemiesAnimations.setAnimation('greenKoopashell');
-            } else {
-              e.smb1EnemiesAnimations.setAnimation('buzzyShell');
-            }
-            e.smb1EnemiesAnimations.container.angle = 180;
-          }
-
-          s.loopsPerSecond = 0;
-          s.setFrame(0);
-        } else if (e.gotHit.by !== 'soft-bonk') {
-          audio.sounds.play('kick');
-          delete e.movement;
-          delete e.enemy;
-          s.container.angle = 180;
-          s.container.scale.x = -s.container.scale.x;
-          s.container.zIndex = 15;
-          s.loopsPerSecond = 0;
-          e.gravity = 600;
-          e.goThrougWalls = true;
-          e.dynamic = {
-            velocity: new Vec2d(
-              Math.sign(e.position.x - e.gotHit.x) * 50,
-              -133
-            ),
-            acceleration: new Vec2d(0, 0)
-          }
+      if (e.smb1EnemiesAnimations) {
+        if (e.smb1EnemiesAnimations.getAnimation().toLowerCase().includes('red')) {
+          e.smb1EnemiesAnimations.setAnimation('redKoopashell');
+        } else if (e.smb1EnemiesAnimations.getAnimation().toLowerCase().includes('green')) {
+          e.smb1EnemiesAnimations.setAnimation('greenKoopashell');
+        } else {
+          e.smb1EnemiesAnimations.setAnimation('buzzyShell');
         }
-        break;
+        e.smb1EnemiesAnimations.container.angle = 180;
+      }
+
+      s.loopsPerSecond = 0;
+      s.setFrame(0);
+    } else if (e.gotHit.by !== 'soft-bonk') {
+      // Die by hit
+      audio.sounds.play('kick');
+      if (e.piranhaPlant) {
+        entities.remove(e);
+      } else {
+        delete e.movement;
+        delete e.enemy;
+        delete e.sensor;
+        s.container.angle = 180;
+        s.container.scale.x = -s.container.scale.x;
+        s.container.zIndex = 15;
+        s.loopsPerSecond = 0;
+        e.gravity = 600;
+        e.goThrougWalls = true;
+        e.dynamic = {
+          velocity: new Vec2d(
+            Math.sign(e.position.x - e.gotHit.x) * 50,
+            -133
+          ),
+          acceleration: new Vec2d(0, 0)
+        }
+      }
     }
     delete e.gotHit;
   }
 
   for (const e of entities.view(['enemy'])) {
+
+    if (!e.enemy) continue;
+
+    // Got hit hard (or not) by block below getting bonked
     const h = e.touchingDown?.find(h => h.bonked);
     if (h) {
       e.gotHit = {x: h.position.x, y: h.position.y, by: 'bonk'};
@@ -380,8 +394,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
       if (w?.hitAnim && w.hitAnim < 0.1) e.gotHit = {x: w.position.x, y: w.position.y, by: 'soft-bonk'};
     }
 
-    if (!e.enemy) continue;
-
+    // Stop being harmless over time
     if (e.enemy.harmless !== undefined) {
       e.enemy.harmless -= dt;
       if (e.enemy.harmless <= 0) {
@@ -397,6 +410,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
         if (aabb.rectVsRect(e1, u1)) {
           if (u.userData.dynamic) u.userData.dynamic.velocity.x = 0;
           if (e.enemy.fireball) {
+            // Got hit by fireball
             u.userData.fireballHitEnemy = true;
             e.gotHit = {x: u.userData.position.x, y: u.userData.position.y, by: 'fireball'};
           }
@@ -408,6 +422,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
   
         if (aabb.rectVsRect(e1, u1)) {
           if (e.enemy.shell) {
+            // Got hit by shell
             u.userData.fireballHitEnemy = true;
             e.gotHit = {x: u.userData.position.x, y: u.userData.position.y, by: 'shell'};
           }

@@ -24,6 +24,7 @@ export type Entity = {
   player?: {
     coins: number;
     lives: number;
+    kicks8k: number;
     gainedPow?: boolean;
     gainedOneUp?: boolean;
   };
@@ -207,6 +208,16 @@ export type Entity = {
     harmless?: number;
     shellTimer?: number;
   };
+  piranhaPlant?: {
+    height: number,
+    outTime?: number,
+    inTime?: number,
+    emerging?: boolean
+  },
+  displace?: {
+    x: number;
+    y: number;
+  }
   gotHit?: {
     x: number;
     y: number;

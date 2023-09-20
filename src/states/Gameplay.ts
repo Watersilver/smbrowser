@@ -50,6 +50,7 @@ import stuffVsEnemies from "../systems/stuffVsEnemies";
 import iframes from "../systems/iframes";
 import deleteTimer from "../systems/deleteTimer";
 import deathAndRespawn from "../systems/deathAndRespawn";
+import enemyBehaviours from "../systems/enemyBehaviours";
 
 const audio = getSmb1Audio();
 
@@ -345,6 +346,22 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
       }
     }
 
+    for (const e of entities.view(['displace'])) {
+      if (!e.displace) continue;
+
+      e.position.x += e.displace.x;
+      e.position.y += e.displace.y;
+      e.positionStart.x = e.position.x;
+      e.positionStart.y = e.position.y;
+
+      if (e.smb1EnemiesAnimations) {
+        e.smb1EnemiesAnimations.container.position.x = e.position.x;
+        e.smb1EnemiesAnimations.container.position.y = e.position.y;
+      }
+
+      delete e.displace;
+    }
+
     this.graphics.clear();
 
     if (!this.paused) {
@@ -397,6 +414,8 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
       springs(dt);
 
       movement(dt, display);
+
+      enemyBehaviours(dt);
 
       stuffVsEnemies(dt, display);
 

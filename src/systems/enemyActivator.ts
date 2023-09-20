@@ -75,6 +75,18 @@ export default function enemyActivator(dt: number, display: Display) {
       case 'flyingKoopa':
       case 'hammerbro':
       case 'plant':
+        e.enemy = {
+          star: true,
+          stomp: false,
+          fireball: true,
+          shell: true
+        };
+        e.sensor = true;
+        e.moving = true;
+        e.piranhaPlant = {
+          height: 0
+        }
+        break;
       default:
         dontDelete = true;
     }
