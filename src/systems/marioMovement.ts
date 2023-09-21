@@ -35,7 +35,7 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
         if (Math.abs(diff) < 10) diff = 0;
         mario.wind = Math.sign(diff) * 30;
       } else {
-        mario.whirlpool = true;
+        delete mario.whirlpool;
         delete mario.wind;
       }
 
