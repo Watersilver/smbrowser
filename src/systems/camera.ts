@@ -1,11 +1,17 @@
 import { Display } from "../display";
 import { aabb } from "../engine";
 import entities, { Entity } from "../entities";
+import { Zone } from "../types";
+import Collidable from "../utils/collidable";
 import zones from "../zones";
 
 let z: {x: number; y: number; w: number; h: number} | null = null;
 
+const c1 = new Collidable();
+const camZones: Zone[] = [];
+
 export default function camera(display: Display) {
+  camZones.length = 0;
 
   let following: Entity | null = null;
   for (const e of entities.view(['followCam'])) {
@@ -17,8 +23,9 @@ export default function camera(display: Display) {
 
     let preserveCamZone = false;
     for (const zone of zones.preserveCamera) {
-      if (aabb.pointVsRect({x: following.position.x, y: following.position.y}, {pos: {x: zone.x, y: zone.y}, size: {x: zone.w, y: zone.h}})) {
+      if (aabb.pointVsRect(following.position, c1.setToZone(zone))) {
         preserveCamZone = true;
+        break;
       }
     }
 
@@ -28,8 +35,9 @@ export default function camera(display: Display) {
     if (!preserveCamZone) {
       z = null;
       for (const zone of zones.camera) {
-        if (aabb.pointVsRect({x: following.position.x, y: following.position.y}, {pos: {x: zone.x, y: zone.y}, size: {x: zone.w, y: zone.h}})) {
-          z = zone;
+        if (aabb.pointVsRect(following.position, c1.setToZone(zone))) {
+          if (!z) z = zone;
+          else if (z.w * z.h > zone.w * zone.h) z = zone;
         }
       }
     }
