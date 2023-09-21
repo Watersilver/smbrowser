@@ -14,9 +14,9 @@ type RenderProps =
 const handledRenderables: Set<string> = new Set();
 
 const systemUtils = {
-  speedLimiter(velocity: Vec2d) {
+  speedLimiter(velocity: Vec2d, maxSpeed?: number) {
     const l = velocity.length();
-    const max = 1000;
+    const max = maxSpeed ?? 1000;
     if (l > max) {
       velocity = velocity.unit().mul(max);
       return velocity;

@@ -360,19 +360,21 @@ export default function stuffVsEnemies(dt: number, display: Display) {
         delete e.movement;
         delete e.enemy;
         delete e.sensor;
+        delete e.blooper;
         s.container.angle = 180;
         s.container.scale.x = -s.container.scale.x;
         s.container.zIndex = 15;
         s.loopsPerSecond = 0;
-        e.gravity = 600;
+        e.gravity = e.underwater ? 300 : 600;
         e.goThrougWalls = true;
         e.dynamic = {
           velocity: new Vec2d(
-            Math.sign(e.position.x - e.gotHit.x) * 50,
-            -133
+            e.underwater ? 0 : Math.sign(e.position.x - e.gotHit.x) * 50,
+            e.underwater ? 0 : -133
           ),
           acceleration: new Vec2d(0, 0)
-        }
+        },
+        e.maxSpeed = 300;
       }
     }
     delete e.gotHit;

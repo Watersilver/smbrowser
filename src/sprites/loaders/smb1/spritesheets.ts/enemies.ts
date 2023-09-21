@@ -74,6 +74,7 @@ const enemiesSmb1Json = {
     lakitu: ['lakitu1', 'lakitu2'],
     hammerbro: ['hammerbro1', 'hammerbro2'],
     hammerbroAttack: ['hammerbroAttack1', 'hammerbroAttack2'],
+    hammer: ['hammer1', 'hammer2', 'hammer3', 'hammer4'],
     bowserfire: ['bowserfire1', 'bowserfire2'],
     bulletbill: ['bulletbill'],
     bowserOpenMouth: ['bowserOpenMouth1', 'bowserOpenMouth2'],
@@ -83,6 +84,7 @@ const enemiesSmb1Json = {
     lavaBubble: ['lavaBubble'],
     spinyEgg: ['spinyEgg1', 'spinyEgg2'],
     spiny: ['spiny1', 'spiny2'],
+    blooper: ['blooper1', 'blooper2']
   },
 
   transparency: [

@@ -2,6 +2,7 @@ import { aabb } from "../engine";
 import entities from "../entities";
 import Collidable from "../utils/collidable";
 import worldGrid from "../world-grid";
+import zones from "../zones";
 
 const collider = new Collidable();
 const collidee = new Collidable();
@@ -23,6 +24,21 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
     const downBlocked = !!e.touchingDown?.length;
 
     if (config && mi && dynamic && mario) {
+
+      e.underwater = zones.underwater.some(z => aabb.pointVsRect(e.position, collidee.setToZone(z)));
+      mario.surface = zones.surface.some(z => aabb.pointVsRect(e.position, collidee.setToZone(z)));
+      const whirl = zones.whirlpool.find(z => aabb.pointVsRect(e.position, collidee.setToZone(z)));
+
+      if (whirl) {
+        mario.whirlpool = true;
+        let diff = (whirl.x + 0.5 * whirl.w) - e.position.x;
+        if (Math.abs(diff) < 10) diff = 0;
+        mario.wind = Math.sign(diff) * 30;
+      } else {
+        mario.whirlpool = true;
+        delete mario.wind;
+      }
+
       const underwater = !!e.underwater;
       const i = mi.inputs;
       const jumped = (underwater || downBlocked || mario.climbing) && i.jump && !mario.jumpCooldown;

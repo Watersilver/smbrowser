@@ -5,6 +5,7 @@ import entities from "../entities";
 const audio = getSmb1Audio();
 
 let coinSound: Sound | null = null;
+let swimSound: Sound | null = null;
 
 entities.onPropChange('coinGotCollected', e => {
   if (e.coinGotCollected) {
@@ -25,7 +26,8 @@ export default function marioSmb1Sounds() {
     if (m) {
       if (m.jumped) {
         if (e.underwater) {
-          audio.sounds.play('stomp');
+          swimSound?.stop();
+          swimSound = audio.sounds.play('stomp');
         } else {
           if (m.big) {
             audio.sounds.play('jumpBig');

@@ -5,6 +5,9 @@ export default function speedLimit() {
   for (const ent of entities.view(['dynamic'])) {
     const d = ent.dynamic;
     if (!d) continue;
-    systemUtils.speedLimiter(d.velocity);
+    const v = systemUtils.speedLimiter(d.velocity, ent.maxSpeed);
+    if (v) {
+      d.velocity.set(v);
+    }
   }
 }

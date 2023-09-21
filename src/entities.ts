@@ -195,7 +195,19 @@ export type Entity = {
     bounceStopHorizontal?: boolean;
     ignoreSoftHits?: boolean;
   };
-  enemActivateOnVisible?: 'goomba' | 'buzzy' | 'koopaG' | 'koopaR' | 'bouncyKoop' | 'flyingKoopa' | 'plant' | 'cheep' | 'hammerbro' | 'bowser' | 'bruce';
+  enemActivateOnVisible?:
+    | 'blooper'
+    | 'goomba'
+    | 'buzzy'
+    | 'koopaG'
+    | 'koopaR'
+    | 'bouncyKoop'
+    | 'flyingKoopa'
+    | 'plant'
+    | 'cheep'
+    | 'hammerbro'
+    | 'bowser'
+    | 'bruce';
   enemStompRecovery?: number;
   enemy?: {
     stomp: boolean;
@@ -213,6 +225,13 @@ export type Entity = {
     outTime?: number,
     inTime?: number,
     emerging?: boolean
+  },
+  blooper?: {
+    moving?: {
+      direction: 'left' | 'right';
+      progress: number;
+    },
+    forcedSinking?: number;
   },
   displace?: {
     x: number;
@@ -280,6 +299,7 @@ export type Entity = {
   iframesSecs?: number;
   deleteOutOfCam?: boolean;
   deleteTimer?: number;
+  maxSpeed?: number;
 
   /** In degrees */
   angVel?: number;

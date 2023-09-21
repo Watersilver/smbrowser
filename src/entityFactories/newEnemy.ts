@@ -11,6 +11,7 @@ export default function newEnemy(x: number, y: number, frame?: Smb1EnemiesAnimat
   let height = 14;
 
   const plant = frame === 'greenPiranhaPlant';
+  const blooper = frame === 'blooper';
 
   if (plant) {
     width = 10;
@@ -25,6 +26,10 @@ export default function newEnemy(x: number, y: number, frame?: Smb1EnemiesAnimat
     height = 10;
     smb1EnemiesAnimations.loopsPerSecond = 2;
     smb1EnemiesAnimations.container.zIndex = -2;
+  }
+
+  if (blooper) {
+    smb1EnemiesAnimations.loopsPerSecond = 0;
   }
   
   return entities.createEntity(newEntity({
@@ -44,6 +49,8 @@ export default function newEnemy(x: number, y: number, frame?: Smb1EnemiesAnimat
       ? 'flyingKoopa'
       : frame === 'buzzy'
       ? 'buzzy'
+      : blooper
+      ? 'blooper'
       : plant
       ? 'plant'
       : 'goomba',

@@ -339,6 +339,11 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
           ent.mario.changedSize = true;
         }
       }
+      if (this.input.isPressed('KeyF')) {
+        if (ent.mario) {
+          ent.mario.powerup = ent.mario.powerup !== 'fire' ? 'fire' : undefined;
+        }
+      }
       if (this.input.isPressed('KeyU')) {
         if (ent.mario) {
           ent.underwater = !ent.underwater;
@@ -415,7 +420,7 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
 
       movement(dt, display);
 
-      enemyBehaviours(dt);
+      enemyBehaviours(dt, display);
 
       stuffVsEnemies(dt, display);
 

@@ -1,5 +1,9 @@
-import { Input } from "../engine";
+import { Input, aabb } from "../engine";
 import entities from "../entities";
+import Collidable from "../utils/collidable";
+import zones from "../zones";
+
+const ZoneRect = new Collidable();
 
 export default function marioPlayerInput(keyboard: Input, dt: number) {
   for (const e of entities.view(['marioInput', 'player'])) {
@@ -14,6 +18,10 @@ export default function marioPlayerInput(keyboard: Input, dt: number) {
         } else {
           (<any>i)[key] = false;
         }
+      }
+
+      if (zones.noInput.some(z => aabb.pointVsRect(e.position, ZoneRect.setToZone(z)))) {
+        continue;
       }
 
       if (keyboard.isPressed("ArrowLeft")) {

@@ -74,6 +74,19 @@ export default function enemyActivator(dt: number, display: Display) {
       case 'cheep':
       case 'flyingKoopa':
       case 'hammerbro':
+        break;
+      case 'blooper':
+        e.enemy = {
+          stomp: false,
+          fireball: true,
+          star: true,
+          shell: true
+        }
+        e.sensor = true;
+        e.moving = true;
+        e.blooper = {};
+        e.underwater = true;
+        break;
       case 'plant':
         e.enemy = {
           star: true,
