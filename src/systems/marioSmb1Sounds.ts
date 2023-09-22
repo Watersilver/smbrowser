@@ -4,13 +4,17 @@ import entities from "../entities";
 
 const audio = getSmb1Audio();
 
+let coinTimer = Date.now();
 let coinSound: Sound | null = null;
 let swimSound: Sound | null = null;
 
 entities.onPropChange('coinGotCollected', e => {
   if (e.coinGotCollected) {
+    const prev = coinTimer;
+    coinTimer = Date.now();
+    if (coinTimer - prev < 5) return;
     coinSound?.stop();
-    audio.sounds.play('coin');
+    coinSound = audio.sounds.play('coin');
   }
 });
 
