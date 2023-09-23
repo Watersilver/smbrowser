@@ -204,7 +204,6 @@ export type Entity = {
     | 'bouncyKoop'
     | 'flyingKoopa'
     | 'plant'
-    | 'cheep'
     | 'hammerbro'
     | 'bowser'
     | 'bruce';
@@ -225,18 +224,26 @@ export type Entity = {
     outTime?: number,
     inTime?: number,
     emerging?: boolean
-  },
+  };
   blooper?: {
     moving?: {
       direction: 'left' | 'right';
       progress: number;
     },
     forcedSinking?: number;
-  },
+  };
+  cheep?: {
+    direction: 1 | -1;
+    amplitude: number;
+    ySpeed: number;
+    speed: number;
+    y: number;
+    yDir: 1 | -1;
+  };
   displace?: {
     x: number;
     y: number;
-  }
+  };
   gotHit?: {
     x: number;
     y: number;

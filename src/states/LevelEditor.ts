@@ -1,4 +1,4 @@
-import { Graphics } from "pixi.js";
+import { Container, Graphics } from "pixi.js";
 import State from "../engine/state-machine";
 import display from "../display";
 import { Input, Vec2d, aabb } from "../engine";
@@ -42,6 +42,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
   graphics?: Graphics;
   input?: Input;
   levelDataInit?: string;
+  container: Container = new Container();
 
   zones: {
     camZones: Zone[];
@@ -52,6 +53,17 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     surfaceZones: Zone[];
     noMarioInputZones: Zone[];
     descendingPlatformZones: Zone[];
+    jumpCheepZones: Zone[];
+    cheepZones: Zone[];
+    lakituZones: Zone[];
+    billZones: Zone[];
+    fireZones: Zone[];
+    maskZones: Zone[];
+    angrySunZones: Zone[];
+    medusaHeadZones: Zone[];
+    loopZones: Zone[];
+    seabgZones: Zone[];
+    darkbgZones: Zone[];
   } = {
     camZones: [],
     camPreserveZones: [],
@@ -60,7 +72,18 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     whirlpoolZones: [],
     surfaceZones: [],
     noMarioInputZones: [],
-    descendingPlatformZones: []
+    descendingPlatformZones: [],
+    jumpCheepZones: [],
+    cheepZones: [],
+    lakituZones: [],
+    billZones: [],
+    fireZones: [],
+    maskZones: [],
+    angrySunZones: [],
+    medusaHeadZones: [],
+    loopZones: [],
+    seabgZones: [],
+    darkbgZones: []
   };
 
   currentVine?: Vine;
@@ -161,7 +184,27 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
   tileSelectors: HTMLDivElement;
   prevSelected: EntityTypeMapping | null = null;
   selected: EntityTypeMapping | null = null;
-  selectedZone: 'cam' | 'campreserve' | 'death' | 'underwater' | 'whirlpool' | 'surface' | 'noMInput' | 'descPlatform' = 'cam';
+  selectedZone:
+  | 'cam'
+  | 'campreserve'
+  | 'death'
+  | 'underwater'
+  | 'whirlpool'
+  | 'surface'
+  | 'noMInput'
+  | 'descPlatform'
+  | "jumpCheep"
+  | "cheep"
+  | "lakitu"
+  | "bill"
+  | "fire"
+  | "mask"
+  | "angrySun"
+  | "medusaHead"
+  | "loop"
+  | "seabg"
+  | "darkbg"
+  = 'cam';
   zoneSelected: boolean = false;
   currentZone?: {x: number; y: number; w: number; h: number;};
   solidFrame?: Smb1TilesSprites['frame'] = undefined;
@@ -616,6 +659,39 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
         case 'descPlatform':
           this.zoneSelect.innerHTML = 'desc. platform<br>zone';
           break;
+        case 'bill':
+          this.zoneSelect.innerHTML = 'bill<br>zone';
+          break;
+        case 'cheep':
+          this.zoneSelect.innerHTML = 'cheep<br>zone';
+          break;
+        case 'jumpCheep':
+          this.zoneSelect.innerHTML = 'jumping cheep<br>zone';
+          break;
+        case 'fire':
+          this.zoneSelect.innerHTML = 'bowser fire<br>zone';
+          break;
+        case 'lakitu':
+          this.zoneSelect.innerHTML = 'lakitu<br>zone';
+          break;
+        case 'loop':
+          this.zoneSelect.innerHTML = 'loop<br>zone';
+          break;
+        case 'seabg':
+          this.zoneSelect.innerHTML = 'sea background<br>zone';
+          break;
+        case 'darkbg':
+          this.zoneSelect.innerHTML = 'dark background<br>zone';
+          break;
+        case 'medusaHead':
+          this.zoneSelect.innerHTML = 'medusa head<br>zone';
+          break;
+        case 'angrySun':
+          this.zoneSelect.innerHTML = 'angry sun<br>zone';
+          break;
+        case 'mask':
+          this.zoneSelect.innerHTML = 'mask<br>zone';
+          break;
         default:
           this.zoneSelect.innerHTML = 'death<br>zone';
           break;
@@ -623,60 +699,34 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     };
     renderZSName();
     this.zoneSelect.addEventListener('wheel', e => {
+      const zones: (typeof this.selectedZone)[] = [
+        "cam",
+        "campreserve",
+        "death",
+        "underwater",
+        "surface",
+        "whirlpool",
+        "noMInput",
+        "descPlatform",
+        "lakitu",
+        "cheep",
+        "fire",
+        "jumpCheep",
+        "bill",
+        "mask",
+        "angrySun",
+        "medusaHead",
+        "loop",
+        "seabg",
+        "darkbg"
+      ];
+
+      let i = zones.findIndex(z => z === this.selectedZone);
+
       if (Math.sign(e.deltaY) > 0) {
-        switch (this.selectedZone) {
-          case 'cam':
-            this.selectedZone = 'campreserve';
-            break;
-          case 'campreserve':
-            this.selectedZone = 'noMInput';
-            break;
-          case 'noMInput':
-            this.selectedZone = 'underwater';
-            break;
-          case 'underwater':
-            this.selectedZone = 'surface';
-            break;
-          case 'surface':
-            this.selectedZone = 'whirlpool';
-            break;
-          case 'whirlpool':
-            this.selectedZone = 'death';
-            break;
-          case 'death':
-            this.selectedZone = 'descPlatform';
-            break;
-          default:
-            this.selectedZone = 'cam';
-            break;
-        }
+        this.selectedZone = zones[++i] || zones[0] || this.selectedZone;
       } else {
-        switch (this.selectedZone) {
-          case 'cam':
-            this.selectedZone = 'descPlatform';
-            break;
-          case 'campreserve':
-            this.selectedZone = 'cam';
-            break;
-          case 'noMInput':
-            this.selectedZone = 'campreserve';
-            break;
-          case 'underwater':
-            this.selectedZone = 'noMInput';
-            break;
-          case 'surface':
-            this.selectedZone = 'underwater';
-            break;
-          case 'whirlpool':
-            this.selectedZone = 'surface';
-            break;
-          case 'death':
-            this.selectedZone = 'whirlpool';
-            break;
-          default:
-            this.selectedZone = 'death';
-            break;
-        }
+        this.selectedZone = zones[--i] || zones.at(-1) || this.selectedZone;
       }
       renderZSName();
     });
@@ -814,6 +864,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     if (!init) return;
 
     display.add(this.graphicsOverlay);
+    display.add(this.container);
 
     entities.clear();
     this.scale = display.getScale();
@@ -886,6 +937,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
 
   override onEnd(): [output: LevelEditorOut | null, next: 'gameplay'] {
     this.toggleTransparency('none');
+    this.container.removeFromParent();
     // Remove graphics overlay
     this.graphicsOverlay.removeFromParent();
     // Disable save level listener
@@ -1242,6 +1294,39 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
             case 'descPlatform':
               this.zones.descendingPlatformZones.push({x,y,w,h});
               break;
+            case 'angrySun':
+              this.zones.angrySunZones.push({x,y,w,h});
+              break;
+            case 'mask':
+              this.zones.maskZones.push({x,y,w,h});
+              break;
+            case 'bill':
+              this.zones.billZones.push({x,y,w,h});
+              break;
+            case 'cheep':
+              this.zones.cheepZones.push({x,y,w,h});
+              break;
+            case 'darkbg':
+              this.zones.darkbgZones.push({x,y,w,h});
+              break;
+            case 'fire':
+              this.zones.fireZones.push({x,y,w,h});
+              break;
+            case 'jumpCheep':
+              this.zones.jumpCheepZones.push({x,y,w,h});
+              break;
+            case 'lakitu':
+              this.zones.lakituZones.push({x,y,w,h});
+              break;
+            case 'loop':
+              this.zones.loopZones.push({x,y,w,h});
+              break;
+            case 'medusaHead':
+              this.zones.medusaHeadZones.push({x,y,w,h});
+              break;
+            case 'seabg':
+              this.zones.seabgZones.push({x,y,w,h});
+              break;
           }
           this.currentZone = undefined;
         }
@@ -1491,6 +1576,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     renderSmb1Mario(dt);
     renderSmb1Stuff(dt, true);
     renderEdit(
+      this.container,
       this.graphics,
       this.graphicsOverlay,
       this.zones,

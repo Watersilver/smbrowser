@@ -53,7 +53,7 @@ export default function newEnemy(x: number, y: number, frame?: Smb1EnemiesAnimat
       ? 'blooper'
       : plant
       ? 'plant'
-      : 'goomba',
+      : undefined,
     ...(
       plant ? {
         displace: {

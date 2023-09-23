@@ -1,6 +1,57 @@
-import { Graphics } from "pixi.js";
+import { Container, Graphics } from "pixi.js";
 import display from "../display";
 import { LineSeg, OscillationInit, PlatformConnection, Points, Vine } from "../types";
+import smb1enemiesanimationsFactory, { Smb1EnemiesAnimations } from "../sprites/loaders/smb1/enemies";
+
+const bills: Smb1EnemiesAnimations[] = [];
+const cheeps: Smb1EnemiesAnimations[] = [];
+const jumpingCheeps: Smb1EnemiesAnimations[] = [];
+const bowserFires: Smb1EnemiesAnimations[] = [];
+const lakitus: Smb1EnemiesAnimations[] = [];
+const angrySuns: Smb1EnemiesAnimations[] = [];
+const medusaHeads: Smb1EnemiesAnimations[] = [];
+const masks: Smb1EnemiesAnimations[] = [];
+
+function adjustSize(c: Container, a: Smb1EnemiesAnimations[], size: number, onAdd: (a: Smb1EnemiesAnimations) => void) {
+  while (a.length !== size) {
+    if (a.length > size) {
+      a.pop()?.container.removeFromParent();
+    } else {
+      const newa = smb1enemiesanimationsFactory.new();
+      c.addChild(newa.container);
+      a.push(newa);
+      onAdd(newa);
+    }
+  }
+}
+function forEachAnim(z: Zone[], a: Smb1EnemiesAnimations[], handler: (zone: Zone, anim: Smb1EnemiesAnimations) => void) {
+  for (let i = 0; i < z.length; i++) {
+    const zone = z[i];
+    const anim = a[i];
+    if (zone && anim) handler(zone, anim);
+  }
+}
+function drawZoneEnemy(c: Container, type: ZoneGroup, z: Zone[]) {
+  if (type === 'billZones') {
+    adjustSize(c, bills, z.length, a => a.setAnimation('bulletbill'));
+    forEachAnim(z, bills, (zone, a) => a.container.position.set(zone.x + zone.w - 16, zone.y + 16));
+  } else if (type === 'cheepZones') {
+    adjustSize(c, cheeps, z.length, a => a.setAnimation('greenCheep'));
+    forEachAnim(z, cheeps, (zone, a) => a.container.position.set(zone.x + zone.w - 16, zone.y + 16));
+  } else if (type === 'jumpCheepZones') {
+    adjustSize(c, jumpingCheeps, z.length, a => a.setAnimation('redCheep'));
+    forEachAnim(z, jumpingCheeps, (zone, a) => {
+      a.container.angle = 45;
+      return a.container.position.set(zone.x + zone.w - 16, zone.y + 16);
+    });
+  } else if (type === 'fireZones') {
+    adjustSize(c, bowserFires, z.length, a => a.setAnimation('bowserfire'));
+    forEachAnim(z, bowserFires, (zone, a) => a.container.position.set(zone.x + zone.w - 16, zone.y + 16));
+  } else if (type === 'lakituZones') {
+    adjustSize(c, lakitus, z.length, a => a.setAnimation('lakitu'));
+    forEachAnim(z, lakitus, (zone, a) => a.container.position.set(zone.x + zone.w - 16, zone.y + 16));
+  }
+}
 
 type Zone = {x: number; y: number; w: number; h: number;};
 
@@ -190,14 +241,32 @@ const drawPipe = (g: Graphics, pipe: Points, color: number) => {
   inner.endFill();
 }
 
-export default function renderEdit(g: Graphics, o: Graphics, zones: {
-    camZones: Zone[];
-    camPreserveZones: Zone[];
-    deathZones: Zone[];
-    underwaterZones: Zone[];
-    whirlpoolZones: Zone[];
-    surfaceZones: Zone[];
-    noMarioInputZones: Zone[];
+type ZoneGroup = "camZones"
+| "camPreserveZones"
+| "deathZones"
+| "underwaterZones"
+| "whirlpoolZones"
+| "surfaceZones"
+| "noMarioInputZones"
+| "descendingPlatformZones"
+| "jumpCheepZones"
+| "cheepZones"
+| "lakituZones"
+| "billZones"
+| "fireZones"
+| "maskZones"
+| "angrySunZones"
+| "medusaHeadZones"
+| "loopZones"
+| "seabgZones"
+| "darkbgZones"
+
+export default function renderEdit(
+  c: Container,
+  g: Graphics,
+  o: Graphics,
+  zones: {
+    [key in ZoneGroup]: Zone[];
   },
   pipes: Points[],
   vines: Vine[],
@@ -249,7 +318,9 @@ export default function renderEdit(g: Graphics, o: Graphics, zones: {
   .drawRect(x, y, 16, 16)
   .endFill();
 
-  for (const [name, z] of Object.entries(zones)) {
+  for (const [name, z] of Object.entries(zones) as [ZoneGroup, Zone[]][]) {
+    drawZoneEnemy(c, name, z);
+
     const col =
       name === 'camZones'
       ? 0xffff00

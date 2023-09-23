@@ -122,13 +122,49 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
     this.graphics = init.graphics;
     this.input = init.input;
 
-    zones.camera.push(...init.zones.camZones);
-    zones.death.push(...init.zones.deathZones);
-    zones.preserveCamera.push(...init.zones.camPreserveZones);
-    zones.noInput.push(...init.zones.noMarioInputZones);
-    zones.surface.push(...init.zones.surfaceZones);
-    zones.underwater.push(...init.zones.underwaterZones);
-    zones.whirlpool.push(...init.zones.whirlpoolZones);
+    for (const zoneGroup of Object.values(zones)) {
+      zoneGroup.length = 0;
+    }
+    for (const zoneGroup of Object.keys(zones) as (keyof typeof zones)[]) {
+      switch (zoneGroup) {
+        case 'angrySun':
+          zones.angrySun.push(...init.zones.angrySunZones); break;
+        case 'bill':
+          zones.bill.push(...init.zones.billZones); break;
+        case 'camera':
+          zones.camera.push(...init.zones.camZones); break;
+        case 'cheep':
+          zones.cheep.push(...init.zones.cheepZones); break;
+        case 'darkbg':
+          zones.darkbg.push(...init.zones.darkbgZones); break;
+        case 'death':
+          zones.death.push(...init.zones.deathZones); break;
+        case 'fire':
+          zones.fire.push(...init.zones.fireZones); break;
+        case 'jumpCheep':
+          zones.jumpCheep.push(...init.zones.jumpCheepZones); break;
+        case 'lakitu':
+          zones.lakitu.push(...init.zones.lakituZones); break;
+        case 'loop':
+          zones.loop.push(...init.zones.loopZones); break;
+        case 'mask':
+          zones.mask.push(...init.zones.maskZones); break;
+        case 'medusaHead':
+          zones.medusaHead.push(...init.zones.medusaHeadZones); break;
+        case 'noInput':
+          zones.noInput.push(...init.zones.noMarioInputZones); break;
+        case 'preserveCamera':
+          zones.preserveCamera.push(...init.zones.camPreserveZones); break;
+        case 'seabg':
+          zones.seabg.push(...init.zones.seabgZones); break;
+        case 'surface':
+          zones.surface.push(...init.zones.surfaceZones); break;
+        case 'underwater':
+          zones.underwater.push(...init.zones.underwaterZones); break;
+        case 'whirlpool':
+          zones.whirlpool.push(...init.zones.whirlpoolZones); break;
+      }
+    }
 
     init.pipes.forEach(pipe => {
       newPipe(pipe);
@@ -298,13 +334,9 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
     this.respawnTimer = undefined;
     display.stopMoveTo();
 
-    zones.camera.length = 0;
-    zones.death.length = 0;
-    zones.preserveCamera.length = 0;
-    zones.noInput.length = 0;
-    zones.surface.length = 0;
-    zones.underwater.length = 0;
-    zones.whirlpool.length = 0;
+    for (const zoneGroup of Object.values(zones)) {
+      zoneGroup.length = 0;
+    }
 
     if (!this.graphics || !this.input) return [null, 'editor'];
     const graphics = this.graphics;

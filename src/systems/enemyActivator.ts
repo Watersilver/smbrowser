@@ -71,7 +71,6 @@ export default function enemyActivator(dt: number, display: Display) {
         break;
       case 'bowser':
       case 'bruce':
-      case 'cheep':
       case 'flyingKoopa':
       case 'hammerbro':
         break;

@@ -361,6 +361,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
         delete e.enemy;
         delete e.sensor;
         delete e.blooper;
+        delete e.cheep;
         s.container.angle = 180;
         s.container.scale.x = -s.container.scale.x;
         s.container.zIndex = 15;
@@ -421,7 +422,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
         if (u.userData === e) continue;
 
         u1.set(u.userData);
-  
+
         if (aabb.rectVsRect(e1, u1)) {
           if (e.enemy.shell) {
             // Got hit by shell
