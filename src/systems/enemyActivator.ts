@@ -59,6 +59,7 @@ export default function enemyActivator(dt: number, display: Display) {
         };
         e.dynamic = {velocity: new Vec2d(0, 0), acceleration: new Vec2d(0, 0)};
         e.hits = [];
+        e.prevHits = [];
         e.gravity = enemyGravity;
         e.enemy = {
           star: true,

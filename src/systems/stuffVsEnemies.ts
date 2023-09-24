@@ -200,6 +200,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
                   default:
                     delete uu.enemy;
                     delete uu.bill;
+                    delete uu.lakitu;
                     delete uu.sensor;
                     uu.goThrougWalls = true;
                     uu.deleteOutOfCam = true;
@@ -370,6 +371,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
         delete e.blooper;
         delete e.cheep;
         delete e.bill;
+        delete e.lakitu;
         s.container.angle = 180;
         s.container.scale.x = -s.container.scale.x;
         s.container.zIndex = 15;
@@ -387,6 +389,29 @@ export default function stuffVsEnemies(dt: number, display: Display) {
       }
     }
     delete e.gotHit;
+  }
+
+  for (const e of entities.view(['enemy', 'hits', 'prevHits'])) {
+
+    if (!e.enemy || !e.hits || !e.prevHits) continue;
+
+    const closest = entities.view(['mario']).filter(m => !m.mario?.dead).reduce<Entity | undefined>((a, c) => {
+      if (!a) return c;
+      if (a.position.distance(e.position) > c.position.distance(e.position)) return c;
+      return a;
+    }, undefined);
+
+    if (
+      closest
+      && e.hits?.some(h => h.normal.y < 0)
+      && !e.prevHits?.some(h => h.normal.y < 0)
+      && e.position.y !== e.positionPrev.y
+    ) {
+      if (e.movement?.horizontal) {
+        e.movement.horizontal = Math.sign(closest.position.x - e.position.x) * Math.abs(e.movement.horizontal);
+        e.movement.horizontalNow = true;
+      }
+    }
   }
 
   for (const e of entities.view(['enemy'])) {

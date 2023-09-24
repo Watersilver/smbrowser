@@ -250,6 +250,21 @@ export type Entity = {
     cooldownCounter?: number;
   };
   jumpcheep?: boolean;
+  lakitu?: {
+    spinyCooldown: number;
+    spawningSpiny: number;
+    vel: number;
+    move: {
+      view?: {
+        relativeX: number;
+        t: number;
+        state: 'in' | 'out';
+      };
+      circle?: {
+        direction: 1 | -1;
+      };
+    };
+  };
   fire?: {
     direction: 1 | -1;
     targetY?: number;
@@ -324,6 +339,8 @@ export type Entity = {
 
   /** In degrees */
   angVel?: number;
+
+  justAdded?: boolean;
 };
 
 export function newEntity(init?: Partial<Entity>): Entity {
@@ -342,5 +359,7 @@ export function newEntity(init?: Partial<Entity>): Entity {
 }
 
 const entities = new Ecs<Entity>();
+
+entities.onAdding([], e => e.justAdded = true);
 
 export default entities;

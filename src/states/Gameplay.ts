@@ -487,6 +487,10 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
       // Cleanup
       resetStuff();
 
+      for (const e of entities.view(['justAdded'])) {
+        delete e.justAdded;
+      }
+
     }
 
     return true;

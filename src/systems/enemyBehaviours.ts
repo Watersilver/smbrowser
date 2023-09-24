@@ -157,6 +157,8 @@ export default function enemyBehaviours(dt: number, display: Display) {
   firemove(dt, display);
 
   jumpcheepspawn(dt, display);
+
+  lakitu(dt, display);
 }
 
 let spawnCooldown = 0;
@@ -455,6 +457,175 @@ function jumpcheepspawn(dt: number, display: Display) {
         velocity: new Vec2d(30 + Math.random() * 122, -Math.sqrt(2 * e.gravity * (h - 8))),
         acceleration: new Vec2d(0, 0)
       };
+    }
+  }
+}
+
+let lakituCooldown = 0;
+function lakitu(dt: number, display: Display) {
+  const inZone = entities.view(['mario']).some(
+    m => zones.lakitu.some(z => aabb.pointVsRect(m.position, c1.setToZone(z)))
+  );
+
+  if (entities.view(['lakitu']).length) {
+
+    for (const e of entities.view(['lakitu'])) {
+      const lak = e.lakitu;
+      if (!lak) continue;
+
+      if (e.smb1EnemiesAnimations) {
+        if (lak.spawningSpiny > 0) {
+          e.smb1EnemiesAnimations.setFrame(1);
+        } else {
+          e.smb1EnemiesAnimations.setFrame(0);
+        }
+      }
+
+      if (lak.move.view) {
+        const {l, t, w} = display.getBoundingBox();
+        lak.move.view.t += dt * 3;
+        if (lak.move.view.state === 'in') {
+          let prog = Math.sin(lak.move.view.t);
+          if (lak.move.view.t >= Math.PI * 0.5) prog = 1;
+
+          e.position.x = l + lak.move.view.relativeX * w;
+          e.position.y = t - 16 + 32 * prog;
+          if (prog === 1) {
+            delete lak.move.view;
+          }
+        } else {
+          e.deleteOutOfCam = true;
+          let prog = Math.cos(lak.move.view.t);
+          if (lak.move.view.t >= Math.PI * 0.5) {
+            e.position.y -= dt * 100;
+          } else {
+            e.position.y = t - 16 + 32 * prog;
+          }
+        }
+      } else {
+        const closest = entities.view(['mario']).filter(m => !m.mario?.dead).reduce<Entity | undefined>((a, c) => {
+          if (!a) return c;
+          if (a.position.distance(e.position) > c.position.distance(e.position)) return c;
+          return a;
+        }, undefined);
+
+        const maxDist = 7 * 16;
+        if (!closest) {
+          delete lak.move.circle;
+        } else if (closest.dynamic && Math.abs(closest.dynamic.velocity.x) > 50) {
+          // run
+          delete lak.move.circle;
+          const direction = Math.sign(closest.dynamic.velocity.x);
+          const distancePrev = Math.abs(closest.position.x - e.position.x);
+          lak.vel = direction * (Math.abs(closest.dynamic.velocity.x) + 70);
+          e.position.x += lak.vel * dt;
+          const diff = closest.position.x - e.position.x;
+          const distance = Math.abs(diff);
+          if (distance > maxDist && Math.sign(diff) === -direction) {
+            if (distancePrev > maxDist) {
+              e.position.x -= lak.vel * dt;
+              lak.vel = 0;
+            } else {
+              lak.vel = direction * (Math.abs(closest.dynamic.velocity.x));
+              e.position.x = closest.position.x + direction * maxDist;
+            }
+          }
+
+          if (e.smb1EnemiesAnimations) {
+            if (direction === 1) {
+              e.smb1EnemiesAnimations.container.scale.x = 1;
+            } else {
+              e.smb1EnemiesAnimations.container.scale.x = -1;
+            }
+          }
+        } else {
+          // circle player
+          if (!lak.move.circle) lak.move.circle = {
+            direction: Math.sign(lak.vel) === 1 ? 1 : -1
+          }
+
+          if (Math.abs(lak.vel) > 50) {
+            lak.vel -= lak.vel * 1.5 * dt;
+            if (Math.abs(lak.vel) < 50) lak.vel = 50 * lak.move.circle.direction;
+          } else {
+            lak.vel = 50 * lak.move.circle.direction;
+            const distance = Math.abs(closest.position.x - e.position.x);
+            if (distance > maxDist) {
+              lak.move.circle.direction = closest.position.x - e.position.x > 0 ? 1 : -1;
+            }
+          }
+          e.position.x += lak.vel * dt;
+
+          if (e.smb1EnemiesAnimations) {
+            if (lak.move.circle.direction === 1) {
+              e.smb1EnemiesAnimations.container.scale.x = 1;
+            } else {
+              e.smb1EnemiesAnimations.container.scale.x = -1;
+            }
+          }
+        }
+      }
+    }
+
+    // Check if lakitu should leave
+    if (!inZone) {
+      const {l, w} = display.getBoundingBox();
+      entities.view(['lakitu']).forEach(e => {
+        if (e.lakitu && !e.lakitu.move.view) {
+          e.lakitu.move.view = {
+            relativeX: (e.position.x - l) / w,
+            t: 0,
+            state: 'out'
+          }
+        }
+      })
+    }
+    return;
+  }
+
+  const inZonePrev = entities.view(['mario']).some(
+    m => !m.mario?.dead || zones.lakitu.some(z => aabb.pointVsRect(m.positionPrev, c1.setToZone(z)))
+  );
+
+  // Spawn when mario is in lakitu area
+  if (inZone) {
+    // Have a starting cooldown when first entering area
+    if (!inZonePrev || lakituCooldown === 0) {
+      lakituCooldown = 2;
+    }
+
+    lakituCooldown -= dt;
+
+    if (lakituCooldown <= 0) {
+      // 7 secs if lakitu dies till next respawns in same area
+      lakituCooldown = 7;
+  
+      const {t, l, w} = display.getBoundingBox();
+      const e = newEnemy(l + 16 + Math.random() * (w - 32), t - 16, 'lakitu');
+      e.size.y = 24;
+      e.enemy = {
+        shell: true,
+        fireball: true,
+        star: true,
+        stomp: true
+      };
+      e.lakitu = {
+        spinyCooldown: -1,
+        spawningSpiny: -1,
+        vel: 0,
+        move: {
+          view: {
+            state: 'in',
+            t: 0,
+            relativeX: (e.position.x - l) / w
+          }
+        }
+      };
+      e.sensor = true;
+      e.moving = true;
+      if (e.smb1EnemiesAnimations) {
+        e.smb1EnemiesAnimations.loopsPerSecond = 0;
+      }
     }
   }
 }

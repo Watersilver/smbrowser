@@ -71,6 +71,14 @@ export default class Vec2d implements Vec2dData {
     return Math.sqrt(this.x * this.x + this.y * this.y);
   }
 
+  distanceSquared(other: Vec2dData) {
+    return (this.x - other.x) ** 2 + (this.y - other.y) ** 2;
+  }
+
+  distance(other: Vec2dData) {
+    return Math.sqrt(this.distanceSquared(other));
+  }
+
   unit() {
     const divl = 1 / (this.isNull ? 1 : this.length());
     return new Vec2d(this.x * divl, this.y * divl);
