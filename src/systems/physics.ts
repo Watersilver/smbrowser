@@ -81,7 +81,7 @@ export default function physics(dt: number) {
   }
 
   for (const d of dynamicsList) {
-    if (!d.userData.dynamic || d.userData.goThrougWalls) continue;
+    if (!d.userData.dynamic) continue;
 
     const dr = d.userData.dynamic.velocity.mul(dt);
 
@@ -102,6 +102,8 @@ export default function physics(dt: number) {
     d.h = dr.y < 0 ? h - dr.y : h + dr.y;
 
     worldGrid.dynamics.update(d);
+
+    if (d.userData.goThrougWalls) continue;
 
     collider.pos.x = l;
     collider.pos.y = t;

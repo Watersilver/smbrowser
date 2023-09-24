@@ -240,6 +240,20 @@ export type Entity = {
     y: number;
     yDir: 1 | -1;
   };
+  bill?: {
+    direction: 1 | -1;
+    speed: number;
+    parent?: Entity;
+  };
+  billSwarm?: boolean;
+  billShooter?: {
+    cooldownCounter?: number;
+  };
+  jumpcheep?: boolean;
+  fire?: {
+    direction: 1 | -1;
+    targetY?: number;
+  };
   displace?: {
     x: number;
     y: number;

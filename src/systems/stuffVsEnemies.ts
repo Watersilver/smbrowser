@@ -63,6 +63,8 @@ export default function stuffVsEnemies(dt: number, display: Display) {
     for (const u of dynamicsAndSensors(e1)) {
       const uu = u.userData;
 
+      if (uu === e) continue;
+
       if (!uu.enemy) continue;
 
       u1.set(uu);
@@ -144,6 +146,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
                   default:
                     if (uu.smb1EnemiesAnimations) {
                       uu.smb1EnemiesAnimations.container.angle = 180;
+                      uu.smb1EnemiesAnimations.container.scale.x *= -1;
                     }
                     break;
                 }
@@ -196,8 +199,12 @@ export default function stuffVsEnemies(dt: number, display: Display) {
                     break;
                   default:
                     delete uu.enemy;
+                    delete uu.bill;
+                    delete uu.sensor;
                     uu.goThrougWalls = true;
                     uu.deleteOutOfCam = true;
+                    uu.gravity = 600;
+                    uu.dynamic = {velocity: new Vec2d(0, 0), acceleration: new Vec2d(0, 0)};
                     break;
                 }
 
@@ -362,6 +369,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
         delete e.sensor;
         delete e.blooper;
         delete e.cheep;
+        delete e.bill;
         s.container.angle = 180;
         s.container.scale.x = -s.container.scale.x;
         s.container.zIndex = 15;

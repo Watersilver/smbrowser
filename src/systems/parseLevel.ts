@@ -35,6 +35,9 @@ export default function parseLevel(levelData: string | LevelData) {
         case EntityTypeMapping.block: {
           const frame = entInit[3]?.tileFrame;
           ent = newBlock(entInit[1], entInit[2], frame);
+          if (frame === 'solidBulletBillHead') {
+            ent.billShooter = {};
+          }
           if (layer === 2) {
             if (ent.smb1TilesSprites) ent.smb1TilesSprites.container.zIndex = -5;
           }

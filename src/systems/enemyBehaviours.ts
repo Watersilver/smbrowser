@@ -1,9 +1,12 @@
+import { getSmb1Audio } from "../audio";
 import { Display } from "../display";
-import { aabb } from "../engine";
-import entities from "../entities";
+import { Vec2d, aabb } from "../engine";
+import entities, { Entity } from "../entities";
 import newEnemy from "../entityFactories/newEnemy";
 import Collidable from "../utils/collidable";
 import zones from "../zones";
+
+const audio = getSmb1Audio();
 
 const c1 = new Collidable();
 
@@ -145,6 +148,15 @@ export default function enemyBehaviours(dt: number, display: Display) {
 
   cheepspawn(dt, display);
   cheepmove(dt, display);
+
+  billspawn(dt, display);
+  billshooter(dt, display);
+  billmove(dt, display);
+
+  firespawn(dt, display);
+  firemove(dt, display);
+
+  jumpcheepspawn(dt, display);
 }
 
 let spawnCooldown = 0;
@@ -208,5 +220,241 @@ function cheepmove(dt: number, display: Display) {
     const {l, r} = display.getBoundingBox();
     if (e.position.x < l - 16) entities.remove(e);
     if (e.position.x > r + 16) entities.remove(e);
+  }
+}
+
+function newBill(x: number, y: number, e?: Entity) {
+  const bill = newEnemy(x, y, 'bulletbill');
+
+  bill.enemy = {
+    star: true,
+    stomp: true,
+    shell: true,
+    fireball: false
+  };
+  const closest = entities.view(['mario']).reduce<Entity | undefined>((a, c) => {
+    if (!a) return c;
+    if (Math.abs(c.position.x - bill.position.x) < Math.abs(c.position.x - bill.position.x)) return c;
+    return a;
+  }, undefined);
+  bill.bill = {
+    speed: 111,
+    direction: !closest ? 1 : (closest.position.x - bill.position.x) < 0 ? -1 : 1,
+    parent: e
+  };
+  bill.sensor = true;
+  bill.moving = true;
+  if (bill.smb1EnemiesAnimations) {
+    bill.smb1EnemiesAnimations.container.scale.x = -bill.bill.direction;
+  }
+
+  return bill;
+}
+
+entities.onAdding(['bill'], () => {
+  audio.sounds.play('fireworks');
+});
+
+function billshooter(dt: number, display: Display) {
+  for (const e of entities.view(['billShooter'])) {
+    const b = e.billShooter;
+    if (
+      !b
+      || !display.containsBroad(e.position)
+      || !entities.view(['mario']).filter(
+        m => Math.abs(m.position.x - e.position.x) > 20
+      ).some(
+        m =>
+        // Mario lowest point is below my highest
+        m.position.y + m.size.y * 0.5 > e.position.y - e.size.y * 0.5
+        // Mario highest point is above my lowest
+        && m.position.y - m.size.y * 0.5 < e.position.y + e.size.y * 0.5
+      )
+    ) continue;
+
+    if (b.cooldownCounter === undefined) b.cooldownCounter = Math.random() * 2 + 1.5;
+
+    b.cooldownCounter -= dt;
+
+    if (b.cooldownCounter <= 0) {
+      delete b.cooldownCounter;
+      const bill = newBill(e.position.x, e.position.y, e);
+      if (bill.smb1EnemiesAnimations) {
+        bill.smb1EnemiesAnimations.container.zIndex = -1;
+      }
+    }
+  }
+}
+
+function billmove(dt: number, display: Display) {
+  for (const e of entities.view(['bill'])) {
+    const b = e.bill;
+    if (!b) continue;
+
+    e.position.x += b.direction * b.speed * dt;
+
+    const {l, r} = display.getBoundingBox();
+    if (e.position.x < l - 16) entities.remove(e);
+    if (e.position.x > r + 16) entities.remove(e);
+
+    if (b.parent && Math.abs(b.parent.position.x - e.position.x) > 16) {
+      if (e.smb1EnemiesAnimations) {
+        e.smb1EnemiesAnimations.container.zIndex = 1;
+      }
+    }
+  }
+}
+
+let billSpawnCooldown = 0;
+function billspawn(dt: number, display: Display) {
+
+  if (entities.view(['billSwarm']).length) return;
+
+  const spawn = entities.view(['mario']).some(
+    // Don't spawn without reason to avoid making creation sound
+    m =>
+    !m.mario?.dead
+    && (!m.dynamic?.velocity || m.dynamic.velocity.x > -80)
+    && display.containsBroad(m.position)
+    && zones.bill.some(z => aabb.pointVsRect(m.position, c1.setToZone(z)))
+  );
+
+  billSpawnCooldown -= dt;
+
+  if (billSpawnCooldown < 0) {
+    billSpawnCooldown = Math.random();
+
+    if (spawn && Math.random() < 0.7) {
+      const {t, h, r} = display.getBoundingBox();
+      const e = newBill(r + 8, t + 32 + (h - 40 - 32) * Math.random());
+      e.billSwarm = true;
+    }
+  }
+}
+
+entities.onAdding(['fire'], () => {
+  audio.sounds.play('bowserfire');
+});
+
+function newFire(x: number, y: number) {
+  const e = newEnemy(x, y, 'bowserfire');
+  e.size.y = 2;
+
+  e.enemy = {
+    star: false,
+    stomp: false,
+    shell: false,
+    fireball: false
+  };
+  const closest = entities.view(['mario']).reduce<Entity | undefined>((a, c) => {
+    if (!a) return c;
+    if (Math.abs(c.position.x - e.position.x) < Math.abs(c.position.x - e.position.x)) return c;
+    return a;
+  }, undefined);
+  e.fire = {
+    direction: !closest ? 1 : (closest.position.x - e.position.x) < 0 ? -1 : 1,
+  };
+  e.sensor = true;
+  e.moving = true;
+  if (e.smb1EnemiesAnimations) {
+    e.smb1EnemiesAnimations.container.scale.x = -e.fire.direction;
+    e.smb1EnemiesAnimations.loopsPerSecond *= 2;
+  }
+
+  return e;
+}
+
+let fireSpawnCooldown = 0;
+function firespawn(dt: number, display: Display) {
+
+  if (entities.view(['fire']).length) return;
+
+  const spawn = entities.view(['mario']).some(
+    // Don't spawn without reason to avoid making creation sound
+    m =>
+    !m.mario?.dead
+    && (!m.dynamic?.velocity || m.dynamic.velocity.x > -80)
+    && display.containsBroad(m.position)
+    && zones.fire.some(z => aabb.pointVsRect(m.position, c1.setToZone(z)))
+  );
+
+  fireSpawnCooldown -= dt;
+
+  if (fireSpawnCooldown < 0) {
+    fireSpawnCooldown = 1;
+
+    if (spawn) {
+      const {t, h, r} = display.getBoundingBox();
+      const top = 48;
+      newFire(r + 8, t + top + (h - 72 - top) * Math.random());
+    }
+  }
+}
+
+function firemove(dt: number, display: Display) {
+  for (const e of entities.view(['fire'])) {
+    const f = e.fire;
+    if (!f) continue;
+
+    e.position.x += f.direction * 80 * dt;
+
+    if (f.targetY !== undefined) {
+      const s = Math.sign(f.targetY - e.position.y);
+      e.position.y += s * dt * 22;
+      const safter = Math.sign(f.targetY - e.position.y);
+
+      if (s !== safter) {
+        e.position.y = f.targetY;
+        delete f.targetY;
+      }
+    }
+
+    const {l, r} = display.getBoundingBox();
+    if (e.position.x < l - 16) entities.remove(e);
+    if (e.position.x > r + 16) entities.remove(e);
+  }
+}
+
+let jumpCheepCooldown = 0;
+function jumpcheepspawn(dt: number, display: Display) {
+
+  for (const e of entities.view(['jumpcheep'])) {
+    c1.set(e);
+    if (!e.deleteOutOfCam && display.overlapsRectBroad(c1)) {
+      e.deleteOutOfCam = true;
+    }
+  }
+
+  if (entities.view(['jumpcheep']).length > 2) return;
+
+  const spawn = entities.view(['mario']).some(
+    m => zones.jumpCheep.some(z => aabb.pointVsRect(m.position, c1.setToZone(z)))
+  );
+
+  jumpCheepCooldown -= dt;
+
+  if (jumpCheepCooldown < 0) {
+    jumpCheepCooldown = Math.random() * 0.2;
+
+    if (spawn && Math.random() < 0.5) {
+      const {t, h, l, w} = display.getBoundingBox();
+      const e = newEnemy(l + Math.random() * w * 0.75, t + h + 8, 'redCheep');
+      if (e.smb1EnemiesAnimations) {
+        e.smb1EnemiesAnimations.container.scale.x = -1;
+      }
+      e.enemy = {
+        shell: true,
+        fireball: true,
+        star: true,
+        stomp: true
+      };
+      e.gravity = 400;
+      e.jumpcheep = true;
+      e.goThrougWalls = true;
+      e.dynamic = {
+        velocity: new Vec2d(30 + Math.random() * 122, -Math.sqrt(2 * e.gravity * (h - 8))),
+        acceleration: new Vec2d(0, 0)
+      };
+    }
   }
 }
