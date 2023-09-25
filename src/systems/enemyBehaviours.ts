@@ -464,7 +464,7 @@ function jumpcheepspawn(dt: number, display: Display) {
 let lakituCooldown = 0;
 function lakitu(dt: number, display: Display) {
   const inZone = entities.view(['mario']).some(
-    m => zones.lakitu.some(z => aabb.pointVsRect(m.position, c1.setToZone(z)))
+    m => !m.mario?.dead && zones.lakitu.some(z => aabb.pointVsRect(m.position, c1.setToZone(z)))
   );
 
   if (entities.view(['lakitu']).length) {
@@ -494,6 +494,7 @@ function lakitu(dt: number, display: Display) {
             delete lak.move.view;
           }
         } else {
+          lakituCooldown = 2;
           e.deleteOutOfCam = true;
           let prog = Math.cos(lak.move.view.t);
           if (lak.move.view.t >= Math.PI * 0.5) {
@@ -584,7 +585,7 @@ function lakitu(dt: number, display: Display) {
   }
 
   const inZonePrev = entities.view(['mario']).some(
-    m => !m.mario?.dead || zones.lakitu.some(z => aabb.pointVsRect(m.positionPrev, c1.setToZone(z)))
+    m => !m.mario?.dead && zones.lakitu.some(z => aabb.pointVsRect(m.positionPrev, c1.setToZone(z)))
   );
 
   // Spawn when mario is in lakitu area
