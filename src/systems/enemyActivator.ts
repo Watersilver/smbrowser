@@ -136,7 +136,7 @@ export default function enemyActivator(dt: number, display: Display) {
       e.enemy = {
         star: true,
         stomp: true,
-        fireball: anim === 'buzzyShell',
+        fireball: anim !== 'buzzyShell',
         shell: true,
         lookTowards: 'direction'
       };
