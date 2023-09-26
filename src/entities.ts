@@ -13,6 +13,7 @@ export type Entity = {
   positionPrev: Vec2d;
   position: Vec2d;
   size: Vec2d;
+  ostensibleSize?: Vec2d;
   dynamic?: {
     velocity: Vec2d;
     acceleration: Vec2d;
@@ -218,6 +219,7 @@ export type Entity = {
     lookTowards?: "direction" | "mario";
     harmless?: number;
     shellTimer?: number;
+    noDirChangeOnNextLanding?: boolean;
   };
   piranhaPlant?: {
     height: number,
@@ -265,6 +267,7 @@ export type Entity = {
       };
     };
   };
+  spiny?: boolean;
   fire?: {
     direction: 1 | -1;
     targetY?: number;

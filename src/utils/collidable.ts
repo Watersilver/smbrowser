@@ -26,16 +26,18 @@ export default class Collidable {
     this.size.y = this.h;
   }
 
-  set(data: {position: Vec2dData, positionPrev: Vec2dData, size: Vec2dData, dynamic?: {velocity: Vec2dData}}, dt?: number, prev?: boolean) {
+  set(data: {position: Vec2dData, positionPrev: Vec2dData, size: Vec2dData, ostensibleSize?: Vec2dData, dynamic?: {velocity: Vec2dData}}, dt?: number, prev?: boolean, ostensible?: boolean) {
+    const sizex = (ostensible ? (data.ostensibleSize ? data.ostensibleSize.x : data.size.x) : data.size.x)
+    const sizey = (ostensible ? (data.ostensibleSize ? data.ostensibleSize.y : data.size.y) : data.size.y)
     if (prev) {
-      this.l = data.positionPrev.x - data.size.x * 0.5;
-      this.t = data.positionPrev.y - data.size.y * 0.5;
+      this.l = data.positionPrev.x - sizex * 0.5;
+      this.t = data.positionPrev.y - sizey * 0.5;
     } else {
-      this.l = data.position.x - data.size.x * 0.5;
-      this.t = data.position.y - data.size.y * 0.5;
+      this.l = data.position.x - sizex * 0.5;
+      this.t = data.position.y - sizey * 0.5;
     }
-    this.w = data.size.x;
-    this.h = data.size.y;
+    this.w = sizex;
+    this.h = sizey;
 
     this.inferPosAndSize();
 

@@ -201,6 +201,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
                     delete uu.enemy;
                     delete uu.bill;
                     delete uu.lakitu;
+                    delete uu.spiny;
                     delete uu.sensor;
                     uu.goThrougWalls = true;
                     uu.deleteOutOfCam = true;
@@ -359,6 +360,18 @@ export default function stuffVsEnemies(dt: number, display: Display) {
 
       s.loopsPerSecond = 0;
       s.setFrame(0);
+    } else if (e.gotHit.by === 'bonk' && e.spiny) {
+      // Spiny doesn't die by bonk
+      if (e.enemy) {
+        e.enemy.noDirChangeOnNextLanding = true;
+        if (e.movement?.horizontal) {
+          e.movement.horizontal = Math.sign(e.position.x - e.gotHit.x) * 50;
+          e.movement.horizontalNow = true;
+          e.movement.bounce = -133;
+          e.movement.bounceNow = true;
+          e.movement.bounceOnce = true;
+        }
+      }
     } else if (e.gotHit.by !== 'soft-bonk') {
       // Die by hit
       audio.sounds.play('kick');
@@ -372,6 +385,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
         delete e.cheep;
         delete e.bill;
         delete e.lakitu;
+        delete e.spiny;
         s.container.angle = 180;
         s.container.scale.x = -s.container.scale.x;
         s.container.zIndex = 15;
@@ -393,7 +407,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
 
   for (const e of entities.view(['enemy', 'hits', 'prevHits'])) {
 
-    if (!e.enemy || !e.hits || !e.prevHits) continue;
+    if (!e.enemy || e.enemy.isMovingShell || !e.hits || !e.prevHits) continue;
 
     const closest = entities.view(['mario']).filter(m => !m.mario?.dead).reduce<Entity | undefined>((a, c) => {
       if (!a) return c;
@@ -401,16 +415,36 @@ export default function stuffVsEnemies(dt: number, display: Display) {
       return a;
     }, undefined);
 
-    if (
-      closest
-      && e.hits?.some(h => h.normal.y < 0)
-      && !e.prevHits?.some(h => h.normal.y < 0)
-      && e.position.y !== e.positionPrev.y
-    ) {
-      if (e.movement?.horizontal) {
-        e.movement.horizontal = Math.sign(closest.position.x - e.position.x) * Math.abs(e.movement.horizontal);
+    const justHit = e.hits?.some(h => h.normal.y < 0)
+    && !e.prevHits?.some(h => h.normal.y < 0);
+
+    if (e.movement) {
+      if (
+        closest
+        && justHit
+        && e.position.y !== e.positionPrev.y
+      ) {
+        if (e.enemy.noDirChangeOnNextLanding) {
+          delete e.enemy.noDirChangeOnNextLanding;
+          continue;
+        }
+
+        e.movement.horizontal = Math.sign(closest.position.x - e.position.x) * Math.abs(e.movement.horizontal || 0);
+        e.movement.horizontalNow = true;
+      } else if (justHit) {
         e.movement.horizontalNow = true;
       }
+    }
+  }
+
+  for (const e of entities.view(['spiny', 'hits'])) {
+
+    if (!e.hits || !e.smb1EnemiesAnimations) continue;
+
+    if (
+      e.hits?.some(h => h.normal.y < 0)
+    ) {
+      e.smb1EnemiesAnimations.setAnimation('spiny');
     }
   }
 

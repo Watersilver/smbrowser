@@ -461,6 +461,36 @@ function jumpcheepspawn(dt: number, display: Display) {
   }
 }
 
+function newSpiny(x: number, y: number) {
+  const e = newEnemy(x, y, 'spinyEgg');
+  e.ostensibleSize = new Vec2d(20, 20);
+
+  e.enemy = {
+    star: true,
+    stomp: false,
+    shell: true,
+    fireball: true,
+    lookTowards: 'direction'
+  };
+  e.dynamic = {
+    velocity: new Vec2d(50 * (Math.random() * 2 - 1), -30),
+    acceleration: new Vec2d(0, 0)
+  };
+  e.hits = [];
+  e.prevHits = [];
+  e.touchingDown = [];
+  e.movement = {
+    horizontal: -50,
+    flipEachOther: true,
+  };
+  e.gravity = 600;
+  e.maxSpeed = 300;
+  e.deleteOutOfCam = true;
+  e.spiny = true;
+
+  return e;
+}
+
 let lakituCooldown = 0;
 function lakitu(dt: number, display: Display) {
   const inZone = entities.view(['mario']).some(
@@ -504,12 +534,34 @@ function lakitu(dt: number, display: Display) {
           }
         }
       } else {
+        // Attack
+        if (entities.view(['spiny']).length < 5) {
+          if (lak.spinyCooldown < 0) {
+            lak.spinyCooldown = Math.random() * 1.5 + 0.5;
+          }
+
+          lak.spinyCooldown -= dt;
+
+          if (lak.spinyCooldown < 0) {
+            lak.spawningSpiny = 0.3;
+          }
+
+          const prevSpawn = lak.spawningSpiny;
+          lak.spawningSpiny -= dt;
+          if (lak.spawningSpiny < 0) {
+            lak.spawningSpiny = -1;
+            if (prevSpawn >= 0) {
+              newSpiny(e.position.x, e.position.y - 8);
+            }
+          }
+        }
+
+        // movement
         const closest = entities.view(['mario']).filter(m => !m.mario?.dead).reduce<Entity | undefined>((a, c) => {
           if (!a) return c;
           if (a.position.distance(e.position) > c.position.distance(e.position)) return c;
           return a;
         }, undefined);
-
         const maxDist = 7 * 16;
         if (!closest) {
           delete lak.move.circle;
@@ -603,7 +655,8 @@ function lakitu(dt: number, display: Display) {
   
       const {t, l, w} = display.getBoundingBox();
       const e = newEnemy(l + 16 + Math.random() * (w - 32), t - 16, 'lakitu');
-      e.size.y = 24;
+      e.size.y = 10;
+      e.ostensibleSize = new Vec2d(16, 24);
       e.enemy = {
         shell: true,
         fireball: true,

@@ -29,7 +29,7 @@ export default function deathZones(lowestY: number, display: Display) {
   }
 
   for (const e of entities.view(['deleteOutOfCam'])) {
-    rect.set(e);
+    rect.set(e, undefined, undefined, true);
     if (!display.overlapsRectBroad(rect)) {
       entities.remove(e);
     }

@@ -93,6 +93,7 @@ export default function movement(dt: number, display: Display) {
     }
   }
 
+  // Moving objects flipping each other
   for (const e of entities.view(['movement'])) {
     if (!e.movement || !e.movement.horizontal || !e.movement.flipEachOther) continue;
 
