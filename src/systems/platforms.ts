@@ -33,11 +33,13 @@ export default function platforms(dt: number) {
 
       const targetPos = o.middle.add(o.from.sub(o.middle).unit().mul(displacement));
 
-      if (e.kinematic) {
+      const type = e.kinematic ? e.kinematic : e.dynamic;
+
+      if (type) {
         const dx = targetPos.x - e.position.x;
         const dy = targetPos.y - e.position.y;
-        e.kinematic.velocity.x = dx / dt;
-        e.kinematic.velocity.y = dy / dt;
+        type.velocity.x = dx / dt;
+        type.velocity.y = dy / dt;
       }
     } else if (p.moveTo) {
       if (e.touchingUp?.find(m => m.mario)) {

@@ -92,6 +92,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
             // Mario touched enemy, but how?
             if (uu.enemy.stomp && (e.positionPrev.y + e.size.y * 0.5 <= uu.positionPrev.y - uu.size.y * 0.5)) {
               // Stomped
+              delete uu.platform;
               if (isStillShell) {
                 kickShell = true;
               } else {
@@ -386,6 +387,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
         delete e.bill;
         delete e.lakitu;
         delete e.spiny;
+        delete e.platform;
         s.container.angle = 180;
         s.container.scale.x = -s.container.scale.x;
         s.container.zIndex = 15;

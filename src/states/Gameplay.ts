@@ -194,12 +194,16 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
     init.trampolines.forEach(t => {
       newTrampoline(t.x, t.y, t.h);
     });
+    function *movables(l: number, t: number, w: number, h: number) {
+      yield* worldGrid.kinematics.findNear(l, t, w, h);
+      yield* worldGrid.dynamics.findNear(l, t, w, h);
+    }
     init.oscillations.forEach(o => {
       bb.l = o.pstart.x - 1;
       bb.t = o.pstart.y - 1;
       collider.pos.x = bb.l;
       collider.pos.y = bb.t;
-      for (const u of worldGrid.kinematics.findNear(bb.l, bb.t, bb.w, bb.h)) {
+      for (const u of movables(bb.l, bb.t, bb.w, bb.h)) {
         const uu = u.userData;
         collidee.set(uu);
         if (aabb.rectVsRect(collider, collidee)) {

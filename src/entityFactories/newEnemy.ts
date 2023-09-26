@@ -32,7 +32,7 @@ export default function newEnemy(x: number, y: number, frame?: Smb1EnemiesAnimat
     smb1EnemiesAnimations.loopsPerSecond = 0;
   }
   
-  return entities.createEntity(newEntity({
+  const e = entities.createEntity(newEntity({
     position: new Vec2d(x, y),
     size: new Vec2d(width, height),
     smb1EnemiesAnimations,
@@ -63,4 +63,15 @@ export default function newEnemy(x: number, y: number, frame?: Smb1EnemiesAnimat
       } : null
     )
   }));
+  if (frame === 'redParakoopa') {
+    e.dynamic = {velocity: new Vec2d(0, 0), acceleration: new Vec2d(0, 0)};
+    e.enemy = {
+      fireball: true,
+      star: true,
+      stomp: true,
+      shell: true,
+      lookTowards: 'direction'
+    };
+  }
+  return e;
 }
