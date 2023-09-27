@@ -778,7 +778,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       if (this.platformRouteIndex === 'connection') {
         this.platformRouteSelect.innerHTML = 'platform<br>connection';
       } else if (this.platformRouteIndex === 'oscillation') {
-        this.platformRouteSelect.innerHTML = 'platform<br>oscillation';
+        this.platformRouteSelect.innerHTML = 'oscillation/<br>firebar';
       } else {
         this.platformRouteSelect.innerHTML = 'platform<br>route';
       }

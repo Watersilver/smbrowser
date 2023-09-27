@@ -220,6 +220,7 @@ export type Entity = {
     harmless?: number;
     shellTimer?: number;
     noDirChangeOnNextLanding?: boolean;
+    fireballGoesThrough?: boolean;
   };
   piranhaPlant?: {
     height: number,
@@ -344,6 +345,14 @@ export type Entity = {
   angVel?: number;
 
   justAdded?: boolean;
+  firebar?: {
+    angle: number;
+    angvel: number;
+  };
+  firebarFireball?: {
+    parent: Entity;
+    length: number;
+  };
 };
 
 export function newEntity(init?: Partial<Entity>): Entity {

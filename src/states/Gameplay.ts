@@ -51,6 +51,8 @@ import iframes from "../systems/iframes";
 import deleteTimer from "../systems/deleteTimer";
 import deathAndRespawn from "../systems/deathAndRespawn";
 import enemyBehaviours from "../systems/enemyBehaviours";
+import newFirebar from "../entityFactories/newFirebar";
+import firebar from "../systems/firebar";
 
 const audio = getSmb1Audio();
 
@@ -203,10 +205,13 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
       bb.t = o.pstart.y - 1;
       collider.pos.x = bb.l;
       collider.pos.y = bb.t;
+
+      let isOscillator = false;
       for (const u of movables(bb.l, bb.t, bb.w, bb.h)) {
         const uu = u.userData;
         collidee.set(uu);
         if (aabb.rectVsRect(collider, collidee)) {
+          isOscillator = true;
           uu.platform = {};
           const middle = new Vec2d(o.p1.x, o.p1.y).add(new Vec2d(o.p2.x, o.p2.y).sub(o.p1).mul(0.5));
 
@@ -236,6 +241,20 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
           };
           continue;
         }
+      }
+
+      if (!isOscillator) {
+        // become a firebar
+        const sizeVec = new Vec2d(o.p2.x, o.p2.y).sub(o.p1);
+        const unit = sizeVec.scaledTo1().length();
+        let size = sizeVec.length() / unit;
+        if (Number.isNaN(size)) size = 16;
+        size /= 2;
+        size *= 6;
+        const polar = sizeVec.toPolar();
+        const angvel = ((o.pstart.x - o.p1.x) / 16) * Math.PI / 2;
+        newFirebar(o.pstart.x, o.pstart.y, size, polar.y, angvel);
+        console.log(o.pstart.x, o.pstart.y, size, polar.y, angvel)
       }
     });
     init.platformRoutes.forEach(o => {
@@ -455,6 +474,8 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
       springs(dt);
 
       movement(dt, display);
+
+      firebar(dt);
 
       enemyBehaviours(dt, display);
 

@@ -10,6 +10,7 @@ type Zone = {x: number; y: number; w: number; h: number;};
 // TODO: music zones?
 // TODO: checkpoints
 // TODO: reset fallen platforms
+// TODO: firebars... both directions, multiple speeds and multiple sizes. use oscillation tool?
 
 const zones: {
   camera: Zone[];

@@ -84,6 +84,22 @@ export default class Vec2d implements Vec2dData {
     return new Vec2d(this.x * divl, this.y * divl);
   }
 
+  /* Vector scaled so its biggest component becomes one while the other remains proportional */
+  scaledTo1() {
+    if (this.x === this.y) {
+      if (this.isNull) return new Vec2d(0, 0);
+      return new Vec2d(this.x / Math.abs(this.x), this.y / Math.abs(this.y));
+    } else if (Math.abs(this.x) < Math.abs(this.y)) {
+      if (this.x === 0) return new Vec2d(0, Math.sign(this.y));
+      const ratio = Math.abs(this.x) / Math.abs(this.y);
+      return new Vec2d(ratio * Math.sign(this.x), Math.sign(this.y));
+    } else {
+      if (this.y === 0) return new Vec2d(Math.sign(this.x), 0);
+      const ratio = Math.abs(this.y) / Math.abs(this.x);
+      return new Vec2d(Math.sign(this.x), ratio * Math.sign(this.y));
+    }
+  }
+
   project(v: Vec2dData) {
     const b = new Vec2d(v.x, v.y);
     if (b.isNull) return b;

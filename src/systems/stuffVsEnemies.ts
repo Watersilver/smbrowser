@@ -493,7 +493,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
         u1.set(u.userData);
   
         if (aabb.rectVsRect(e1, u1)) {
-          if (u.userData.dynamic) u.userData.dynamic.velocity.x = 0;
+          if (u.userData.dynamic && !e.enemy.fireballGoesThrough) u.userData.dynamic.velocity.x = 0;
           if (e.enemy.fireball) {
             // Got hit by fireball
             u.userData.fireballHitEnemy = true;
