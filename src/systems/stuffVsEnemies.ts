@@ -390,6 +390,19 @@ export default function stuffVsEnemies(dt: number, display: Display) {
         delete e.platform;
         s.container.angle = 180;
         s.container.scale.x = -s.container.scale.x;
+        if (e.smb1EnemiesAnimations) {
+          const a = e.smb1EnemiesAnimations.getAnimation();
+          e.smb1EnemiesAnimations.setFrame(0);
+          if (a === 'buzzy') {
+            e.smb1EnemiesAnimations.setAnimation('buzzyShell');
+          } else if (a.toLowerCase().includes('koopa')) {
+            if (a.includes('red')) {
+              e.smb1EnemiesAnimations.setAnimation('redKoopashell');
+            } else {
+              e.smb1EnemiesAnimations.setAnimation('greenKoopashell');
+            }
+          }
+        }
         s.container.zIndex = 15;
         s.loopsPerSecond = 0;
         e.gravity = e.underwater ? 300 : 600;
