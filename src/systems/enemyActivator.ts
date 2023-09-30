@@ -1,11 +1,12 @@
 import { Display } from "../display";
 import { Vec2d } from "../engine";
 import entities from "../entities";
+import universal from "../universal";
 import Collidable from "../utils/collidable";
 
 const rect = new Collidable();
 
-const enemyGravity = 600;
+const enemyGravity = universal.enemyGravity;
 
 export default function enemyActivator(dt: number, display: Display) {
   
@@ -52,7 +53,7 @@ export default function enemyActivator(dt: number, display: Display) {
       case 'koopaG':
       case 'goomba':
         e.movement = {
-          horizontal: -50,
+          horizontal: -universal.enemySpeed,
           horizontalNow: true,
           flipEachOther: true,
           dontFallOff: eaov === 'koopaR'
@@ -145,7 +146,7 @@ export default function enemyActivator(dt: number, display: Display) {
         e.smb1EnemiesAnimations.container.angle = 0;
       }
       e.movement = {
-        horizontal: 50 * (Math.sign(Math.random() || 1)),
+        horizontal: universal.enemySpeed * (Math.sign(Math.random() || 1)),
         horizontalNow: true,
         flipEachOther: true,
         dontFallOff: anim === 'redKoopashell'

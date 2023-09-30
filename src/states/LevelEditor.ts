@@ -1119,9 +1119,11 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
         const key = x + "." + y;
         const prev = this.getGrid()[key];
         if (!prev && this.selected) {
+          const freeXMovement = this.input.isHeld('ShiftRight');
           const snapToGrid = !this.input.isHeld('ShiftLeft');
-          const xstart = snapToGrid ? x + 8 : mx;
-          const ystart = snapToGrid ? y + 8 : my;
+          let xstart = snapToGrid ? x + 8 : mx;
+          let ystart = snapToGrid ? y + 8 : my;
+          if (freeXMovement) xstart = mx;
           let h: {
             ents: LevelData['entities'][number][],
             layer: 1 | 2;

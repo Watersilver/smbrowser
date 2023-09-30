@@ -3,6 +3,7 @@ import { Display } from "../display";
 import { Vec2d, aabb } from "../engine";
 import entities, { Entity } from "../entities";
 import newEnemy from "../entityFactories/newEnemy";
+import universal from "../universal";
 import Collidable from "../utils/collidable";
 import zones from "../zones";
 
@@ -473,17 +474,17 @@ function newSpiny(x: number, y: number) {
     lookTowards: 'direction'
   };
   e.dynamic = {
-    velocity: new Vec2d(50 * (Math.random() * 2 - 1), -30),
+    velocity: new Vec2d(universal.enemySpeed * (Math.random() * 2 - 1), -30),
     acceleration: new Vec2d(0, 0)
   };
   e.hits = [];
   e.prevHits = [];
   e.touchingDown = [];
   e.movement = {
-    horizontal: -50,
+    horizontal: -universal.enemySpeed,
     flipEachOther: true,
   };
-  e.gravity = 600;
+  e.gravity = universal.enemyGravity;
   e.maxSpeed = 300;
   e.deleteOutOfCam = true;
   e.spiny = true;

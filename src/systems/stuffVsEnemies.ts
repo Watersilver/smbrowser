@@ -5,6 +5,7 @@ import entities, { Entity } from "../entities";
 import Collidable from "../utils/collidable";
 import worldGrid from "../world-grid";
 import { Display } from "../display";
+import universal from "../universal";
 
 const audio = getSmb1Audio();
 
@@ -165,14 +166,14 @@ export default function stuffVsEnemies(dt: number, display: Display) {
                   case 'redParakoopa':
                   case 'greenParakoopa':
                     uu.movement = {
-                      horizontal: -50 * Math.sign(uu.smb1EnemiesAnimations?.container.scale.x ?? 1),
+                      horizontal: -universal.enemySpeed * Math.sign(uu.smb1EnemiesAnimations?.container.scale.x ?? 1),
                       horizontalNow: true,
                       flipEachOther: true,
                       dontFallOff: a === 'redParakoopa'
                     };
                     uu.dynamic = {velocity: new Vec2d(0, 0), acceleration: new Vec2d(0, 0)};
                     uu.hits = [];
-                    uu.gravity = 600;
+                    uu.gravity = universal.enemyGravity;
                     uu.enemy = {
                       star: true,
                       stomp: true,
@@ -207,7 +208,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
                     delete uu.hammerbro;
                     uu.goThrougWalls = true;
                     uu.deleteOutOfCam = true;
-                    uu.gravity = 600;
+                    uu.gravity = universal.enemyGravity;
                     uu.dynamic = {velocity: new Vec2d(0, 0), acceleration: new Vec2d(0, 0)};
                     break;
                 }
@@ -367,7 +368,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
       if (e.enemy) {
         e.enemy.noDirChangeOnNextLanding = true;
         if (e.movement?.horizontal) {
-          e.movement.horizontal = Math.sign(e.position.x - e.gotHit.x) * 50;
+          e.movement.horizontal = Math.sign(e.position.x - e.gotHit.x) * universal.enemySpeed;
           e.movement.horizontalNow = true;
           e.movement.bounce = -133;
           e.movement.bounceNow = true;
@@ -411,7 +412,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
         }
         s.container.zIndex = 15;
         s.loopsPerSecond = 0;
-        e.gravity = e.underwater ? 300 : 600;
+        e.gravity = e.underwater ? 300 : universal.enemyGravity;
         e.goThrougWalls = true;
         e.dynamic = {
           velocity: new Vec2d(
