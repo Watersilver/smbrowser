@@ -204,6 +204,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
                     delete uu.lakitu;
                     delete uu.spiny;
                     delete uu.sensor;
+                    delete uu.hammerbro;
                     uu.goThrougWalls = true;
                     uu.deleteOutOfCam = true;
                     uu.gravity = 600;
@@ -388,8 +389,13 @@ export default function stuffVsEnemies(dt: number, display: Display) {
         delete e.lakitu;
         delete e.spiny;
         delete e.platform;
-        s.container.angle = 180;
-        s.container.scale.x = -s.container.scale.x;
+        delete e.hammerbro;
+        if (e.hammer) {
+          e.nonspinningHammer = true;
+        } else {
+          s.container.angle = 180;
+          s.container.scale.x = -s.container.scale.x;
+        }
         if (e.smb1EnemiesAnimations) {
           const a = e.smb1EnemiesAnimations.getAnimation();
           e.smb1EnemiesAnimations.setFrame(0);

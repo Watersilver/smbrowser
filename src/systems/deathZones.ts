@@ -6,8 +6,13 @@ import zones from "../zones";
 
 const rect = new Collidable();
 
+function* deathables() {
+  yield* entities.view(['dynamic']);
+  yield* entities.view(['enemy', 'sensor']);
+}
+
 export default function deathZones(lowestY: number, display: Display) {
-  for (const e of entities.view(['dynamic'])) {
+  for (const e of deathables()) {
 
     rect.set(e);
 

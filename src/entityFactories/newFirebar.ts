@@ -1,6 +1,5 @@
 import { Vec2d } from "../engine";
 import entities, { newEntity } from "../entities";
-import { Smb1ObjectsSprites } from "../sprites/loaders/smb1/objects";
 import smb1Sprites from "../sprites/smb1";
 
 export default function newFirebar(x: number, y: number, size: number, angle: number, angvel: number) {

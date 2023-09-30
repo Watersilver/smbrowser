@@ -53,6 +53,7 @@ import deathAndRespawn from "../systems/deathAndRespawn";
 import enemyBehaviours from "../systems/enemyBehaviours";
 import newFirebar from "../entityFactories/newFirebar";
 import firebar from "../systems/firebar";
+import hammerbros from "../systems/hammerbros";
 
 const audio = getSmb1Audio();
 
@@ -476,6 +477,8 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
       movement(dt, display);
 
       firebar(dt);
+
+      hammerbros(dt, display);
 
       enemyBehaviours(dt, display);
 

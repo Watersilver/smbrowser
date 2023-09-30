@@ -72,8 +72,28 @@ export default function enemyActivator(dt: number, display: Display) {
         break;
       case 'bowser':
       case 'bruce':
-      case 'flyingKoopa':
+        break;
       case 'hammerbro':
+        e.enemy = {
+          stomp: true,
+          fireball: true,
+          star: true,
+          shell: true,
+          lookTowards: 'mario'
+        };
+        e.dynamic = {
+          acceleration: new Vec2d(0, 0),
+          velocity: new Vec2d(0, 0)
+        };
+        e.hammerbro = {
+          nextJumpTimer: -1,
+          hammerTelegraphTimer: -1,
+          hammertime: -1,
+          dirChangeTimer: -1,
+          direction: Math.random() > 0.5 ? -1 : 1
+        };
+        e.gravity = enemyGravity;
+        e.touchingDown = [];
         break;
       case 'blooper':
         e.enemy = {

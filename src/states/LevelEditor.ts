@@ -608,6 +608,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
             && this.enemyFrame !== 'lavaBubble'
             && this.enemyFrame !== 'buzzyShell'
             && this.enemyFrame !== 'lakitu'
+            && this.enemyFrame !== 'hammer'
             && this.enemyFrame !== 'bowserfire'
             && !this.enemyFrame?.includes('ClosedMouth');
         }

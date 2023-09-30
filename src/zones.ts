@@ -7,10 +7,10 @@ type Zone = {x: number; y: number; w: number; h: number;};
 // World 2-3 and World 7-3 are the same
 // World 2-4 and World 5-4 are the same
 
+// TODO: bg zones implementation
 // TODO: music zones?
 // TODO: checkpoints
 // TODO: reset fallen platforms
-// TODO: firebars... both directions, multiple speeds and multiple sizes. use oscillation tool?
 
 const zones: {
   camera: Zone[];

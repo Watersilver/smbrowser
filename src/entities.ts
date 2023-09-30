@@ -269,6 +269,19 @@ export type Entity = {
     };
   };
   spiny?: boolean;
+  hammerbro?: {
+    direction: 1 | -1;
+    dirChangeTimer: number;
+    nextJumpTimer: number;
+    jumping?: {
+      startHeight: number;
+      direction: 'up' | 'down';
+    };
+    hammertime: number;
+    hammerTelegraphTimer: number;
+  };
+  hammer?: boolean;
+  nonspinningHammer?: boolean;
   fire?: {
     direction: 1 | -1;
     targetY?: number;

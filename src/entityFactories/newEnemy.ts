@@ -10,12 +10,16 @@ export default function newEnemy(x: number, y: number, frame?: Smb1EnemiesAnimat
   let width = 14;
   let height = 14;
 
+  const hammerbro = frame === 'hammerbro';
   const plant = frame === 'greenPiranhaPlant';
   const blooper = frame === 'blooper';
 
   if (plant) {
     width = 10;
     height = 24;
+  } else if (hammerbro) {
+    width = 10;
+    height = 22;
   }
 
   y = y + 8 - height * 0.5;
@@ -53,6 +57,8 @@ export default function newEnemy(x: number, y: number, frame?: Smb1EnemiesAnimat
       ? 'blooper'
       : plant
       ? 'plant'
+      : hammerbro
+      ? 'hammerbro'
       : undefined,
     ...(
       plant ? {
@@ -70,7 +76,7 @@ export default function newEnemy(x: number, y: number, frame?: Smb1EnemiesAnimat
       star: true,
       stomp: true,
       shell: true,
-      lookTowards: 'direction'
+      lookTowards: 'mario'
     };
   }
   return e;

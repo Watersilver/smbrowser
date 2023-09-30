@@ -122,7 +122,7 @@ export default class AnimationsGroup<T extends {[animation: string]: Texture<Res
     this.index += dt * this.getFramesPerSecond();
     const prevIndex = this.index;
     this.updateTexture();
-    if (prevIndex !== this.index) this.looped = true;
+    if (Math.abs(prevIndex - this.index) > 0.001) this.looped = true;
   }
 
   didLoop() {
@@ -130,7 +130,11 @@ export default class AnimationsGroup<T extends {[animation: string]: Texture<Res
   }
 
   private updateTexture() {
-    this.index %= this.frames.length || 1;
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Remainder#description
+    // To obtain a modulo in JavaScript, in place of n % d, use ((n % d) + d) % d.
+    // this.index %= this.frames.length || 1;
+    const d = this.frames.length || 1;
+    this.index = ((this.index % d) + d) % d;
     const frame = this.frames[Math.floor(this.index)];
     if (frame) this.sprite.texture = frame;
   }
