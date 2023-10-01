@@ -475,6 +475,14 @@ export default function stuffVsEnemies(dt: number, display: Display) {
 
     if (!e.enemy) continue;
 
+    if (e.movement) {
+      if (e.enemy.isStillShell) {
+        e.movement.flipEachOther = true;
+      } else if (e.enemy.isMovingShell) {
+        e.movement.flipEachOther = false;
+      }
+    }
+
     // Got hit hard (or not) by block below getting bonked
     const h = e.touchingDown?.find(h => h.bonked);
     if (h) {
