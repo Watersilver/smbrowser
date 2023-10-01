@@ -55,9 +55,6 @@ export default function parseLevel(levelData: string | LevelData) {
         case EntityTypeMapping.clutter: {
           const frame = entInit[3]?.tileFrame;
           ent = newClutter(entInit[1], entInit[2], {type: "tile", frame});
-          if (layer === 2) {
-            if (ent.smb1TilesSprites) ent.smb1TilesSprites.container.zIndex = -5;
-          }
           break;
         }
         case EntityTypeMapping.coinblock: {

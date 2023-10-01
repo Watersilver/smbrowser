@@ -5,7 +5,7 @@ import smb1Sprites from "../sprites/smb1";
 export default function newMushroom(x: number, y: number) {
   const smb1ObjectsSprites = smb1Sprites.getFactory('objects').new();
   smb1ObjectsSprites.setFrame('mushroom');
-  smb1ObjectsSprites.container.zIndex = -1;
+  smb1ObjectsSprites.container.zIndex = -5;
 
   // Stay invisible for the first frame because will appear in front otherwise even though zIndex is -1
   smb1ObjectsSprites.container.visible = false;

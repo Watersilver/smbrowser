@@ -11,9 +11,13 @@ class Smb1TilesFactory extends SpriteWrapperFactory<typeof smb1TilesSpritesheet,
       smb1TilesSpritesheet.getFrames(),
       'solidFloor1'
     );
-    // tilesSprites.setFrameAnchor('bigJump', {x: 0.5, y: 0.57});
-    // tilesSprites.setFrameAnchor('bigShootJump', {x: 0.5, y: 0.57});
-    // tilesSprites.setFrameAnchor('bigDuck', {x: 0.5, y: 0.62});
+    const startFrame = tileSprites.getFrame();
+    for (const frame of tileSprites.getFrames()) {
+      tileSprites.setFrame(frame);
+      const y = (tileSprites.container.height - 8) / tileSprites.container.height;
+      tileSprites.setFrameAnchor(frame, {x: 0.5, y});
+    }
+    tileSprites.setFrame(startFrame);
     return tileSprites;
   }
 }

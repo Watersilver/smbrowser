@@ -1108,12 +1108,14 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
 
     if (this.input.isHeld('MouseMain')) {
       const del = this.input.isHeld('ControlLeft');
-      if (del && this.selected) {
+      const replace = this.input.isHeld('ControlRight');
+      if ((del || replace) && this.selected) {
         const r = this.remove(mx, my);
         if (r) {
           this.historyPush({type: "remove", ents: [r.init], layer: this.layer});
         }
-      } else {
+      }
+      if (!del) {
         const x = mxgrid;
         const y = mygrid;
         const key = x + "." + y;

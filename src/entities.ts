@@ -366,6 +366,11 @@ export type Entity = {
     parent: Entity;
     length: number;
   };
+
+  distanceModifiers?: {
+    x: number;
+    y: number;
+  };
 };
 
 export function newEntity(init?: Partial<Entity>): Entity {

@@ -427,6 +427,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
     delete e.gotHit;
   }
 
+  // Some enemies look towards mario when they fall to ground
   for (const e of entities.view(['enemy', 'hits', 'prevHits'])) {
 
     if (!e.enemy || e.enemy.isMovingShell || !e.hits || !e.prevHits) continue;
@@ -440,7 +441,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
     const justHit = e.hits?.some(h => h.normal.y < 0)
     && !e.prevHits?.some(h => h.normal.y < 0);
 
-    if (e.movement) {
+    if (e.movement && e.smb1EnemiesAnimations?.getAnimation() !== 'goomba') {
       if (
         closest
         && justHit

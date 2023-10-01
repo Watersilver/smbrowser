@@ -28,7 +28,6 @@ export default function newEnemy(x: number, y: number, frame?: Smb1EnemiesAnimat
 
   if (plant) {
     height = 10;
-    smb1EnemiesAnimations.loopsPerSecond = 2;
     smb1EnemiesAnimations.container.zIndex = -2;
   }
 

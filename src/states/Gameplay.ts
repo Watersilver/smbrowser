@@ -510,6 +510,21 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
     camera(display);
     enemyActivator(dt, display);
 
+    // Distant scrolling
+    const cx = display.getCenterX();
+    const cy = display.getCenterY();
+    for (const e of entities.view(['smb1TilesSprites', 'distanceModifiers'])) {
+      const s = e.smb1TilesSprites;
+      const d = e.distanceModifiers;
+      if (!s || !d) continue;
+
+      const diffx = cx - e.position.x;
+      const diffy = cy - e.position.y;
+
+      s.container.position.x += diffx * d.x;
+      s.container.position.y += diffy * d.y;
+    }
+
     if (!this.paused) {
 
       // Cleanup

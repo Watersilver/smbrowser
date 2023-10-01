@@ -188,6 +188,15 @@ const tilesSmb1Json = {
     clutterSilverPipeConnectorSW: {x:346 + 119,y:248,w:16,h:16},
     clutterSilverPipeConnectorSE: {x:363 + 119,y:248,w:16,h:16},
 
+    clutterBgCloudSmall: {x:18,y:596,w:32,h:24},
+    clutterBgCloud: {x:51,y:596,w:48,h:24},
+    clutterBgCloudBig: {x:18,y:621,w:64,h:24},
+    clutterBushSmall: {x:18,y:647,w:32,h:16},
+    clutterBush: {x:51,y:647,w:48,h:16},
+    clutterBushBig: {x:18,y:664,w:64,h:16},
+    clutterGreenHillSmall: {x:200,y:745,w:48,h:19},
+    clutterGreenHill: {x:112,y:729,w:80,h:35},
+
     clutterFence: {x:34,y:67,w:16,h:16},
     clutterTreebark: {x:17,y:67,w:16,h:16},
     clutterTree: {x:85,y:213,w:16,h:16},
@@ -195,9 +204,6 @@ const tilesSmb1Json = {
     clutterTreetop: {x:102,y:196,w:16,h:16},
     clutterFlagpoletop: {x:136,y:230,w:16,h:16},
     clutterFlagpole: {x:136,y:247,w:16,h:16},
-    clutterBushLeft: {x:0,y:213,w:16,h:16},
-    clutterBushMiddle: {x:17,y:213,w:16,h:16},
-    clutterBushRight: {x:34,y:213,w:16,h:16},
     clutterBridgeHandle: {x:0,y:230,w:16,h:16},
     clutterCastleBridgeChain: {x:17,y:314,w:16,h:16},
     clutterBigTreebark: {x:17,y:33,w:16,h:16},
@@ -211,6 +217,7 @@ const tilesSmb1Json = {
     clutterWater: {x:349,y:33,w:16,h:16},
     clutterLavaSurface: {x:541,y:16,w:16,h:16},
     clutterLava: {x:541,y:33,w:16,h:16},
+
     brokenBrick1: {x:102,y:50,w:8,h:8},
     brokenBrick2: {x:249,y:50,w:8,h:8},
     brokenBrick3: {x:102,y:134,w:8,h:8},
