@@ -227,6 +227,8 @@ export default function blockhit(dt: number) {
       const dy = Math.sin(progress * Math.PI) * 8;
       if (e.smb1TilesSprites) {
         e.smb1TilesSprites.container.position.y = e.positionStart.y - dy;
+      } else if (e.smb1TilesAnimations) {
+        e.smb1TilesAnimations.container.position.y = e.positionStart.y - dy;
       }
       e.hitAnim += dt;
       if (e.hitAnim > hitAnimDuration) {

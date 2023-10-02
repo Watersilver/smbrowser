@@ -40,12 +40,14 @@ export default function enemyBehaviours(dt: number, display: Display) {
       }
     } else if (p.outTime !== undefined) {
       p.outTime -= dt;
+      delete p.emerging;
 
       if (p.outTime <= 0) {
         delete p.outTime;
       }
     } else if (p.height) {
       p.height -= piranhaSpeed * dt;
+      delete p.emerging;
 
       if (p.height <= 0) {
         p.height = 0;
