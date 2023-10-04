@@ -30,7 +30,9 @@ const objectsSmb1Json = {
     starflag: {x:110,y:90,w:16,h:16},
     evilflag: {x:92,y:90,w:16,h:16},
     vinetop: {x:130,y:90,w:16,h:16},
-    vine: {x:148,y:90,w:16,h:16}
+    vine: {x:148,y:90,w:16,h:16},
+    peach: {x:18,y:444,w:16,h:24},
+    toad: {x:0,y:444,w:16,h:24},
   },
 
   animations: {

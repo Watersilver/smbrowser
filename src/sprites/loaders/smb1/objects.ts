@@ -11,6 +11,16 @@ class Smb1ObjectsFactory extends SpriteWrapperFactory<typeof smb1ObjectsSpritesh
       smb1ObjectsSpritesheet.getFrames(),
       'mushroom'
     );
+
+    const initFrame = objectsSprites.getFrame();
+    objectsSprites.setFrame('toad');
+    let y = (objectsSprites.container.height - 8) / objectsSprites.container.height;
+    objectsSprites.setFrameAnchor('toad', {x: 0.5, y});
+    objectsSprites.setFrame('peach');
+    y = (objectsSprites.container.height - 8) / objectsSprites.container.height;
+    objectsSprites.setFrameAnchor('peach', {x: 0.5, y});
+    objectsSprites.setFrame(initFrame);
+
     return objectsSprites;
   }
 }

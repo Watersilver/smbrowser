@@ -51,9 +51,11 @@ class Display {
 
   private currentFPS = 0;
   private biggestFPS = 0;
+  private fpsList: number[] = [];
   private smallestFPS = Infinity;
   private biggestFPSView = this.biggestFPS;
   private smallestFPSView = this.biggestFPS;
+  private averageFPSView = 0;
   private fpsInterval?: number;
   private fpsDisplay?: HTMLDivElement;
   private prev = performance.now();
@@ -61,9 +63,10 @@ class Display {
   private updateFps(dt: number) {
     const fps = Math.floor(1 / dt);
     this.currentFPS = fps;
+    this.fpsList.push(fps);
     if (this.smallestFPS > fps) this.smallestFPS = fps;
     if (this.biggestFPS < fps) this.biggestFPS = fps;
-    if (this.fpsDisplay) this.fpsDisplay.innerHTML = "fps: " + fps + "<br>max-fps: " + this.biggestFPSView + "<br>min-fps: " + this.smallestFPSView;
+    if (this.fpsDisplay) this.fpsDisplay.innerHTML = "fps: " + fps + "<br>max-fps: " + this.biggestFPSView + "<br>min-fps: " + this.smallestFPSView + "<br>avg-fps: " + this.averageFPSView;
     if (this.fpsInterval !== undefined) requestAnimationFrame(timestamp => {
       const dt = (timestamp - this.prev) / 1000;
       this.prev = timestamp;
@@ -83,6 +86,11 @@ class Display {
   /** Min fps last second */
   getMinFps() {
     return this.smallestFPSView;
+  }
+
+  /** Average fps last second */
+  getAvgFps() {
+    return this.averageFPSView;
   }
 
   showFps() {
@@ -109,6 +117,8 @@ class Display {
       this.biggestFPS = 0;
       this.smallestFPSView = this.smallestFPS;
       this.smallestFPS = Infinity;
+      this.averageFPSView = this.fpsList.reduce((a, c) => a + c, 0) / this.fpsList.length;
+      this.fpsList.length = 0;
     }, 1000);
     this.updateFps(Infinity);
   }

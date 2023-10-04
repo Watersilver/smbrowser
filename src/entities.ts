@@ -371,6 +371,10 @@ export type Entity = {
     x: number;
     y: number;
   };
+
+  npc?: {
+    text: string;
+  }
 };
 
 export function newEntity(init?: Partial<Entity>): Entity {

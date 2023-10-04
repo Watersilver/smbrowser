@@ -180,9 +180,11 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
   coinSelect: HTMLButtonElement;
   platformSelect: HTMLButtonElement;
   enemySelect: HTMLButtonElement;
+  npcSelect: HTMLButtonElement;
   clutterSelect: HTMLButtonElement;
   tileSelectors: HTMLDivElement;
   prevSelected: EntityTypeMapping | null = null;
+  selectedNpc?: Entity;
   selected: EntityTypeMapping | null = null;
   selectedZone:
   | 'cam'
@@ -213,9 +215,12 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
   clutterFrame?: Smb1TilesSprites['frame'] = undefined;
   platformFrame?: Smb1ObjectsSprites['frame'] = undefined;
   enemyFrame?: Smb1EnemiesAnimations['animation'] = undefined;
+  npcFrame?: Smb1ObjectsSprites['frame'] = undefined;
   layer: 1 | 2 = 1;
   history: HistoryStep[] = [];
   historyIndex = 0;
+
+  dlg: HTMLTextAreaElement;
 
   historyPush(h: HistoryStep) {
     this.history.length = this.historyIndex;
@@ -624,6 +629,45 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       });
     });
 
+    this.npcSelect = document.createElement('button');
+    this.npcSelect.onclick = () => this.selected = EntityTypeMapping.npc;
+
+    const npcs = smb1objectsFactory.new();
+    this.npcFrame = 'toad';
+    npcs.setFrame(this.npcFrame);
+    npcs?.whenReady().then(() => {
+      const img = document.createElement('img');
+      img.style.width = "48px";
+      img.style.height = '48px';
+      img.alt = this.npcFrame || 'npc';
+      const text = document.createElement('div');
+      text.innerHTML = 'npcs';
+      this.npcSelect.append(img, text);
+
+      const dURL = npcs.getDataUrl();
+      if (!dURL) return;
+      img.src = dURL;
+
+      this.npcSelect.addEventListener('wheel', e => {
+        const frames = npcs.getFrames();
+        let i = frames.findIndex(a => a === npcs.getFrame());
+        let valid: boolean | undefined = false;
+        while (valid === false) {
+          i = (i + Math.sign(e.deltaY)) % frames.length;
+          this.npcFrame = frames.at(i);
+          valid = true;
+        }
+        if (this.npcFrame) {
+          npcs.setFrame(this.npcFrame);
+          img.alt = this.npcFrame;
+        }
+
+        const dURL = npcs.getDataUrl();
+        if (!dURL) return;
+        img.src = dURL;
+      });
+    });
+
     this.zoneSelect = document.createElement('button');
     this.zoneSelect.innerHTML = 'camera<br>zone';
     this.zoneSelect.onclick = () => {
@@ -834,7 +878,17 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       if (this.platformRouteSelected || this.platformConnectionSelected || this.oscillationSelected) selectPR();
     });
 
-    this.tileSelectors.append(this.zoneSelect, this.pipeSelect, this.vineSelect, this.trampolineSelect, this.platformRouteSelect, this.marioSelect, this.solidSelect, this.brickSelect, this.blockSelect, this.coinSelect, this.platformSelect, this.clutterSelect, this.enemySelect);
+    this.dlg = document.createElement('textarea');
+    this.dlg.addEventListener('input', e => {
+      const t = e.target;
+      if (t instanceof HTMLTextAreaElement) {
+        if (this.selectedNpc?.npc) {
+          this.selectedNpc.npc.text = t.value;
+        }
+      }
+    });
+
+    this.tileSelectors.append(this.zoneSelect, this.pipeSelect, this.vineSelect, this.trampolineSelect, this.platformRouteSelect, this.marioSelect, this.solidSelect, this.brickSelect, this.blockSelect, this.coinSelect, this.platformSelect, this.clutterSelect, this.enemySelect, this.npcSelect, this.dlg);
 
     this.mousePosDisplay = document.createElement('div');
 
@@ -972,6 +1026,16 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
   override onUpdate(dt: number): boolean {
     this.graphicsOverlay.clear();
 
+    if (this.selectedNpc?.npc) {
+      this.dlg.disabled = false;
+      if (this.dlg.value !== this.selectedNpc.npc.text) {
+        this.dlg.value = this.selectedNpc.npc.text;
+      }
+    } else {
+      this.dlg.disabled = true;
+      this.dlg.value = '';
+    }
+
     if (this.selected) {
       this.zoneSelected = false;
       this.pipeSelected = false;
@@ -1022,6 +1086,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     }
 
     if (this.selected !== this.prevSelected) {
+      this.selectedNpc = undefined;
       this.prevSelected = this.selected;
       for (const s of this.tileSelectors.children) {
         s.classList.remove('selected');
@@ -1059,12 +1124,16 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
           this.enemySelect.classList.add('selected');
           break;
         }
+        case EntityTypeMapping.npc: {
+          this.npcSelect.classList.add('selected');
+          break;
+        }
       }
     }
 
     if (!this.graphics || !this.input) return false;
 
-    if (this.input.isPressed('Space')) return false;
+    if (this.input.isPressed('Space') && this.dlg !== document.activeElement) return false;
 
     // Traverse history
     if (this.input.isPressed('KeyZ') && (this.input.isHeld('ControlLeft') || this.input.isHeld('ControlRight'))) {
@@ -1112,6 +1181,9 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       if ((del || replace) && this.selected) {
         const r = this.remove(mx, my);
         if (r) {
+          if (r.gameObj === this.selectedNpc) {
+            this.selectedNpc = undefined;
+          }
           this.historyPush({type: "remove", ents: [r.init], layer: this.layer});
         }
       }
@@ -1120,6 +1192,9 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
         const y = mygrid;
         const key = x + "." + y;
         const prev = this.getGrid()[key];
+        if (prev?.gameObj.npc) {
+          this.selectedNpc = prev.gameObj;
+        }
         if (!prev && this.selected) {
           const freeXMovement = this.input.isHeld('ShiftRight');
           const snapToGrid = !this.input.isHeld('ShiftLeft');
@@ -1128,6 +1203,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
           if (freeXMovement) xstart = mx;
           let h: {
             ents: LevelData['entities'][number][],
+            entObs: Entity[],
             layer: 1 | 2;
           } | null = null;
           switch (this.selected) {
@@ -1191,6 +1267,30 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
                 xstart, ystart,
                 {enemyAnim: this.enemyFrame}
               ]);
+              break;
+            }
+            case EntityTypeMapping.mario: {
+              entities.view(['mario']).forEach(m => {
+                const r1 = this.remove(m.position.x, m.position.y, m, 1);
+                const r2 = this.remove(m.position.x, m.position.y, m, 2);
+                const r = r1 || r2;
+                if (r) {
+                  this.historyPush({type: "remove", ents: [r.init], layer: r1 ? 1 : 2});
+                }
+              });
+              h = this.add([
+                this.selected,
+                xstart, ystart
+              ]);
+              break;
+            }
+            case EntityTypeMapping.npc: {
+              h = this.add([
+                this.selected,
+                xstart, ystart,
+                {objectFrame: this.npcFrame}
+              ]);
+              this.selectedNpc = h.entObs[0];
               break;
             }
             default: {
@@ -1599,6 +1699,20 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       this.currentPlatformRoute,
       this.currentPlatformConnection
     );
+
+    if (this.selectedNpc) {
+      if (this.selectedNpc.smb1ObjectsSprites) {
+        const x = this.selectedNpc.smb1ObjectsSprites.container.position.x;
+        const y = this.selectedNpc.smb1ObjectsSprites.container.position.y;
+        const w = this.selectedNpc.smb1ObjectsSprites.container.width;
+        const h = this.selectedNpc.smb1ObjectsSprites.container.height;
+        this.graphicsOverlay.lineStyle(0, 0)
+        .beginFill(0x00aaff, 0.5)
+        .drawRect(x - w * 0.5, y - h * 0.5 - 4, w, h)
+        .endFill();
+      }
+    }
+
     marioSmb1Sounds();
 
     return true;

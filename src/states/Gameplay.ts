@@ -107,6 +107,8 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
 
   respawnTimer?: number;
 
+  parallax: boolean = true;
+
   // Lowest point for dynamics before they are destroyed
   lowestY = Infinity;
 
@@ -385,6 +387,26 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
       audio.sounds.play('pause');
     }
 
+    if (this.input.isPressed('KeyT')) {
+      this.parallax = !this.parallax;
+
+      if (!this.parallax) {
+        for (const e of entities.view(['smb1TilesSprites', 'distanceModifiers'])) {
+          const s = e.smb1TilesSprites;
+          const d = e.distanceModifiers;
+          delete e.moving;
+          if (!s || !d) continue;
+
+          s.container.position.x = e.position.x;
+          s.container.position.y = e.position.y;
+        }
+      } else {
+        for (const e of entities.view(['distanceModifiers'])) {
+          e.moving = true;
+        }
+      }
+    }
+
     deathZones(this.lowestY, display);
     entities.update();
 
@@ -510,19 +532,21 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
     camera(display);
     enemyActivator(dt, display);
 
-    // Distant scrolling
-    const cx = display.getCenterX();
-    const cy = display.getCenterY();
-    for (const e of entities.view(['smb1TilesSprites', 'distanceModifiers'])) {
-      const s = e.smb1TilesSprites;
-      const d = e.distanceModifiers;
-      if (!s || !d) continue;
-
-      const diffx = cx - e.position.x;
-      const diffy = cy - e.position.y;
-
-      s.container.position.x += diffx * d.x;
-      s.container.position.y += diffy * d.y;
+    if (this.parallax) {
+      // Parallax scrolling
+      const cx = display.getCenterX();
+      const cy = display.getCenterY();
+      for (const e of entities.view(['smb1TilesSprites', 'distanceModifiers'])) {
+        const s = e.smb1TilesSprites;
+        const d = e.distanceModifiers;
+        if (!s || !d) continue;
+  
+        const diffx = cx - e.position.x;
+        const diffy = cy - e.position.y;
+  
+        s.container.position.x += diffx * d.x;
+        s.container.position.y += diffy * d.y;
+      }
     }
 
     if (!this.paused) {

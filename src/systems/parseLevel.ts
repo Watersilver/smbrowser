@@ -1,4 +1,4 @@
-import entities, { Entity } from "../entities";
+import entities, { Entity, newEntity } from "../entities";
 import newCoinblock from "../entityFactories/newCoinblock";
 import newBlock from "../entityFactories/newBlock";
 import newClutter from "../entityFactories/newClutter";
@@ -8,6 +8,8 @@ import newBrick from "../entityFactories/newBrick";
 import newCoin from "../entityFactories/newCoin";
 import newPlatform from "../entityFactories/newPlatform";
 import newEnemy from "../entityFactories/newEnemy";
+import { Vec2d } from "../engine";
+import smb1Sprites from "../sprites/smb1";
 
 export default function parseLevel(levelData: string | LevelData) {
   // No type checking. GOOD LUCK!!
@@ -70,6 +72,18 @@ export default function parseLevel(levelData: string | LevelData) {
         case EntityTypeMapping.enemy: {
           const frame = entInit[3]?.enemyAnim;
           ent = newEnemy(entInit[1], entInit[2], frame);
+          break;
+        }
+        case EntityTypeMapping.npc: {
+          const frame = entInit[3]?.objectFrame;
+          const smb1ObjectsSprites = smb1Sprites.getFactory('objects').new();
+          smb1ObjectsSprites.setFrame(frame ?? 'toad');
+          ent = entities.createEntity(newEntity({
+            position: new Vec2d(entInit[1], entInit[2]),
+            size: new Vec2d(16, 24),
+            smb1ObjectsSprites,
+            npc: {text: ''}
+          }));
           break;
         }
       }

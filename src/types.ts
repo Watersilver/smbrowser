@@ -15,7 +15,8 @@ export enum EntityTypeMapping {
   kinematic = "k",
   clutter = 'd',
   platform = 'p',
-  enemy = 'e'
+  enemy = 'e',
+  npc = 'n'
 }
 
 export type Zone = {x: number; y: number; w: number; h: number;};
