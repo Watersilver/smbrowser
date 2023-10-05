@@ -148,6 +148,7 @@ export type Entity = {
   kinematicIndex: number;
   staticIndex: number;
   sensorIndex: number;
+  gridIndex: number;
   static?: boolean;
   prevHits?: {e: Entity; normal: Vec2d; point: Vec2d;}[];
   hits?: {e: Entity; normal: Vec2d; point: Vec2d;}[];
@@ -374,7 +375,9 @@ export type Entity = {
 
   npc?: {
     text: string;
-  }
+  };
+
+  grid?: boolean;
 };
 
 export function newEntity(init?: Partial<Entity>): Entity {
@@ -386,7 +389,8 @@ export function newEntity(init?: Partial<Entity>): Entity {
     dynamicIndex: -1,
     staticIndex: -1,
     kinematicIndex: -1,
-    sensorIndex: -1
+    sensorIndex: -1,
+    gridIndex: -1
   };
   Object.assign(newEnt, init);
   return newEnt;

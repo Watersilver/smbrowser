@@ -22,11 +22,11 @@ export default function newClutter(x: number, y: number, config: {
 
     const e = entities.createEntity(newEntity({
       position: new Vec2d(x, y), size: new Vec2d(16, 16),
-      smb1TilesSprites
+      smb1TilesSprites,
+      grid: true
     }));
 
     if (config.frame) {
-      e.moving = true;
       if (config.frame === 'clutterFence') {
         smb1TilesSprites.container.zIndex = -25;
         e.distanceModifiers = {

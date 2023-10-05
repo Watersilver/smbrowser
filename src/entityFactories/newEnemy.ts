@@ -39,6 +39,7 @@ export default function newEnemy(x: number, y: number, frame?: Smb1EnemiesAnimat
     position: new Vec2d(x, y),
     size: new Vec2d(width, height),
     smb1EnemiesAnimations,
+    grid: true,
     enemActivateOnVisible:
       frame === 'goomba'
       ? 'goomba'

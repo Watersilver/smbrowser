@@ -30,6 +30,15 @@ export default class Ecs<Entity extends {
   private toBeRemoved: Set<Entity> = new Set();
   private toBeAdded: Set<Entity> = new Set();
 
+  // Helps identify populus views
+  getViewPopulation() {
+    let pop: [string, number][] = [];
+    for (const [key, val] of Object.entries(this.views)) {
+      pop.push([key, val.entities.length]);
+    }
+    return pop.sort((a,b) => b[1] - a[1]);
+  }
+
   number() { return this.entities.length; }
 
   private hasComponent(e: {[c: string]: unknown}, c: string) {

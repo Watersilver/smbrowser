@@ -3,6 +3,7 @@ import { Vec2d } from "../engine";
 import entities from "../entities";
 import universal from "../universal";
 import Collidable from "../utils/collidable";
+import worldGrid from "../world-grid";
 
 const rect = new Collidable();
 
@@ -10,7 +11,12 @@ const enemyGravity = universal.enemyGravity;
 
 export default function enemyActivator(dt: number, display: Display) {
   
-  for (const e of entities.view(['enemActivateOnVisible'])) {
+  // Number of enemActivateOnVisible could get bloated so just use grid to determine enemies to activate
+  const [l, t] = display.fromViewport(0, 0);
+  const [r, b] = display.fromViewport(display.getViewportWidth(), display.getViewportHeight());
+
+  for (const u of worldGrid.grid.findNear(l,t,r-l,b-t)) {
+    const e = u.userData;
     
     const eaov = e.enemActivateOnVisible;
 

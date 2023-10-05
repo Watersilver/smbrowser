@@ -258,7 +258,7 @@ type ZoneGroup = "camZones"
 | "angrySunZones"
 | "medusaHeadZones"
 | "loopZones"
-| "seabgZones"
+| "unloadZones"
 | "darkbgZones"
 
 export default function renderEdit(

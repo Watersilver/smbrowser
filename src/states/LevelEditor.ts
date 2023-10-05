@@ -62,7 +62,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     angrySunZones: Zone[];
     medusaHeadZones: Zone[];
     loopZones: Zone[];
-    seabgZones: Zone[];
+    unloadZones: Zone[];
     darkbgZones: Zone[];
   } = {
     camZones: [],
@@ -82,7 +82,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     angrySunZones: [],
     medusaHeadZones: [],
     loopZones: [],
-    seabgZones: [],
+    unloadZones: [],
     darkbgZones: []
   };
 
@@ -167,6 +167,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
 
   toolsCont: HTMLDivElement;
   entityCount: HTMLDivElement;
+  parallaxCount: HTMLDivElement;
   mousePosDisplay: HTMLDivElement;
   platformRouteSelect: HTMLButtonElement;
   vineSelect: HTMLButtonElement;
@@ -204,7 +205,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
   | "angrySun"
   | "medusaHead"
   | "loop"
-  | "seabg"
+  | "unload"
   | "darkbg"
   = 'cam';
   zoneSelected: boolean = false;
@@ -321,11 +322,14 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
 
     const entCountDisplay = document.createElement('div');
     this.entityCount = document.createElement('div');
+    this.parallaxCount = document.createElement('div');
     entCountDisplay.style.display = "flex";
     entCountDisplay.style.alignItems = 'center';
     const label = document.createElement('div');
     label.innerHTML = "Entities:";
-    entCountDisplay.append(label, this.entityCount);
+    const label2 = document.createElement('div');
+    label2.innerHTML = "|Parallax:";
+    entCountDisplay.append(label, this.entityCount, label2, this.parallaxCount);
 
     this.tileSelectors = document.createElement('div');
     this.tileSelectors.style.padding = '20px';
@@ -722,8 +726,8 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
         case 'loop':
           this.zoneSelect.innerHTML = 'loop<br>zone';
           break;
-        case 'seabg':
-          this.zoneSelect.innerHTML = 'sea background<br>zone';
+        case 'unload':
+          this.zoneSelect.innerHTML = 'unloader<br>zone';
           break;
         case 'darkbg':
           this.zoneSelect.innerHTML = 'dark background<br>zone';
@@ -762,7 +766,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
         "angrySun",
         "medusaHead",
         "loop",
-        "seabg",
+        "unload",
         "darkbg"
       ];
 
@@ -1172,6 +1176,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
 
     entities.update();
     this.entityCount.innerHTML = entities.number().toString();
+    this.parallaxCount.innerHTML = entities.view(['distanceModifiers', 'moving']).length.toString();
 
     this.graphics.clear();
 
@@ -1429,8 +1434,8 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
             case 'medusaHead':
               this.zones.medusaHeadZones.push({x,y,w,h});
               break;
-            case 'seabg':
-              this.zones.seabgZones.push({x,y,w,h});
+            case 'unload':
+              this.zones.unloadZones.push({x,y,w,h});
               break;
           }
           this.currentZone = undefined;

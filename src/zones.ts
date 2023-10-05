@@ -46,7 +46,7 @@ const zones: {
   medusaHead: Zone[];
   mask: Zone[];
   loop: Zone[];
-  seabg: Zone[];
+  unload: Zone[];
   darkbg: Zone[];
 } = {
   camera: [],
@@ -65,7 +65,7 @@ const zones: {
   medusaHead: [],
   mask: [],
   loop: [],
-  seabg: [],
+  unload: [],
   darkbg: []
 };
 

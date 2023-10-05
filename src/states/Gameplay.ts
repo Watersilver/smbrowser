@@ -54,6 +54,7 @@ import enemyBehaviours from "../systems/enemyBehaviours";
 import newFirebar from "../entityFactories/newFirebar";
 import firebar from "../systems/firebar";
 import hammerbros from "../systems/hammerbros";
+import Unloader from "../systems/unloader";
 
 const audio = getSmb1Audio();
 
@@ -96,6 +97,8 @@ export type GameplayOut = {
 export default class Gameplay extends State<'editor', GameplayInit | null, GameplayOut | null> {
   graphics?: Graphics;
   input?: Input;
+
+  unloader = new Unloader();
 
   mouseX = 0;
   mouseY = 0;
@@ -160,8 +163,8 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
           zones.noInput.push(...init.zones.noMarioInputZones); break;
         case 'preserveCamera':
           zones.preserveCamera.push(...init.zones.camPreserveZones); break;
-        case 'seabg':
-          zones.seabg.push(...init.zones.seabgZones); break;
+        case 'unload':
+          zones.unload.push(...init.zones.unloadZones); break;
         case 'surface':
           zones.surface.push(...init.zones.surfaceZones); break;
         case 'underwater':
@@ -353,12 +356,15 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
         }
       }
     });
+
+    this.unloader = new Unloader();
   }
 
   override onEnd(): [output: GameplayOut | null, next: 'editor'] {
     this.paused = false;
     this.respawnTimer = undefined;
     display.stopMoveTo();
+    this.unloader.stop();
 
     for (const zoneGroup of Object.values(zones)) {
       zoneGroup.length = 0;
@@ -532,11 +538,13 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
     camera(display);
     enemyActivator(dt, display);
 
+    // TODO: Create parallax system that gets enabled when in view only
+    // method: use grid to detect visible paralax, make all ents that appeared before but not again non moving
     if (this.parallax) {
       // Parallax scrolling
       const cx = display.getCenterX();
       const cy = display.getCenterY();
-      for (const e of entities.view(['smb1TilesSprites', 'distanceModifiers'])) {
+      for (const e of entities.view(['smb1TilesSprites', 'distanceModifiers', 'moving'])) {
         const s = e.smb1TilesSprites;
         const d = e.distanceModifiers;
         if (!s || !d) continue;
@@ -560,6 +568,10 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
 
     }
 
+    this.unloader.unload();
+
     return true;
   }
 }
+
+(window as any).getViewPopulation = () => entities.getViewPopulation();
