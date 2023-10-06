@@ -55,6 +55,7 @@ import newFirebar from "../entityFactories/newFirebar";
 import firebar from "../systems/firebar";
 import hammerbros from "../systems/hammerbros";
 import Unloader from "../systems/unloader";
+import Parallax from "../systems/parallax";
 
 const audio = getSmb1Audio();
 
@@ -110,7 +111,7 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
 
   respawnTimer?: number;
 
-  parallax: boolean = true;
+  parallax = new Parallax();
 
   // Lowest point for dynamics before they are destroyed
   lowestY = Infinity;
@@ -389,28 +390,12 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
       this.paused = !this.paused;
     }
 
-    if (this.paused !== pausedPrev) {
-      audio.sounds.play('pause');
+    if (this.input.isPressed('KeyT')) {
+      this.parallax.toggle();
     }
 
-    if (this.input.isPressed('KeyT')) {
-      this.parallax = !this.parallax;
-
-      if (!this.parallax) {
-        for (const e of entities.view(['smb1TilesSprites', 'distanceModifiers'])) {
-          const s = e.smb1TilesSprites;
-          const d = e.distanceModifiers;
-          delete e.moving;
-          if (!s || !d) continue;
-
-          s.container.position.x = e.position.x;
-          s.container.position.y = e.position.y;
-        }
-      } else {
-        for (const e of entities.view(['distanceModifiers'])) {
-          e.moving = true;
-        }
-      }
+    if (this.paused !== pausedPrev) {
+      audio.sounds.play('pause');
     }
 
     deathZones(this.lowestY, display);
@@ -538,24 +523,7 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
     camera(display);
     enemyActivator(dt, display);
 
-    // TODO: Create parallax system that gets enabled when in view only
-    // method: use grid to detect visible paralax, make all ents that appeared before but not again non moving
-    if (this.parallax) {
-      // Parallax scrolling
-      const cx = display.getCenterX();
-      const cy = display.getCenterY();
-      for (const e of entities.view(['smb1TilesSprites', 'distanceModifiers', 'moving'])) {
-        const s = e.smb1TilesSprites;
-        const d = e.distanceModifiers;
-        if (!s || !d) continue;
-  
-        const diffx = cx - e.position.x;
-        const diffy = cy - e.position.y;
-  
-        s.container.position.x += diffx * d.x;
-        s.container.position.y += diffy * d.y;
-      }
-    }
+    this.parallax.update(display);
 
     if (!this.paused) {
 
