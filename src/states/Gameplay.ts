@@ -56,6 +56,7 @@ import firebar from "../systems/firebar";
 import hammerbros from "../systems/hammerbros";
 import Unloader from "../systems/unloader";
 import Parallax from "../systems/parallax";
+import npcs from "../systems/npcs";
 
 const audio = getSmb1Audio();
 
@@ -439,6 +440,8 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
     this.graphics.clear();
 
     if (!this.paused) {
+
+      npcs(dt, display);
 
       detectTouching();
 

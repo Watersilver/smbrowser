@@ -375,6 +375,10 @@ export type Entity = {
 
   npc?: {
     text: string;
+    parsed?: {
+      text: {part: Text; delay: number;}[];
+      t: number;
+    }
   };
 
   grid?: boolean;

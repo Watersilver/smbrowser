@@ -120,13 +120,13 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
   grid: {
     [position: string]: {
       gameObj: Entity;
-      init: [type: EntityTypeMapping, x: number, y: number, init?: {}, custom?: Entity];
+      init: LevelData['entities'][number];
     };
   } = {};
   grid2: {
     [position: string]: {
       gameObj: Entity;
-      init: [type: EntityTypeMapping, x: number, y: number, init?: {}, custom?: Entity];
+      init: LevelData['entities'][number];
     };
   } = {};
 
@@ -1005,9 +1005,23 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     const tools = document.getElementById('tools');
     if (tools) tools.innerHTML = '';
 
+    delete this.selectedNpc;
+
     this.levelDataInit = JSON.stringify({
-      entities: Object.values(this.grid).map(v => v.init),
-      entities2: Object.values(this.grid2).map(v => v.init),
+      entities: Object.values(this.grid).map(v => {
+        if (v.gameObj.npc) {
+          if (!v.init[3]) v.init[3] = {};
+          v.init[3].text = v.gameObj.npc.text;
+        }
+        return v.init;
+      }),
+      entities2: Object.values(this.grid2).map(v => {
+        if (v.gameObj.npc) {
+          if (!v.init[3]) v.init[3] = {};
+          v.init[3].text = v.gameObj.npc.text;
+        }
+        return v.init;
+      }),
       ...this.zones
     });
 

@@ -40,6 +40,7 @@ export type LevelData = {
       tileFrame?: Smb1TilesSprites['frame'];
       objectFrame?: Smb1ObjectsSprites['frame'];
       enemyAnim?: Smb1EnemiesAnimations['animation'];
+      text?: string;
     },
     custom?: Entity
   ][];
@@ -51,6 +52,7 @@ export type LevelData = {
       tileFrame?: Smb1TilesSprites['frame'];
       objectFrame?: Smb1ObjectsSprites['frame'];
       enemyAnim?: Smb1EnemiesAnimations['animation'];
+      text?: string;
     },
     custom?: Entity
   ][];

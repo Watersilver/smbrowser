@@ -221,6 +221,7 @@ const tilesSmb1Json = {
     clutterWater: {x:349,y:33,w:16,h:16},
     clutterLavaSurface: {x:541,y:16,w:16,h:16},
     clutterLava: {x:541,y:33,w:16,h:16},
+    clutterFlagpoleWhole: {x:0,y:596,w:16,h:168-16},
 
     clutterBrownCastleSmall: {x:24,y:684,w:80,h:80},
     clutterBrownCastle: {x:400,y:588,w:144,h:176},

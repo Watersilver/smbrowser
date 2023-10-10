@@ -82,7 +82,7 @@ export default function parseLevel(levelData: string | LevelData) {
             position: new Vec2d(entInit[1], entInit[2]),
             size: new Vec2d(16, 24),
             smb1ObjectsSprites,
-            npc: {text: ''}
+            npc: {text: entInit[3]?.text || ''}
           }));
           break;
         }
