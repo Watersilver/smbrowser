@@ -27,11 +27,12 @@ export default function npcs(dt: number, display: Display) {
       let delay = 0;
       let i = 0;
       for (let s of split) {
-        const res = /<wait:([0-9]+)>/gm.exec(s);
+        const regex = /<wait:([0-9]+(\.[0-9]){0,1})>/gm;
+        const res = regex.exec(s);
         const time = Number(res?.[1]);
         if (!Number.isNaN(time)) delay += time;
 
-        s = s.replace(/<wait:([0-9]+)>/gm, '');
+        s = s.replace(regex, '');
 
         const part = new Text(s.trim(), {
           fontFamily: "Mario",
