@@ -9,7 +9,7 @@ const rect = new Collidable();
 
 const enemyGravity = universal.enemyGravity;
 
-export default function enemyActivator(dt: number, display: Display) {
+export default function enemyActivator(dt: number, display: Display, paused: boolean) {
   
   // Number of enemActivateOnVisible could get bloated so just use grid to determine enemies to activate
   const [l, t] = display.fromViewport(0, 0);
@@ -135,7 +135,7 @@ export default function enemyActivator(dt: number, display: Display) {
   }
 
   // Reactivate shells
-  for (const e of entities.view(['enemy'])) {
+  if (!paused) for (const e of entities.view(['enemy'])) {
     if (!e.enemy?.isStillShell || e.enemy.shellTimer === undefined) continue;
 
     e.enemy.shellTimer -= dt;

@@ -49,6 +49,10 @@ export default function marioSmb1Sounds() {
         }
       }
 
+      if (m.justGotHurt) {
+        audio.sounds.play('pipe');
+      }
+
       if (m.shot) {
         audio.sounds.play('fireball');
       }

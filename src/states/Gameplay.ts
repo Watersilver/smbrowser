@@ -524,7 +524,7 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
     }
 
     camera(display);
-    enemyActivator(dt, display);
+    enemyActivator(dt, display, this.paused);
 
     this.parallax.update(display);
 

@@ -50,11 +50,22 @@ export default function stuffVsEnemies(dt: number, display: Display) {
     }
   }
 
+  const now = performance.now();
+
   // See if mario hit
   for (const e of entities.view(['mario'])) {
     const m = e.mario;
 
-    if (!m || m.dead || m.inPipe) continue;
+    if (!m) continue;
+
+    if (m.changedSize && !m.big) {
+      m.changedSize = false;
+      continue;
+    }
+
+    m.changedSize = false;
+
+    if (m.dead || m.inPipe) continue;
 
     e1.set(e);
 
@@ -236,7 +247,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
                   m.changedSize = true;
                 } else if (m.powerup) {
                   delete m.powerup;
-                  m.changedSize = true;
+                  m.justGotHurt = true;
                 } else if (m) {
                   delete e.iframesSecs;
                   m.dead = true;

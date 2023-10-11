@@ -87,6 +87,7 @@ export type Entity = {
   };
   mario?: {
     dead?: boolean;
+    justGotHurt?: boolean;
     running?: boolean;
     skidding?: boolean;
     skidDecel?: boolean;
