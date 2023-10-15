@@ -86,7 +86,9 @@ export type Entity = {
     surfaceJumpGravity: number;
   };
   mario?: {
+    flags?: number;
     dead?: boolean;
+    cutscene?: boolean;
     justGotHurt?: boolean;
     running?: boolean;
     skidding?: boolean;
@@ -134,7 +136,7 @@ export type Entity = {
     onSpring?: {
       spring: Entity;
       vx: number;
-    }
+    };
   };
   fireball?: {
     parent?: Entity;
@@ -383,6 +385,18 @@ export type Entity = {
   };
 
   grid?: boolean;
+
+  flagpole?: {
+    mario?: Entity;
+    flag?: Entity;
+    fall?: {
+      marioclimb?: boolean;
+      angle?: number;
+      angvel?: number;
+      timebeforecrash?: number;
+    }
+  };
+  surviveDeathzone?: boolean;
 };
 
 export function newEntity(init?: Partial<Entity>): Entity {

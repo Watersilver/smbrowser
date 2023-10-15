@@ -6,13 +6,13 @@ import zones from "../zones";
 
 const rect = new Collidable();
 
-function* deathables() {
+function* killables() {
   yield* entities.view(['dynamic']);
   yield* entities.view(['enemy', 'sensor']);
 }
 
 export default function deathZones(lowestY: number, display: Display) {
-  for (const e of deathables()) {
+  for (const e of killables()) {
 
     rect.set(e);
 
@@ -22,6 +22,7 @@ export default function deathZones(lowestY: number, display: Display) {
     ));
 
     if (e.position.y > lowestY || inDeathZone) {
+      if (e.surviveDeathzone) continue;
       if (e.mario) {
         e.mario.dead = true;
         e.mario.big = false;

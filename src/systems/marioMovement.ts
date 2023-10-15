@@ -23,7 +23,7 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
     const rightBlocked = !!e.touchingRight?.length;
     const downBlocked = !!e.touchingDown?.length;
 
-    if (config && mi && dynamic && mario) {
+    if (config && mi && dynamic && mario && !mario.cutscene) {
 
       e.underwater = zones.underwater.some(z => aabb.pointVsRect(e.position, collidee.setToZone(z)));
       mario.surface = zones.surface.some(z => aabb.pointVsRect(e.position, collidee.setToZone(z)));

@@ -121,7 +121,7 @@ export default function renderSmb1Mario(dt: number) {
     const speed = v ? Math.abs(v.x) : (e.mario?.inPipe?.nonIdle ? 50 : 0);
     const accelMagn = accel ? Math.abs(accel.x) : 0;
     const isIdle = speed < Number.EPSILON * 2 && accelMagn < Number.EPSILON * 2;
-    if (a && mario) {
+    if (a && mario && !mario.cutscene) {
 
       // Make mario smaller to make him fin in pipe
       if (mario.inPipe) {
@@ -274,6 +274,9 @@ export default function renderSmb1Mario(dt: number) {
       } else {
         a.container.alpha = 1;
       }
+    } else if (a && mario?.cutscene) {
+      a.container.alpha = 1;
+      a.update(dt);
     }
   }
 }

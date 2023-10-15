@@ -57,6 +57,7 @@ import hammerbros from "../systems/hammerbros";
 import Unloader from "../systems/unloader";
 import Parallax from "../systems/parallax";
 import npcs from "../systems/npcs";
+import flags from "../systems/flags";
 
 const audio = getSmb1Audio();
 
@@ -440,6 +441,8 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
     this.graphics.clear();
 
     if (!this.paused) {
+
+      flags(dt, display);
 
       npcs(dt, display);
 

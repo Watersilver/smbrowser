@@ -66,6 +66,7 @@ export default function newClutter(x: number, y: number, config: {
       } else if (config.frame === 'clutterFlagpoleWhole') {
         e.size.x = 2;
         e.size.y = smb1TilesSprites.container.height;
+        e.flagpole = {};
       }
     }
 
