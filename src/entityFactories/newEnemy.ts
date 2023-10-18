@@ -42,6 +42,7 @@ export default function newEnemy(x: number, y: number, frame?: Smb1EnemiesAnimat
     grid: true,
     enemActivateOnVisible:
       frame === 'goomba'
+      || frame === 'bluegoomba'
       ? 'goomba'
       : frame === 'redKoopa'
       ? 'koopaR'

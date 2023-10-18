@@ -13,6 +13,7 @@ class Smb1EnemiesAnimationsFactory extends SpriteWrapperFactory<typeof smb1Enemi
     );
     e.setAnimationAnchor('hammerbroAttack', {x: 0.5, y: 0.65});
     e.setAnimationAnchor('goombaDead', {x: 0.5, y: 0});
+    e.setAnimationAnchor('bluegoombaDead', {x: 0.5, y: 0});
     e.setAnimationAnchor('greenKoopashell', {x: 0.5, y: 0.46});
     e.setAnimationAnchor('redKoopashell', {x: 0.5, y: 0.46});
     let y = 0.67;

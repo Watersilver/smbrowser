@@ -5,7 +5,10 @@ const enemiesSmb1Json = {
   frames: {
     goomba1: {x:0,y:16,w:16,h:16},
     goomba2: {x:18,y:16,w:16,h:16},
+    bluegoomba1: {x:74,y:16,w:16,h:16},
+    bluegoomba2: {x:92,y:16,w:16,h:16},
     goombaDead: {x:36,y:24,w:16,h:8},
+    bluegoombaDead: {x:110,y:24,w:16,h:8},
     buzzy1: {x:0,y:34,w:16,h:16},
     buzzy2: {x:18,y:34,w:16,h:16},
     buzzyShell: {x:36,y:34,w:16,h:16},
@@ -59,9 +62,11 @@ const enemiesSmb1Json = {
 
   animations: {
     goomba: ['goomba1', 'goomba2'],
+    bluegoomba: ['bluegoomba1', 'bluegoomba2'],
     buzzy: ['buzzy1', 'buzzy2'],
     buzzyShell: ['buzzyShell'],
     goombaDead: ['goombaDead'],
+    bluegoombaDead: ['bluegoombaDead'],
     greenKoopa: ['greenKoopa1', 'greenKoopa2'],
     greenParakoopa: ['greenParakoopa1', 'greenParakoopa2'],
     greenKoopashell: ['greenKoopashell1', 'greenKoopashell2'],

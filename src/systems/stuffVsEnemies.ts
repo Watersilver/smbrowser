@@ -133,6 +133,9 @@ export default function stuffVsEnemies(dt: number, display: Display) {
                   case 'greenKoopa':
                     if (uu.smb1EnemiesAnimations) {
                       uu.smb1EnemiesAnimations.setAnimation('greenKoopashell');
+                      if (!uu.touchingDown?.length) {
+                        uu.smb1EnemiesAnimations.container.angle = 180;
+                      }
                       uu.smb1EnemiesAnimations.loopsPerSecond = 0;
                       uu.smb1EnemiesAnimations.setFrame(0);
                     }
@@ -143,16 +146,30 @@ export default function stuffVsEnemies(dt: number, display: Display) {
                   case 'redKoopa':
                     if (uu.smb1EnemiesAnimations) {
                       uu.smb1EnemiesAnimations.setAnimation('redKoopashell');
+                      if (!uu.touchingDown?.length) {
+                        uu.smb1EnemiesAnimations.container.angle = 180;
+                      }
                       uu.smb1EnemiesAnimations.loopsPerSecond = 0;
                       uu.smb1EnemiesAnimations.setFrame(0);
                     }
                     break;
                   case 'buzzy':
-                    uu.smb1EnemiesAnimations?.setAnimation('buzzyShell');
+                    if (uu.smb1EnemiesAnimations) {
+                      uu.smb1EnemiesAnimations.setAnimation('buzzyShell');
+                      if (!uu.touchingDown?.length) {
+                        uu.smb1EnemiesAnimations.container.angle = 180;
+                      }
+                    }
                     break;
                   case 'goomba':
                     if (uu.smb1EnemiesAnimations) {
                       uu.smb1EnemiesAnimations.setAnimation('goombaDead');
+                      uu.smb1EnemiesAnimations.container.zIndex -= 1;
+                    }
+                    break;
+                  case 'bluegoomba':
+                    if (uu.smb1EnemiesAnimations) {
+                      uu.smb1EnemiesAnimations.setAnimation('bluegoombaDead');
                       uu.smb1EnemiesAnimations.container.zIndex -= 1;
                     }
                     break;
@@ -206,6 +223,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
                     uu.enemy.shellTimer = 5;
                     break;
                   case 'goomba':
+                  case 'bluegoomba':
                     delete uu.enemy;
                     uu.deleteOutOfCam = true;
                     uu.deleteTimer = 1;
@@ -452,7 +470,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
     const justHit = e.hits?.some(h => h.normal.y < 0)
     && !e.prevHits?.some(h => h.normal.y < 0);
 
-    if (e.movement && e.smb1EnemiesAnimations?.getAnimation() !== 'goomba') {
+    if (e.movement && !e.smb1EnemiesAnimations?.getAnimation().includes('goomba')) {
       if (
         closest
         && justHit

@@ -1,7 +1,32 @@
-import { Container, Graphics } from "pixi.js";
+import { Container, Graphics, Text } from "pixi.js";
 import display from "../display";
 import { LineSeg, OscillationInit, PlatformConnection, Points, Vine } from "../types";
 import smb1enemiesanimationsFactory, { Smb1EnemiesAnimations } from "../sprites/loaders/smb1/enemies";
+
+const texts: Map<string, Text> = new Map();
+const removedtexts: Map<string, Text> = new Map();
+function printText(x: number, y: number, text: string) {
+  const key = text + '|' + x + '|' + y;
+  removedtexts.delete(key);
+  if (!texts.has(key)) {
+    const t = new Text(text, {
+      fontFamily: "Mario",
+      fill: 'white',
+      strokeThickness: 5
+    });
+    t.position.x = x;
+    t.position.y = y;
+    t.anchor.set(0.5);
+    t.scale.set(0.3);
+    display.add(t);
+    texts.set(key, t);
+  }
+}
+
+function deleteTexts() {
+  removedtexts.forEach(t => t.removeFromParent());
+  removedtexts.clear();
+}
 
 const bills: Smb1EnemiesAnimations[] = [];
 const cheeps: Smb1EnemiesAnimations[] = [];
@@ -35,23 +60,30 @@ function drawZoneEnemy(c: Container, type: ZoneGroup, z: Zone[]) {
   if (type === 'billZones') {
     adjustSize(c, bills, z.length, a => a.setAnimation('bulletbill'));
     forEachAnim(z, bills, (zone, a) => a.container.position.set(zone.x + zone.w - 16, zone.y + 16));
+    return true;
   } else if (type === 'cheepZones') {
     adjustSize(c, cheeps, z.length, a => a.setAnimation('greenCheep'));
     forEachAnim(z, cheeps, (zone, a) => a.container.position.set(zone.x + zone.w - 16, zone.y + 16));
+    return true;
   } else if (type === 'jumpCheepZones') {
     adjustSize(c, jumpingCheeps, z.length, a => a.setAnimation('redCheep'));
     forEachAnim(z, jumpingCheeps, (zone, a) => {
       a.container.angle = 45;
       return a.container.position.set(zone.x + zone.w - 16, zone.y + 16);
     });
+    return true;
   } else if (type === 'fireZones') {
     adjustSize(c, bowserFires, z.length, a => a.setAnimation('bowserfire'));
     forEachAnim(z, bowserFires, (zone, a) => a.container.position.set(zone.x + zone.w - 16, zone.y + 16));
+    return true;
   } else if (type === 'lakituZones') {
     adjustSize(c, lakitus, z.length, a => a.setAnimation('lakitu'));
     forEachAnim(z, lakitus, (zone, a) => a.container.position.set(zone.x + zone.w - 16, zone.y + 16));
+    return true;
   }
+  return false;
 }
+
 
 type Zone = {x: number; y: number; w: number; h: number;};
 
@@ -318,8 +350,10 @@ export default function renderEdit(
   .drawRect(x, y, 16, 16)
   .endFill();
 
+  texts.forEach((t, k) => removedtexts.set(k, t));
+
   for (const [name, z] of Object.entries(zones) as [ZoneGroup, Zone[]][]) {
-    drawZoneEnemy(c, name, z);
+    const drewEnem = drawZoneEnemy(c, name, z);
 
     const col =
       name === 'camZones'
@@ -337,6 +371,9 @@ export default function renderEdit(
       : name === 'descendingPlatformZones'
       ? 0x0000ff
       : 0xff00ff;
+
+    const drawName = !drewEnem && col === 0xff00ff;
+
     z.forEach(zone => {
       o.lineStyle(4 / scale, name === 'descendingPlatformZones' ? 0 : 0xffffff)
       .beginFill(0, 0)
@@ -359,8 +396,7 @@ export default function renderEdit(
           zone.x + 8 - 2, zone.y + zone.h - 8,
           zone.x + 8 + 2, zone.y + zone.h - 8,
           zone.x + 8, zone.y + zone.h - 8 + 2
-        )
-        .endFill();
+        ).endFill();
         o.lineStyle(2 / scale, col)
         .beginFill(0, 0)
         .moveTo(zone.x + 8, zone.y + 8)
@@ -372,8 +408,7 @@ export default function renderEdit(
           zone.x + 8 - 2, zone.y + zone.h - 8,
           zone.x + 8 + 2, zone.y + zone.h - 8,
           zone.x + 8, zone.y + zone.h - 8 + 2
-        )
-        .endFill();
+        ).endFill();
 
         o.lineStyle(4 / scale, 0)
         .beginFill(0, 0)
@@ -386,8 +421,7 @@ export default function renderEdit(
           zone.x + zone.w - 8 - 2, zone.y + 8,
           zone.x + zone.w - 8 + 2, zone.y + 8,
           zone.x + zone.w - 8, zone.y + 8 - 2
-        )
-        .endFill();
+        ).endFill();
         o.lineStyle(2 / scale, col)
         .beginFill(0, 0)
         .moveTo(zone.x + zone.w - 8, zone.y + 8)
@@ -399,11 +433,16 @@ export default function renderEdit(
           zone.x + zone.w - 8 - 2, zone.y + 8,
           zone.x + zone.w - 8 + 2, zone.y + 8,
           zone.x + zone.w - 8, zone.y + 8 - 2
-        )
-        .endFill();
+        ).endFill();
+      } else {
+        if (drawName) {
+          printText(zone.x + zone.w * 0.5, zone.y + 10, name.replace('Zones', ''));
+        }
       }
-    })
+    });
   }
+
+  deleteTexts();
 
   if (currentZone) {
     let x = 0, y = 0, w = 0, h = 0;

@@ -152,7 +152,7 @@ export default function enemyActivator(dt: number, display: Display, paused: boo
         e.smb1EnemiesAnimations.container.angle = 0;
       }
       e.movement = {
-        horizontal: universal.enemySpeed * (Math.sign(Math.random() || 1)),
+        horizontal: universal.enemySpeed * (Math.sign((Math.random() * 2 - 1) || 1)),
         horizontalNow: true,
         flipEachOther: true,
         dontFallOff: anim === 'redKoopashell'

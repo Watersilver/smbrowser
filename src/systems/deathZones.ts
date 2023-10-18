@@ -24,10 +24,13 @@ export default function deathZones(lowestY: number, display: Display) {
     if (e.position.y > lowestY || inDeathZone) {
       if (e.surviveDeathzone) continue;
       if (e.mario) {
-        e.mario.dead = true;
-        e.mario.big = false;
-        e.star = false;
-        delete e.mario.powerup;
+        // Don't kill if in pipe
+        if (!e.mario.inPipe) {
+          e.mario.dead = true;
+          e.mario.big = false;
+          e.star = false;
+          delete e.mario.powerup;
+        }
       } else if (!inDeathZone) {
         entities.remove(e);
       }

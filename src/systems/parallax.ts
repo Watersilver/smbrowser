@@ -41,10 +41,10 @@ export default class Parallax {
     // Parallax move entities that are within bounds
     for (const u of worldGrid.grid.findNear(l-w*0.5,t,w*2,h)) {
       const e = u.userData;
-      this.prev.add(e);
       const s = e.smb1TilesSprites;
       const d = e.distanceModifiers;
       if (!s || !d) continue;
+      this.prev.add(e);
 
       const diffx = cx - e.position.x;
       const diffy = cy - e.position.y;

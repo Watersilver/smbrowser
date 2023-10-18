@@ -344,7 +344,7 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
             bounded: {top: z.y, bottom: z.y + z.h}
           };
           if (!uu.kinematic) uu.kinematic = {velocity: new Vec2d(0, 0), acceleration: new Vec2d(0, 0)};
-          uu.kinematic.velocity.y = 25 * (moveUp ? -1 : 1);
+          uu.kinematic.velocity.y = 50 * (moveUp ? -1 : 1);
           uu.position.x += dx;
         }
       }

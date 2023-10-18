@@ -315,6 +315,8 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
 
   graphicsOverlay = new Graphics();
 
+  movecamtomariooninit = true;
+
   constructor() {
     super();
 
@@ -1193,6 +1195,14 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     this.parallaxCount.innerHTML = entities.view(['distanceModifiers', 'moving']).length.toString();
 
     this.graphics.clear();
+
+    if (this.movecamtomariooninit) {
+      this.movecamtomariooninit = false;
+      const m = entities.view(['mario'])[0];
+      if (m) {
+        display.setCenter(m.position.x, m.position.y);
+      }
+    }
 
     if (this.input.isHeld('MouseMain')) {
       const del = this.input.isHeld('ControlLeft');
