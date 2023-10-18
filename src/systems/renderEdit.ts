@@ -5,7 +5,7 @@ import smb1enemiesanimationsFactory, { Smb1EnemiesAnimations } from "../sprites/
 
 const texts: Map<string, Text> = new Map();
 const removedtexts: Map<string, Text> = new Map();
-function printText(x: number, y: number, text: string) {
+function printText(x: number, y: number, text: string, c: Container) {
   const key = text + '|' + x + '|' + y;
   removedtexts.delete(key);
   if (!texts.has(key)) {
@@ -18,13 +18,16 @@ function printText(x: number, y: number, text: string) {
     t.position.y = y;
     t.anchor.set(0.5);
     t.scale.set(0.3);
-    display.add(t);
+    c.addChild(t);
     texts.set(key, t);
   }
 }
 
 function deleteTexts() {
-  removedtexts.forEach(t => t.removeFromParent());
+  removedtexts.forEach((t, k) => {
+    texts.delete(k);
+    t.removeFromParent();
+  });
   removedtexts.clear();
 }
 
@@ -33,9 +36,9 @@ const cheeps: Smb1EnemiesAnimations[] = [];
 const jumpingCheeps: Smb1EnemiesAnimations[] = [];
 const bowserFires: Smb1EnemiesAnimations[] = [];
 const lakitus: Smb1EnemiesAnimations[] = [];
-const angrySuns: Smb1EnemiesAnimations[] = [];
-const medusaHeads: Smb1EnemiesAnimations[] = [];
-const masks: Smb1EnemiesAnimations[] = [];
+// const angrySuns: Smb1EnemiesAnimations[] = [];
+// const medusaHeads: Smb1EnemiesAnimations[] = [];
+// const masks: Smb1EnemiesAnimations[] = [];
 
 function adjustSize(c: Container, a: Smb1EnemiesAnimations[], size: number, onAdd: (a: Smb1EnemiesAnimations) => void) {
   while (a.length !== size) {
@@ -436,7 +439,7 @@ export default function renderEdit(
         ).endFill();
       } else {
         if (drawName) {
-          printText(zone.x + zone.w * 0.5, zone.y + 10, name.replace('Zones', ''));
+          printText(zone.x + zone.w * 0.5, zone.y + 10, name.replace('Zones', ''), c);
         }
       }
     });

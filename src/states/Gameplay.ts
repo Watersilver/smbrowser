@@ -31,7 +31,7 @@ import fireballs from "../systems/fireballs";
 import type LevelEditor from "./LevelEditor";
 import zones from "../zones";
 import camera from "../systems/camera";
-import { LineSeg, OscillationInit, PlatformConnection, Points, Vine } from "../types";
+import { LineSeg, OscillationInit, PlatformConnection, Points, Vine, Zone } from "../types";
 import newPipe from "../entityFactories/newPipe";
 import pipes from "../systems/pipes";
 import coins from "../systems/coins";
@@ -58,6 +58,7 @@ import Unloader from "../systems/unloader";
 import Parallax from "../systems/parallax";
 import npcs from "../systems/npcs";
 import flags from "../systems/flags";
+import checkpoints from "../systems/checkpoints";
 
 const audio = getSmb1Audio();
 
@@ -119,6 +120,8 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
   lowestY = Infinity;
 
   private paused = false;
+
+  private checkpoints: Set<Zone & {spawnpoint: {x: number; y: number;}}> = new Set();
 
   override onStart(init: GameplayInit | null): void {
     this.paused = false;
@@ -360,6 +363,23 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
       }
     });
 
+    this.checkpoints.clear();
+    init.zones.checkpointZones.forEach(z => {
+      const internal = init.zones.checkpointZones.find(z2 => z2 !== z && aabb.pointVsRect({
+        x: z2.x + z2.w * 0.5,
+        y: z2.y + z2.h * 0.5
+      }, {
+        pos: {x: z.x, y: z.y},
+        size: {x: z.w, y: z.h}
+      }));
+
+      if (!internal) return;
+
+      const spawnpoint = {x: internal.x + internal.w * 0.5, y: internal.y + internal.h * 0.5};
+
+      this.checkpoints.add({...z, spawnpoint});
+    });
+
     this.unloader = new Unloader();
   }
 
@@ -512,6 +532,8 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
       deleteTimer(dt);
 
       deathAndRespawn(dt, this);
+
+      checkpoints(this.checkpoints);
     }
 
     // Render

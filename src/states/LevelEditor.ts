@@ -64,6 +64,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     loopZones: Zone[];
     unloadZones: Zone[];
     darkbgZones: Zone[];
+    checkpointZones: Zone[];
   } = {
     camZones: [],
     camPreserveZones: [],
@@ -83,7 +84,8 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     medusaHeadZones: [],
     loopZones: [],
     unloadZones: [],
-    darkbgZones: []
+    darkbgZones: [],
+    checkpointZones: []
   };
 
   currentVine?: Vine;
@@ -207,6 +209,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
   | "loop"
   | "unload"
   | "darkbg"
+  | "checkpoint"
   = 'cam';
   zoneSelected: boolean = false;
   currentZone?: {x: number; y: number; w: number; h: number;};
@@ -743,6 +746,9 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
         case 'mask':
           this.zoneSelect.innerHTML = 'mask<br>zone';
           break;
+        case 'checkpoint':
+          this.zoneSelect.innerHTML = 'checkpoint<br>zone';
+          break;
         default:
           this.zoneSelect.innerHTML = 'death<br>zone';
           break;
@@ -769,7 +775,8 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
         "medusaHead",
         "loop",
         "unload",
-        "darkbg"
+        "darkbg",
+        "checkpoint"
       ];
 
       let i = zones.findIndex(z => z === this.selectedZone);
@@ -1460,6 +1467,9 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
               break;
             case 'unload':
               this.zones.unloadZones.push({x,y,w,h});
+              break;
+            case 'checkpoint':
+              this.zones.checkpointZones.push({x,y,w,h});
               break;
           }
           this.currentZone = undefined;

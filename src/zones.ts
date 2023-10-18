@@ -30,6 +30,7 @@ const zones: {
   loop: Zone[];
   unload: Zone[];
   darkbg: Zone[];
+  checkpoint: Zone[];
 } = {
   camera: [],
   preserveCamera: [],
@@ -48,7 +49,8 @@ const zones: {
   mask: [],
   loop: [],
   unload: [],
-  darkbg: []
+  darkbg: [],
+  checkpoint: []
 };
 
 export default zones;
