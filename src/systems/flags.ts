@@ -177,6 +177,7 @@ export default function flags(dt: number, display: Display) {
           if (e.smb1TilesSprites.sprite.anchor.y !== 1) {
             e.smb1TilesSprites.sprite.anchor.y = 1;
             e.position.y += 8;
+            e.moving = true;
           }
 
           const newPos = new Vec2d(-e.size.y + 16 + 7 - 8, f.fall.angle + Math.PI / 2).toCartesian();

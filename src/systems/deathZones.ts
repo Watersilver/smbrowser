@@ -31,7 +31,7 @@ export default function deathZones(lowestY: number, display: Display) {
           e.star = false;
           delete e.mario.powerup;
         }
-      } else if (!inDeathZone) {
+      } else {
         entities.remove(e);
       }
     }
