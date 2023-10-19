@@ -21,6 +21,7 @@ export default function flags(dt: number, display: Display) {
     if (!f.flag) {
       const flag = newClutter(e.position.x - 8, e.position.y - e.size.y + 16 + 9, {type: 'object', frame: 'evilflag'});
       f.flag = flag;
+      e.moving = true;
     }
 
     if (!f.mario) {

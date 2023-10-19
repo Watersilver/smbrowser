@@ -9,12 +9,12 @@ const c1 = new Collidable();
 const c2 = new Collidable();
 const c3 = new Collidable();
 
-function *allGrids(l: number, t: number, w: number, h: number) {
+function *unloadables(l: number, t: number, w: number, h: number) {
   yield* worldGrid.dynamics.findNear(l,t,w,h);
-  yield* worldGrid.statics.findNear(l,t,w,h);
-  yield* worldGrid.grid.findNear(l,t,w,h);
+  // yield* worldGrid.statics.findNear(l,t,w,h);
+  // yield* worldGrid.grid.findNear(l,t,w,h);
   yield* worldGrid.sensors.findNear(l,t,w,h);
-  yield* worldGrid.kinematics.findNear(l,t,w,h);
+  // yield* worldGrid.kinematics.findNear(l,t,w,h);
 }
 
 export default class Unloader {
@@ -52,7 +52,7 @@ export default class Unloader {
     zz.x -= z.w;
   
     let found = 0;
-    for (const u of allGrids(zz.x, zz.y, zz.w, zz.h)) {
+    for (const u of unloadables(zz.x, zz.y, zz.w, zz.h)) {
       found++;
       entities.remove(u.userData);
     }
