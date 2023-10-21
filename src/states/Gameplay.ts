@@ -381,6 +381,11 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
     });
 
     this.unloader = new Unloader();
+    this.unloader.limit = entities.view().reduce((a, c) => {
+      const l = c.position.x;
+      if (l < a) return l;
+      return a;
+    }, Infinity);
   }
 
   override onEnd(): [output: GameplayOut | null, next: 'editor'] {

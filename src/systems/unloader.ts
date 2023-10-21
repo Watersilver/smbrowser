@@ -14,10 +14,13 @@ function *unloadables(l: number, t: number, w: number, h: number) {
   // yield* worldGrid.statics.findNear(l,t,w,h);
   // yield* worldGrid.grid.findNear(l,t,w,h);
   yield* worldGrid.sensors.findNear(l,t,w,h);
-  // yield* worldGrid.kinematics.findNear(l,t,w,h);
+  yield* worldGrid.kinematics.findNear(l,t,w,h);
 }
 
 export default class Unloader {
+
+  limit = -Infinity;
+
   private active = true;
   stop() {
     this.active = false;
@@ -34,7 +37,8 @@ export default class Unloader {
           && !aabb.rectVsRect(c3, c1)
           && e.position.x > uz.x + uz.w
         ) {
-          this.scanAndDestroy(uz);
+          this.scanAndDestroy(uz, this.limit);
+          this.limit = uz.x;
           if (e.mario) e.mario.respawnPoint = {...e.position};
           const s = new Set(zones.unload);
           s.delete(uz);
@@ -46,19 +50,17 @@ export default class Unloader {
     }
   }
 
-  private scanAndDestroy(z: Zone) {
+  private scanAndDestroy(z: Zone, limit: number) {
     if (!this.active) return;
     const zz = {...z};
     zz.x -= z.w;
-  
-    let found = 0;
+
     for (const u of unloadables(zz.x, zz.y, zz.w, zz.h)) {
-      found++;
       entities.remove(u.userData);
     }
-  
-    if (found) {
-      setTimeout(() => this.scanAndDestroy(zz), 100);
+
+    if (zz.x > limit) {
+      setTimeout(() => this.scanAndDestroy(zz, limit), 100);
     } else {
       console.log('unload done');
     }

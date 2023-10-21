@@ -22,7 +22,7 @@ export default function enemyBehaviours(dt: number, display: Display) {
     if (!p) continue;
 
     if (p.inTime !== undefined) {
-      p.inTime -= dt;
+      if (!marioInPipe) p.inTime -= dt;
 
       if (p.inTime <= 0) {
         delete p.inTime;
@@ -42,7 +42,7 @@ export default function enemyBehaviours(dt: number, display: Display) {
       p.outTime -= dt;
       delete p.emerging;
 
-      if (p.outTime <= 0) {
+      if (p.outTime <= 0 || marioInPipe) {
         delete p.outTime;
       }
     } else if (p.height) {
@@ -54,7 +54,8 @@ export default function enemyBehaviours(dt: number, display: Display) {
         p.inTime = piranhaIdle;
       }
     } else if (!entities.view(['mario']).find(m => 32 >= Math.abs(m.position.x - e.position.x))) {
-      p.emerging = true;
+      if (!marioInPipe) p.emerging = true;
+      else delete p.emerging;
     }
 
     e.position.y = e.positionStart.y - p.height;
