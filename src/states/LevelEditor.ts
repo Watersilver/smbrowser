@@ -9,7 +9,6 @@ import marioSmb1Sounds from "../systems/marioSmb1Sounds";
 import entities, { Entity } from "../entities";
 import parseLevel from "../systems/parseLevel";
 import { EntityTypeMapping, LevelData, LineSeg, OscillationInit, PlatformConnection, Points, Vine } from "../types";
-import culling from "../systems/culling";
 import renderSmb1Stuff from "../systems/renderSmb1Stuff";
 import smb1marioFactory from "../sprites/loaders/smb1/mario";
 import smb1tilesFactory, { Smb1TilesSprites } from "../sprites/loaders/smb1/tiles";
@@ -1715,7 +1714,6 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     mouseCamMove(dt, display, this.input, this);
 
     // Render
-    culling(display);
     debugRender(this.graphics);
     renderSmb1Mario(dt);
     renderSmb1Stuff(dt, true);

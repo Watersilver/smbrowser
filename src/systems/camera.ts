@@ -36,8 +36,9 @@ export default function camera(display: Display) {
       z = null;
       for (const zone of zones.camera) {
         if (aabb.pointVsRect(following.position, c1.setToZone(zone))) {
-          if (!z) z = zone;
-          else if (z.w * z.h > zone.w * zone.h) z = zone;
+          z = zone;
+          // if (!z) z = zone;
+          // else if (z.w * z.h > zone.w * zone.h) z = zone;
         }
       }
     }

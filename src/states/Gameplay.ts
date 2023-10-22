@@ -20,7 +20,7 @@ import renderSmb1Mario from "../systems/renderSmb1Mario";
 import marioSmb1Sounds from "../systems/marioSmb1Sounds";
 import resetStuff from "../systems/resetStuff";
 import entities, { Entity } from "../entities";
-import culling from "../systems/culling";
+import Culling from "../systems/culling";
 import renderSmb1Stuff from "../systems/renderSmb1Stuff";
 import blockhit from "../systems/blockhit";
 import movement from "../systems/movement";
@@ -103,6 +103,7 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
   input?: Input;
 
   unloader = new Unloader();
+  culling = new Culling();
 
   mouseX = 0;
   mouseY = 0;
@@ -386,6 +387,9 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
       if (l < a) return l;
       return a;
     }, Infinity);
+
+    this.culling = new Culling();
+    this.culling.cullAll();
   }
 
   override onEnd(): [output: GameplayOut | null, next: 'editor'] {
@@ -542,7 +546,7 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
     }
 
     // Render
-    culling(display);
+    this.culling.update(display);
     debugRender(this.graphics);
     renderSmb1Stuff(dt);
     renderSmb1Mario(dt);
