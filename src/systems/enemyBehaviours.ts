@@ -163,6 +163,8 @@ export default function enemyBehaviours(dt: number, display: Display) {
   jumpcheepspawn(dt, display);
 
   lakitu(dt, display);
+
+  lavabubbles(dt, display);
 }
 
 let spawnCooldown = 0;
@@ -392,7 +394,7 @@ function firespawn(dt: number, display: Display) {
     if (spawn) {
       const {t, h, r} = display.getBoundingBox();
       const top = 48;
-      newFire(r + 8, t + top + (h - 72 - top) * Math.random());
+      newFire(r + 8, t + top + 8 + (h - 96 - top) * Math.random());
     }
   }
 }
@@ -656,7 +658,7 @@ function lakitu(dt: number, display: Display) {
     if (lakituCooldown <= 0) {
       // 7 secs if lakitu dies till next respawns in same area
       lakituCooldown = 7;
-  
+
       const {t, l, w} = display.getBoundingBox();
       const e = newEnemy(l + 16 + Math.random() * (w - 32), t - 16, 'lakitu');
       e.size.y = 10;
@@ -683,6 +685,55 @@ function lakitu(dt: number, display: Display) {
       e.moving = true;
       if (e.smb1EnemiesAnimations) {
         e.smb1EnemiesAnimations.loopsPerSecond = 0;
+      }
+    }
+  }
+}
+
+function lavabubbles(dt: number, display: Display) {
+  for (const e of entities.view(['lavabubble'])) {
+    if (!e.lavabubble) continue;
+
+    const {l, w} = display.getBoundingBox();
+
+    if (e.position.x > l && e.position.x < l + w) {
+      e.lavabubble.t += dt;
+      if (e.lavabubble.t > e.lavabubble.maxT) {
+        e.lavabubble.t -= e.lavabubble.maxT;
+        const enem = newEnemy(e.position.x, e.position.y, 'lavaBubble');
+        enem.enemy = {
+          shell: true,
+          fireball: false,
+          stomp: false,
+          star: true
+        };
+        enem.lavabubbleinstance = true;
+        enem.gravity = 300;
+        enem.dynamic = {
+          acceleration: new Vec2d(0, 0),
+          velocity: new Vec2d(0, 0)
+        };
+        enem.goThrougWalls = true;
+
+        // find the maximum height of a projectile:
+        // h = v0 ^ 2 * sin(theta) / (2 * g)
+        // Theta is 0 because we are throwing vertically (at 90 deg) thus:
+        // v0 ^ 2 = 2 * h * g =>
+        // v0 = sqrt(2*h*g)
+        let h = e.lavabubble.maxHeight;
+        // h -= 24;
+        if (h < 0) h = 0;
+        const vy = Math.sqrt(2 * h * enem.gravity);
+        enem.dynamic.acceleration.y = -vy / dt;
+      }
+    }
+  }
+
+  for (const e of entities.view(['lavabubbleinstance'])) {
+    if (e.position.y > e.positionPrev.y) {
+      if (e.smb1EnemiesAnimations) {
+        e.smb1EnemiesAnimations.container.angle = 180;
+        e.deleteOutOfCam = true;
       }
     }
   }

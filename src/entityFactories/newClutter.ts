@@ -57,7 +57,7 @@ export default function newClutter(x: number, y: number, config: {
           x: 0.2,
           y: 0
         };
-      } else if (config.frame.includes('Castle')) {
+      } else if (config.frame.includes('Castle') && config.frame !== 'clutterCastleBridgeChain') {
         smb1TilesSprites.container.zIndex = -200;
         e.distanceModifiers = {
           x: 0.25,

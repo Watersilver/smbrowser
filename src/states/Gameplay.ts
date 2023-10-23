@@ -19,7 +19,7 @@ import debugRender from "../systems/debugRender";
 import renderSmb1Mario from "../systems/renderSmb1Mario";
 import marioSmb1Sounds from "../systems/marioSmb1Sounds";
 import resetStuff from "../systems/resetStuff";
-import entities, { Entity } from "../entities";
+import entities, { Entity, newEntity } from "../entities";
 import Culling from "../systems/culling";
 import renderSmb1Stuff from "../systems/renderSmb1Stuff";
 import blockhit from "../systems/blockhit";
@@ -194,6 +194,7 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
       bb.t = vine.y - 1;
       collider.pos.x = bb.l;
       collider.pos.y = bb.t;
+      let isVine = false;
       for (const u of worldGrid.statics.findNear(bb.l, bb.t, bb.w, bb.h)) {
         const uu = u.userData;
         collidee.set(uu);
@@ -202,8 +203,20 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
           uu.brick = false;
           uu.coinblock = 'vine';
           uu.vineCreator = vine;
-          continue;
+          isVine = true;
+          break;
         }
+      }
+
+      if (!isVine) {
+        entities.createEntity(newEntity({
+          lavabubble: {
+            maxHeight: vine.h,
+            t: Math.random(),
+            maxT: 3
+          },
+          position: new Vec2d(vine.x, vine.y)
+        }));
       }
     });
     init.trampolines.forEach(t => {

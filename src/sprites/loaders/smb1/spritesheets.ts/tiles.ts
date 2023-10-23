@@ -7,6 +7,7 @@ const tilesSmb1Json = {
   frames: {
     solidFloor1: {x:0,y:16,w:16,h:16},
     solidBlock1: {x:0,y:33,w:16,h:16},
+    solidHitblock1: {x:51,y:16,w:16,h:16},
     solidFloor2: {x:147,y:16,w:16,h:16},
     solidBlock2: {x:147,y:33,w:16,h:16},
     solidCastleBlock: {x:0,y:151,w:16,h:16},
@@ -79,6 +80,8 @@ const tilesSmb1Json = {
     solidSilverPipeConnectorNE: {x:363 + 119,y:231,w:16,h:16},
     solidSilverPipeConnectorSW: {x:346 + 119,y:248,w:16,h:16},
     solidSilverPipeConnectorSE: {x:363 + 119,y:248,w:16,h:16},
+
+    solidBowserBridge: {x:216,y:476,w:16,h:16},
 
     solidCloud: {x:366,y:16,w:16,h:16},
     brick1: {x:17,y:16,w:16,h:16},

@@ -16,6 +16,7 @@ import level from '../assets/level.json';
 import renderEdit from "../systems/renderEdit";
 import smb1objectsFactory, { Smb1ObjectsSprites } from "../sprites/loaders/smb1/objects";
 import smb1enemiesanimationsFactory, { Smb1EnemiesAnimations } from "../sprites/loaders/smb1/enemies";
+import Culling from "../systems/culling";
 
 export type LevelEditorInit = {
   graphics: Graphics;
@@ -42,6 +43,8 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
   input?: Input;
   levelDataInit?: string;
   container: Container = new Container();
+
+  culling = new Culling();
 
   zones: {
     camZones: Zone[];
@@ -803,7 +806,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     };
 
     this.vineSelect = document.createElement('button');
-    this.vineSelect.innerHTML = 'vine<br>marker';
+    this.vineSelect.innerHTML = 'vine/lava bubble<br>marker';
     this.vineSelect.onclick = () => {
       this.selected = null;
       this.zoneSelected = false;
@@ -1000,6 +1003,9 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       return () => document.removeEventListener('keydown', save);
     }
     this.disableSave = saveListen();
+
+    this.culling = new Culling();
+    this.culling.cullAll();
   }
 
   override onEnd(): [output: LevelEditorOut | null, next: 'gameplay'] {
@@ -1714,6 +1720,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     mouseCamMove(dt, display, this.input, this);
 
     // Render
+    this.culling.update(display);
     debugRender(this.graphics);
     renderSmb1Mario(dt);
     renderSmb1Stuff(dt, true);

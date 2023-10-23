@@ -12,6 +12,7 @@ export default function newFirebar(x: number, y: number, size: number, angle: nu
   for (let l = 0; l < size; l += 8) {
     const f = smb1Sprites.getFactory('animObjects').new();
     f.setAnimation('fireball');
+    f.container.zIndex = 10;
     f.loopsPerSecond = 3;
     entities.createEntity(newEntity({
       size: new Vec2d(4, 4),

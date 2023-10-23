@@ -286,6 +286,12 @@ export type Entity = {
   };
   hammer?: boolean;
   nonspinningHammer?: boolean;
+  lavabubble?: {
+    maxHeight: number;
+    t: number;
+    maxT: number;
+  };
+  lavabubbleinstance?: boolean;
   fire?: {
     direction: 1 | -1;
     targetY?: number;
