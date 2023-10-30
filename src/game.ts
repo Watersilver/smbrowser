@@ -6,6 +6,12 @@ import State from "./engine/state-machine"
 import { getSmb1Audio } from "./audio";
 import LevelEditor, { LevelEditorInit } from './states/LevelEditor';
 import Gameplay from './states/Gameplay';
+import smb1marioFactory from './sprites/loaders/smb1/mario';
+import smb1tilesFactory from './sprites/loaders/smb1/tiles';
+import smb1objectsFactory from './sprites/loaders/smb1/objects';
+import smb1tilesanimationsFactory from './sprites/loaders/smb1/animated-tiles';
+import smb1enemiesanimationsFactory from './sprites/loaders/smb1/enemies';
+import smb1objectsanimationsFactory from './sprites/loaders/smb1/animated-objects';
 
 display.setBGColor('#9290FF');
 display.countFps();
@@ -17,10 +23,24 @@ class Loading extends State<'edit', LevelEditorInit | null, LevelEditorInit | nu
   g: LevelEditorInit | null = null;
   override onStart(i: LevelEditorInit): void {
     this.g = i;
+    smb1marioFactory.new();
+    smb1tilesFactory.new();
+    smb1objectsFactory.new();
+    smb1tilesanimationsFactory.new();
+    smb1enemiesanimationsFactory.new();
+    smb1objectsanimationsFactory.new();
   }
 
   override onUpdate(dt: number): boolean {
-    return audio.controller.getloadingProgress() !== 1;
+    return !(
+      audio.controller.getloadingProgress() === 1
+      && smb1marioFactory.getState() === 'ready'
+      && smb1tilesFactory.getState() === 'ready'
+      && smb1objectsFactory.getState() === 'ready'
+      && smb1tilesanimationsFactory.getState() === 'ready'
+      && smb1enemiesanimationsFactory.getState() === 'ready'
+      && smb1objectsanimationsFactory.getState() === 'ready'
+    );
   }
 
   override onEnd(): [LevelEditorInit | null, 'edit'] {

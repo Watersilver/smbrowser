@@ -225,6 +225,9 @@ const tilesSmb1Json = {
     clutterLavaSurface: {x:541,y:16,w:16,h:16},
     clutterLava: {x:541,y:33,w:16,h:16},
     clutterFlagpoleWhole: {x:0,y:596,w:16,h:168-16},
+    clutterAxe1: {x:298,y:129,w:16,h:16},
+    axe2: {x:315,y:129,w:16,h:16},
+    axe3: {x:332,y:129,w:16,h:16},
 
     clutterBrownCastleSmall: {x:24,y:684,w:80,h:80},
     clutterBrownCastle: {x:400,y:588,w:144,h:176},
@@ -237,6 +240,7 @@ const tilesSmb1Json = {
   animations: {
     block: ['block1', 'block2', 'block3'],
     coin: ['coin1', 'coin2', 'coin3'],
+    axe: ['clutterAxe1', 'axe2', 'axe3', 'axe2'],
   },
 
   transparency: [

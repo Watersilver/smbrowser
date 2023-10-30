@@ -59,6 +59,8 @@ import Parallax from "../systems/parallax";
 import npcs from "../systems/npcs";
 import flags from "../systems/flags";
 import checkpoints from "../systems/checkpoints";
+import bruce from "../systems/bruce";
+import bgColor from "../systems/bgColor";
 
 const audio = getSmb1Audio();
 
@@ -280,7 +282,6 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
         const polar = sizeVec.toPolar();
         const angvel = ((o.pstart.x - o.p1.x) / 16) * Math.PI / 2;
         newFirebar(o.pstart.x, o.pstart.y, size, polar.y, angvel);
-        console.log(o.pstart.x, o.pstart.y, size, polar.y, angvel)
       }
     });
     init.platformRoutes.forEach(o => {
@@ -482,6 +483,8 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
 
     this.graphics.clear();
 
+    bgColor(dt, display);
+
     if (!this.paused) {
 
       flags(dt, display);
@@ -542,6 +545,8 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
       hammerbros(dt, display);
 
       enemyBehaviours(dt, display);
+
+      bruce(dt, display);
 
       stuffVsEnemies(dt, display);
 

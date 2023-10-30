@@ -284,6 +284,18 @@ export type Entity = {
     hammertime: number;
     hammerTelegraphTimer: number;
   };
+  bruce?: {
+    direction: 1 | -1;
+    dirChangeTimer: number;
+    nextJumpTimer: number;
+    nextFireTimer: number;
+    hurt?: number;
+    health: number;
+    firing?: number;
+    changingModesTimer: number;
+    zone?: {l: number; r: number; b: number};
+  };
+  axe?: boolean;
   hammer?: boolean;
   nonspinningHammer?: boolean;
   lavabubble?: {

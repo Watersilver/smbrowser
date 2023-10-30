@@ -79,6 +79,26 @@ export default function enemyActivator(dt: number, display: Display, paused: boo
         break;
       case 'bowser':
       case 'bruce':
+        e.enemy = {
+          star: true,
+          stomp: false,
+          fireball: false,
+          shell: false,
+          fireballGoesThrough: true,
+          lookTowards: 'mario'
+        };
+        e.touchingDown = [];
+        e.gravity = 200;
+        e.dynamic = {velocity: new Vec2d(0, 0), acceleration: new Vec2d(0, 0)};
+        e.movement = {};
+        e.bruce = {
+          direction: Math.random() > 0.5 ? -1 : 1,
+          dirChangeTimer: -1,
+          nextJumpTimer: -1,
+          nextFireTimer: -1,
+          health: 25,
+          changingModesTimer: 0
+        };
         break;
       case 'hammerbro':
         e.enemy = {

@@ -2,6 +2,7 @@ import { getSmb1Audio } from "../audio";
 import { Display } from "../display";
 import { Vec2d, aabb } from "../engine";
 import entities, { Entity } from "../entities";
+import newBowserfire from "../entityFactories/newBowserfire";
 import newEnemy from "../entityFactories/newEnemy";
 import universal from "../universal";
 import Collidable from "../utils/collidable";
@@ -344,34 +345,6 @@ entities.onAdding(['fire'], () => {
   audio.sounds.play('bowserfire');
 });
 
-function newFire(x: number, y: number) {
-  const e = newEnemy(x, y, 'bowserfire');
-  e.size.y = 2;
-
-  e.enemy = {
-    star: false,
-    stomp: false,
-    shell: false,
-    fireball: false
-  };
-  const closest = entities.view(['mario']).reduce<Entity | undefined>((a, c) => {
-    if (!a) return c;
-    if (Math.abs(c.position.x - e.position.x) < Math.abs(c.position.x - e.position.x)) return c;
-    return a;
-  }, undefined);
-  e.fire = {
-    direction: !closest ? 1 : (closest.position.x - e.position.x) < 0 ? -1 : 1,
-  };
-  e.sensor = true;
-  e.moving = true;
-  if (e.smb1EnemiesAnimations) {
-    e.smb1EnemiesAnimations.container.scale.x = -e.fire.direction;
-    e.smb1EnemiesAnimations.loopsPerSecond *= 2;
-  }
-
-  return e;
-}
-
 let fireSpawnCooldown = 0;
 function firespawn(dt: number, display: Display) {
 
@@ -394,7 +367,7 @@ function firespawn(dt: number, display: Display) {
     if (spawn) {
       const {t, h, r} = display.getBoundingBox();
       const top = 48;
-      newFire(r + 8, t + top + 8 + (h - 96 - top) * Math.random());
+      newBowserfire(r + 8, t + top + 8 + (h - 96 - top) * Math.random());
     }
   }
 }
@@ -637,7 +610,7 @@ function lakitu(dt: number, display: Display) {
             state: 'out'
           }
         }
-      })
+      });
     }
     return;
   }

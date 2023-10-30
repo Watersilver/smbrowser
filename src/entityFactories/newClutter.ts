@@ -67,6 +67,14 @@ export default function newClutter(x: number, y: number, config: {
         e.size.x = 2;
         e.size.y = smb1TilesSprites.container.height;
         e.flagpole = {};
+      } else if (config.frame === 'clutterAxe1') {
+        e.static = true;
+        e.hits = [];
+        e.axe = true;
+        delete e.smb1TilesSprites;
+        const smb1TilesAnimations = smb1Sprites.getFactory('animTiles').new();
+        smb1TilesAnimations.setAnimation('axe');
+        e.smb1TilesAnimations = smb1TilesAnimations;
       }
     }
 

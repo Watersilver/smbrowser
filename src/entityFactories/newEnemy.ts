@@ -13,6 +13,7 @@ export default function newEnemy(x: number, y: number, frame?: Smb1EnemiesAnimat
   const hammerbro = frame === 'hammerbro';
   const plant = frame === 'greenPiranhaPlant';
   const blooper = frame === 'blooper';
+  const bruce = frame === 'bruceOpenMouth' || frame === 'bruceClosedMouth';
 
   if (plant) {
     width = 10;
@@ -20,6 +21,8 @@ export default function newEnemy(x: number, y: number, frame?: Smb1EnemiesAnimat
   } else if (hammerbro) {
     width = 10;
     height = 22;
+  } else if (bruce) {
+    height = 32;
   }
 
   y = y + 8 - height * 0.5;
@@ -33,6 +36,10 @@ export default function newEnemy(x: number, y: number, frame?: Smb1EnemiesAnimat
 
   if (blooper) {
     smb1EnemiesAnimations.loopsPerSecond = 0;
+  }
+
+  if (bruce) {
+    smb1EnemiesAnimations.loopsPerSecond = 1;
   }
   
   const e = entities.createEntity(newEntity({
@@ -60,6 +67,8 @@ export default function newEnemy(x: number, y: number, frame?: Smb1EnemiesAnimat
       ? 'plant'
       : hammerbro
       ? 'hammerbro'
+      : bruce
+      ? 'bruce'
       : undefined,
     ...(
       plant ? {
