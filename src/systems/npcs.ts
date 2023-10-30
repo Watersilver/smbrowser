@@ -26,17 +26,24 @@ export default function npcs(dt: number, display: Display) {
       const split = e.npc.text.split('|');
       let delay = 0;
       let i = 0;
+      let col = '';
       for (let s of split) {
-        const regex = /<wait:([0-9]+(\.[0-9]){0,1})>/gm;
-        const res = regex.exec(s);
-        const time = Number(res?.[1]);
+        const wait = /<wait:([0-9]+(\.[0-9]){0,1})>/gm;
+        const waitRes = wait.exec(s);
+        const time = Number(waitRes?.[1]);
         if (!Number.isNaN(time)) delay += time;
 
-        s = s.replace(regex, '');
+        s = s.replace(wait, '');
+
+        const color = /<color:([#a-zA-Z0-9]+)>/gm;
+        const colorRes = color.exec(s);
+        col = colorRes?.[1] || col;
+
+        s = s.replace(color, '');
 
         const part = new Text(s.trim(), {
           fontFamily: "Mario",
-          fill: 'white',
+          fill: col || 'white',
           strokeThickness: 5
         });
         part.visible = false;
