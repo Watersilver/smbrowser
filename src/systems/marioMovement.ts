@@ -314,7 +314,7 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
         } else {
           if (!mario.jumping) mario.ducking = false;
           if (mario.prevGrounded && speed > config.maxRunSpeed * 0.98) {
-            dynamic.acceleration.y = - (10 + dynamic.velocity.y) / dt;
+            dynamic.acceleration.y = - (20 + dynamic.velocity.y) / dt;
   
             if (parameters?.conservationOfMomentum) {
               if (e.floorSpeed) {

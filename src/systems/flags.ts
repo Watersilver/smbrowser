@@ -1,16 +1,58 @@
 import { getSmb1Audio } from "../audio";
 import display, { Display } from "../display";
 import { Vec2d, aabb } from "../engine";
+import { Sound } from "../engine/audio-controller";
 import entities, { Entity } from "../entities";
 import newBrokenBrick from "../entityFactories/newBrokenBrick";
 import newClutter from "../entityFactories/newClutter";
+import newFireball from "../entityFactories/newFireball";
 import Collidable from "../utils/collidable";
 import worldGrid from "../world-grid";
 
 const audio = getSmb1Audio();
 
+let stage_clear_sound: Sound | null = null;
+
 const flagpole = new Collidable();
 const mario = new Collidable();
+
+function marioInTheAir(flagpole: Entity) {
+  const f = flagpole.flagpole;
+
+  if (!f || !f.mario) return;
+
+  if (f.mario.dynamic && f.mario.dynamic.velocity.y >= 0) {
+    f.mario.gravity = 300;
+    if (f.mario.hits?.length) {
+      if (f.mario.mario) {
+        delete f.mario.mario.cutscene;
+      }
+      flagpole.surviveDeathzone = false;
+      if (f.mario.smb1MarioAnimations) {
+        f.mario.smb1MarioAnimations.container.rotation = 0;
+      }
+      delete f.mario.angVel;
+      delete f.mario;
+    }
+  }
+}
+
+function marioBlowUp(flagpole: Entity) {
+  const f = flagpole.flagpole;
+
+  if (!f || !f.mario) return;
+
+  f.mario.dynamic = {velocity: new Vec2d(20, -150), acceleration: new Vec2d(0, 0)};
+  f.mario.smb1MarioAnimations?.setAnimation('smallDie');
+  f.mario.angVel = 360 * (Math.random() + 1) * (Math.random() < 0.5 ? 1 : -1);
+  f.mario.gravity = 100;
+  if (f.mario.mario) {
+    if (f.mario.mario.big) {
+      f.mario.mario.big = false;
+      audio.sounds.play('pipe');
+    }
+  }
+}
 
 export default function flags(dt: number, display: Display) {
   for (const e of entities.view(['flagpole'])) {
@@ -18,10 +60,24 @@ export default function flags(dt: number, display: Display) {
 
     if (!f) continue;
 
+    if (f.id === undefined) {
+      const fp = [...entities.view(['flagpole'])];
+      fp.sort((a, b) => b.position.y - a.position.x);
+      f.id = fp.findIndex(flagpole => flagpole === e) + 1;
+    }
+
     if (!f.flag) {
       const flag = newClutter(e.position.x - 8, e.position.y - e.size.y + 16 + 9, {type: 'object', frame: 'evilflag'});
       f.flag = flag;
       e.moving = true;
+    }
+
+    if (f.descendFlag && f.flag) {
+      f.flag.position.y += dt * 80;
+      if (f.flag.position.y >= e.position.y) {
+        f.flag.position.y = e.position.y;
+        f.descendFlag = false;
+      }
     }
 
     if (!f.mario) {
@@ -42,17 +98,18 @@ export default function flags(dt: number, display: Display) {
             m.smb1MarioAnimations.loopsPerSecond = 4;
           }
           m.position.x = e.position.x - 8;
-          if (!m.mario.flags) {
-            m.mario.flags = 0;
-
+          if (f.id === 1) {
             audio.sounds.play('flagpole');
             f.fall = {};
             f.flag.dynamic = {velocity: new Vec2d(0, 0), acceleration: new Vec2d(0, 0)};
             f.flag.goThrougWalls = true;
             f.flag.gravity = 200;
+          } else if (f.id === 2) {
+            audio.sounds.play('flagpole');
+            f.fireworks = {};
+            f.descendFlag = true;
+            f.flag.moving = true;
           }
-
-          m.mario.flags++;
         }
       }
     } else if (f.fall) {
@@ -97,22 +154,13 @@ export default function flags(dt: number, display: Display) {
           f.fall.angle = Math.PI / 2;
           delete f.fall.angvel;
 
-          f.mario.dynamic = {velocity: new Vec2d(20, -150), acceleration: new Vec2d(0, 0)};
-          f.mario.smb1MarioAnimations?.setAnimation('smallDie');
-          f.mario.angVel = 360 * (Math.random() + 1) * (Math.random() < 0.5 ? 1 : -1);
-          f.mario.gravity = 100;
+          marioBlowUp(e);
           e.dynamic = {velocity: new Vec2d(0, 0), acceleration: new Vec2d(0, 0)};
           e.gravity = 100;
+          e.surviveDeathzone = true;
           audio.sounds.play('mariodieend');
           audio.sounds.play('breakblock');
           audio.sounds.play('bowserfire');
-          e.surviveDeathzone = true;
-          if (f.mario.mario) {
-            if (f.mario.mario.big) {
-              f.mario.mario.big = false;
-              audio.sounds.play('pipe');
-            }
-          }
 
           let castlePos: Vec2d | null = null;
           let b: Entity;
@@ -191,20 +239,99 @@ export default function flags(dt: number, display: Display) {
           }
         }
       } else {
-        if (f.mario.dynamic && f.mario.dynamic.velocity.y >= 0) {
-          f.mario.gravity = 300;
-          if (f.mario.hits?.length) {
-            if (f.mario.mario) {
-              delete f.mario.mario.cutscene;
-            }
-            e.surviveDeathzone = false;
-            if (f.mario.smb1MarioAnimations) {
-              f.mario.smb1MarioAnimations.container.rotation = 0;
-            }
-            delete f.mario.angVel;
-            delete f.mario;
+        // if (f.mario.dynamic && f.mario.dynamic.velocity.y >= 0) {
+        //   f.mario.gravity = 300;
+        //   if (f.mario.hits?.length) {
+        //     if (f.mario.mario) {
+        //       delete f.mario.mario.cutscene;
+        //     }
+        //     e.surviveDeathzone = false;
+        //     if (f.mario.smb1MarioAnimations) {
+        //       f.mario.smb1MarioAnimations.container.rotation = 0;
+        //     }
+        //     delete f.mario.angVel;
+        //     delete f.mario;
+        //   }
+        // }
+        marioInTheAir(e);
+      }
+    } else if (f.fireworks) {
+      if (f.fireworks.mariodescend && f.mario) {
+        f.mario.position.y += dt * 80;
+
+        const offset = f.mario.mario?.big ? 8 : 0;
+        const y = f.mario.position.y;
+        if (y >= e.position.y - offset) {
+          f.mario.position.y = e.position.y - offset;
+          f.fireworks.mariodescend = false;
+          f.fireworks.fireworksFired = 0;
+          f.fireworks.timeBeforeNextFirework = 1;
+          const manim = f.mario.smb1MarioAnimations;
+          if (manim) {
+            manim.loopsPerSecond = 0;
+            manim.setFrame(0);
+            manim.container.scale.x = -manim.container.scale.x;
+            f.mario.position.x += 16;
           }
         }
+      } else if (f.fireworks.marioInTheAir) {
+        const mario = f.mario;
+        marioInTheAir(e);
+        if (!mario.mario?.cutscene) {
+          delete e.flagpole;
+        }
+      } else if (f.fireworks.timeBeforeFinal !== undefined) {
+        f.fireworks.timeBeforeFinal -= dt;
+
+        if (f.fireworks.timeBeforeFinal < 0) {
+          marioBlowUp(e);
+          const fireball = newFireball(
+            f.mario.position.x,
+            f.mario.position.y,
+            f.mario,
+            0
+          );
+          fireball.smb1ObjectsAnimations?.setAnimation('firework');
+          fireball.fireballHitEnemy = true;
+          audio.sounds.play('fireworks');
+          stage_clear_sound?.stop();
+          f.fireworks.marioInTheAir = true;
+        }
+      } else if (f.fireworks.fireworksFired !== undefined && f.fireworks.timeBeforeNextFirework !== undefined) {
+        f.fireworks.timeBeforeNextFirework -= dt;
+
+        let rapidFire = false;
+        if (f.fireworks.rapidFireTimer !== undefined) {
+          rapidFire = true;
+          f.fireworks.rapidFireTimer -= dt;
+          if (f.fireworks.rapidFireTimer <= 0) {
+            f.fireworks.timeBeforeFinal = 1;
+          }
+        }
+
+        if (f.fireworks.timeBeforeNextFirework <= 0) {
+          if (!stage_clear_sound?.playing()) stage_clear_sound = audio.sounds.play('stage_clear');
+          if (!rapidFire) f.fireworks.fireworksFired++;
+          f.fireworks.timeBeforeNextFirework = 1 - (1 - 1 / f.fireworks.fireworksFired);
+          const {l, w, t} = display.getBoundingBox();
+          const fireball = newFireball(
+            f.mario.position.x + 16 + ((l + w) - f.mario.position.x - 16) * Math.random(),
+            f.mario.position.y + (t - f.mario.position.y) * Math.random(),
+            f.mario,
+            0
+          );
+          fireball.smb1ObjectsAnimations?.setAnimation('firework');
+          fireball.fireballHitEnemy = true;
+          audio.sounds.play('fireworks');
+
+          const minTime = 0.15;
+          if (!rapidFire && f.fireworks.timeBeforeNextFirework <= minTime) {
+            f.fireworks.timeBeforeNextFirework = minTime;
+            f.fireworks.rapidFireTimer = 1;
+          }
+        }
+      } else {
+        f.fireworks.mariodescend = true;
       }
     }
   }

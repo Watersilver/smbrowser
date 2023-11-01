@@ -144,7 +144,8 @@ export default function enemyActivator(dt: number, display: Display, paused: boo
         e.sensor = true;
         e.moving = true;
         e.piranhaPlant = {
-          height: 0
+          height: 0,
+          inTime: Math.random() * 2
         }
         break;
       default:

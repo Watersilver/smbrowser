@@ -86,7 +86,6 @@ export type Entity = {
     surfaceJumpGravity: number;
   };
   mario?: {
-    flags?: number;
     dead?: boolean;
     cutscene?: boolean;
     justGotHurt?: boolean;
@@ -412,7 +411,17 @@ export type Entity = {
       angle?: number;
       angvel?: number;
       timebeforecrash?: number;
-    }
+    },
+    fireworks?: {
+      mariodescend?: boolean;
+      timeBeforeNextFirework?: number;
+      fireworksFired?: number;
+      rapidFireTimer?: number;
+      timeBeforeFinal?: number;
+      marioInTheAir?: boolean;
+    },
+    descendFlag?: boolean;
+    id?: number;
   };
   surviveDeathzone?: boolean;
 };
