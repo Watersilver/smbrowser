@@ -25,6 +25,12 @@ class Smb1ObjectsFactory extends SpriteWrapperFactory<typeof smb1ObjectsSpritesh
     objectsSprites.setFrame('creepo');
     y = (objectsSprites.container.height - 8) / objectsSprites.container.height;
     objectsSprites.setFrameAnchor('creepo', {x: 0.5, y});
+    objectsSprites.setFrame('bowser');
+    y = (objectsSprites.container.height - 8) / objectsSprites.container.height;
+    objectsSprites.setFrameAnchor('bowser', {x: 0.5, y});
+    objectsSprites.setFrame('cake');
+    y = (objectsSprites.container.height - 8) / objectsSprites.container.height;
+    objectsSprites.setFrameAnchor('cake', {x: 0.5, y});
     objectsSprites.setFrame(initFrame);
 
     return objectsSprites;

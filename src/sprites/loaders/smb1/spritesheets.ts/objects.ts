@@ -35,6 +35,8 @@ const objectsSmb1Json = {
     toad: {x:0,y:444,w:16,h:24},
     toadette: {x:36,y:444,w:16,h:24},
     creepo: {x:54,y:444,w:16,h:24},
+    cake: {x:118,y:442,w:17,h:24},
+    bowser: {x:139,y:436,w:32,h:32},
   },
 
   animations: {

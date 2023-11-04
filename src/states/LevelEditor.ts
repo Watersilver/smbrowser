@@ -1582,6 +1582,9 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
       if (this.input.isPressed('Delete') || this.input.isPressed('Backspace')) {
         this.currentOscillation = undefined;
       }
+      const free = this.input.isHeld('ShiftLeft');
+      const x = free ? mx - 8 : mxgrid;
+      const y = free ? my - 8 : mygrid;
 
       if (this.input.isPressed('MouseMain')) {
         const del = this.input.isHeld('ControlLeft');
@@ -1609,9 +1612,9 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
             }
           } else {
             this.currentOscillation = {
-              pstart: new Vec2d(mxgrid + 8, mygrid + 8),
-              p1: new Vec2d(mxgrid + 8, mygrid + 8),
-              p2: new Vec2d(mxgrid + 8, mygrid + 8),
+              pstart: new Vec2d(x + 8, y + 8),
+              p1: new Vec2d(x + 8, y + 8),
+              p2: new Vec2d(x + 8, y + 8),
               setting: 'p1'
             };
           }
@@ -1620,11 +1623,11 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
 
       if (this.currentOscillation) {
         if (this.currentOscillation.setting === 'p1') {
-          this.currentOscillation.p1.x = mxgrid + 8;
-          this.currentOscillation.p1.y = mygrid + 8;
+          this.currentOscillation.p1.x = x + 8;
+          this.currentOscillation.p1.y = y + 8;
         } else if (this.currentOscillation.setting === 'p2') {
-          this.currentOscillation.p2.x = mxgrid + 8;
-          this.currentOscillation.p2.y = mygrid + 8;
+          this.currentOscillation.p2.x = x + 8;
+          this.currentOscillation.p2.y = y + 8;
         }
       }
     }

@@ -25,6 +25,10 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
 
     if (config && mi && dynamic && mario && !mario.cutscene) {
 
+      if (dynamic.velocity.y >= 0) {
+        delete mario.trampolinePropulsion;
+      }
+
       e.underwater = zones.underwater.some(z => aabb.pointVsRect(e.position, collidee.setToZone(z)));
       mario.surface = zones.surface.some(z => aabb.pointVsRect(e.position, collidee.setToZone(z)));
       const whirl = zones.whirlpool.find(z => aabb.pointVsRect(e.position, collidee.setToZone(z)));
@@ -79,7 +83,8 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
           const vyJump = Math.max(vyFree, Math.sqrt(2 * h * config.walkJumpGravity));
           dynamic.acceleration.y = i.jumping ? -vyJump / dt : -vyFree / dt;
           dynamic.acceleration.x = 0.25 * mario.onSpring.vx / dt;
-          
+          mario.trampolinePropulsion = true;
+
           delete mario.onSpring;
         } else {
           dynamic.velocity.x = 0;

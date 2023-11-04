@@ -24,8 +24,8 @@ export default function deathZones(lowestY: number, display: Display) {
     if (e.position.y > lowestY || inDeathZone) {
       if (e.surviveDeathzone) continue;
       if (e.mario) {
-        // Don't kill if in pipe
-        if (!e.mario.inPipe) {
+        // Don't kill if in pipe or jumping of spring
+        if (!e.mario.inPipe && !e.mario.trampolinePropulsion) {
           e.mario.dead = true;
           e.mario.big = false;
           e.star = false;

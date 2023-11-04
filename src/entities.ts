@@ -86,6 +86,7 @@ export type Entity = {
     surfaceJumpGravity: number;
   };
   mario?: {
+    trampolinePropulsion?: boolean;
     dead?: boolean;
     cutscene?: boolean;
     justGotHurt?: boolean;

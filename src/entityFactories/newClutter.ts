@@ -27,7 +27,9 @@ export default function newClutter(x: number, y: number, config: {
     }));
 
     if (config.frame) {
-      if (config.frame === 'clutterFence') {
+      if (config.frame.includes('Lava') || config.frame.includes('Water')) {
+        smb1TilesSprites.container.zIndex = -4;
+      } else if (config.frame === 'clutterFence') {
         smb1TilesSprites.container.zIndex = -25;
         e.distanceModifiers = {
           x: 0.05,
@@ -51,7 +53,7 @@ export default function newClutter(x: number, y: number, config: {
           x: 0.4,
           y: 0
         };
-      } else if (config.frame.includes('Tree') && config.frame !== 'clutterBigTreebark') {
+      } else if (config.frame.includes('Tree') && config.frame !== 'clutterBigTreebark' && config.frame !== 'clutterBigTreebarkWhite') {
         smb1TilesSprites.container.zIndex = -100;
         e.distanceModifiers = {
           x: 0.2,

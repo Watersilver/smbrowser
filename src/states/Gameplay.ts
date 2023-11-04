@@ -61,6 +61,7 @@ import flags from "../systems/flags";
 import checkpoints from "../systems/checkpoints";
 import bruce from "../systems/bruce";
 import bgColor from "../systems/bgColor";
+import loops from "../systems/loops";
 
 const audio = getSmb1Audio();
 
@@ -486,6 +487,8 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
     bgColor(dt, display);
 
     if (!this.paused) {
+
+      loops();
 
       flags(dt, display);
 

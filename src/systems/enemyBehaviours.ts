@@ -276,8 +276,8 @@ function billshooter(dt: number, display: Display) {
         m =>
         // Mario lowest point is below my highest
         m.position.y + m.size.y * 0.5 > e.position.y - e.size.y * 0.5
-        // Mario highest point is above my lowest
-        && m.position.y - m.size.y * 0.5 < e.position.y + e.size.y * 0.5
+        // Mario highest point is above my lowest + 32
+        && m.position.y - m.size.y * 0.5 < e.position.y + e.size.y * 0.5 + 32
       )
     ) continue;
 
@@ -396,6 +396,7 @@ function firemove(dt: number, display: Display) {
   }
 }
 
+let jumpCheepDelay = 0;
 let jumpCheepCooldown = 0;
 function jumpcheepspawn(dt: number, display: Display) {
 
@@ -409,33 +410,43 @@ function jumpcheepspawn(dt: number, display: Display) {
   if (entities.view(['jumpcheep']).length > 2) return;
 
   const spawn = entities.view(['mario']).some(
-    m => zones.jumpCheep.some(z => aabb.pointVsRect(m.position, c1.setToZone(z)))
+    m => !m.mario?.inPipe && zones.jumpCheep.some(z => aabb.pointVsRect(m.position, c1.setToZone(z)))
   );
 
-  jumpCheepCooldown -= dt;
+  if (spawn) {
+    jumpCheepDelay -= dt;
+  } else {
+    jumpCheepDelay += dt;
+  }
+  if (jumpCheepDelay >= 1) jumpCheepDelay = 1;
+  else if (jumpCheepDelay <= 0) jumpCheepDelay = 0;
 
-  if (jumpCheepCooldown < 0) {
-    jumpCheepCooldown = Math.random() * 0.2;
-
-    if (spawn && Math.random() < 0.5) {
-      const {t, h, l, w} = display.getBoundingBox();
-      const e = newEnemy(l + Math.random() * w * 0.75, t + h + 8, 'redCheep');
-      if (e.smb1EnemiesAnimations) {
-        e.smb1EnemiesAnimations.container.scale.x = -1;
+  if (jumpCheepDelay === 0) {
+    jumpCheepCooldown -= dt;
+  
+    if (jumpCheepCooldown < 0) {
+      jumpCheepCooldown = Math.random() * 0.2;
+  
+      if (spawn && Math.random() < 0.5) {
+        const {t, h, l, w} = display.getBoundingBox();
+        const e = newEnemy(l + Math.random() * w * 0.75, t + h + 8, 'redCheep');
+        if (e.smb1EnemiesAnimations) {
+          e.smb1EnemiesAnimations.container.scale.x = -1;
+        }
+        e.enemy = {
+          shell: true,
+          fireball: true,
+          star: true,
+          stomp: true
+        };
+        e.gravity = 200;
+        e.jumpcheep = true;
+        e.goThrougWalls = true;
+        e.dynamic = {
+          velocity: new Vec2d(30 + Math.random() * 122, -Math.sqrt(2 * e.gravity * (h - 8))),
+          acceleration: new Vec2d(0, 0)
+        };
       }
-      e.enemy = {
-        shell: true,
-        fireball: true,
-        star: true,
-        stomp: true
-      };
-      e.gravity = 400;
-      e.jumpcheep = true;
-      e.goThrougWalls = true;
-      e.dynamic = {
-        velocity: new Vec2d(30 + Math.random() * 122, -Math.sqrt(2 * e.gravity * (h - 8))),
-        acceleration: new Vec2d(0, 0)
-      };
     }
   }
 }

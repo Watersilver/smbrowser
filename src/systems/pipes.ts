@@ -2,9 +2,11 @@ import { Input, Vec2d, aabb } from "../engine";
 import entities from "../entities";
 import Collidable from "../utils/collidable";
 import worldGrid from "../world-grid";
+import zones from "../zones";
 
 const collider = new Collidable();
 const collidee = new Collidable();
+const noPipeZone = new Collidable();
 
 const initSpeed = 200;
 const pipeEnterExitSpeed = 100;
@@ -28,6 +30,9 @@ export default function pipes(input: Input, dt: number) {
             || (e.pipe.from === 'r' && uu.touchingRight?.length && (input.isPressed('ArrowRight') || input.isHeld('ArrowRight')))
             || (e.pipe.from === 'd' && uu.touchingDown?.length && (input.isPressed('ArrowDown') || input.isHeld('ArrowDown')))
           ) {
+            if (zones.medusaHead.some(np => aabb.pointVsRect(uu.position, noPipeZone.setToZone(np)))) {
+              continue;
+            }
             delete uu.dynamic;
             uu.mario.inPipe = {
               path: e.pipe.path,
