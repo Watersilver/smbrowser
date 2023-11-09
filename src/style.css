@@ -52,3 +52,23 @@ button.selected {
 button.selected:hover {
   background-color: #aeb;
 }
+
+#volume {
+  position: absolute;
+  top: 0;
+  right: 0;
+  border-bottom-left-radius: 7px;
+  backdrop-filter: blur(4px);
+  background-color: rgba(82, 68, 204, 0.281);
+  display: grid;
+  padding: 5px;
+  gap: 5px;
+}
+
+#volume>label {
+  display: flex;
+  color: white;
+  font-family: "Mario";
+  align-items: center;
+  justify-content: space-between;
+}

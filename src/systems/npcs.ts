@@ -62,9 +62,17 @@ export default function npcs(dt: number, display: Display) {
       }
     }
 
-    const close = entities.view(['mario']).some(m => m.position.distance(e.position) < 32);
+    const close = entities.view(['mario']).filter(m => {
+      const isClose = m.position.distance(e.position) < 32;
+      if (isClose) {
+        if (m.finalCutscene) {
+          m.finalCutscene.close = e;
+        }
+      }
+      return isClose;
+    });
 
-    if (close) {
+    if (close.length) {
       e.npc.parsed.t += dt;
     } else {
       e.npc.parsed.t = 0;

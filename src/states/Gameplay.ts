@@ -1,4 +1,4 @@
-import { Graphics } from "pixi.js";
+import { Container, Graphics } from "pixi.js";
 import State from "../engine/state-machine";
 import display from "../display";
 import { Input, Vec2d, aabb } from "../engine";
@@ -62,6 +62,7 @@ import checkpoints from "../systems/checkpoints";
 import bruce from "../systems/bruce";
 import bgColor from "../systems/bgColor";
 import loops from "../systems/loops";
+import Overlay from "../systems/overlay";
 
 const audio = getSmb1Audio();
 
@@ -101,12 +102,13 @@ export type GameplayOut = {
   input: Input;
 }
 
-export default class Gameplay extends State<'editor', GameplayInit | null, GameplayOut | null> {
+export default class Gameplay extends State<'editor' | 'title', GameplayInit | null, GameplayOut | null> {
   graphics?: Graphics;
   input?: Input;
 
   unloader = new Unloader();
   culling = new Culling();
+  overlay = new Overlay(display);
 
   mouseX = 0;
   mouseY = 0;
@@ -123,7 +125,13 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
   // Lowest point for dynamics before they are destroyed
   lowestY = Infinity;
 
+  private editMode = false;
+  setEditMode(em: boolean) {
+    this.editMode = em;
+  }
+
   private paused = false;
+  isPaused() {return this.paused;}
 
   private checkpoints: Set<Zone & {spawnpoint: {x: number; y: number;}}> = new Set();
 
@@ -405,13 +413,16 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
 
     this.culling = new Culling();
     this.culling.cullAll();
+
+    if (this.overlay.destroyed()) this.overlay = new Overlay(display);
   }
 
-  override onEnd(): [output: GameplayOut | null, next: 'editor'] {
+  override onEnd(): [output: GameplayOut | null, next: 'editor' | 'title'] {
     this.paused = false;
     this.respawnTimer = undefined;
     display.stopMoveTo();
     this.unloader.stop();
+    this.overlay.destroy();
 
     for (const zoneGroup of Object.values(zones)) {
       zoneGroup.length = 0;
@@ -423,21 +434,42 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
     return [{
       graphics,
       input
-    }, "editor"];
+    }, this.editMode ? "editor" : 'title'];
   }
 
   override onUpdate(dt: number): boolean {
     if (!this.graphics || !this.input) return false;
 
-    if (this.input.isPressed('Space')) return false;
+    if (this.editMode) {
+      if (this.input.isPressed('Space')) return false;
 
-    const pausedPrev = this.paused;
-    if (this.input.isPressed('KeyP')) {
-      this.paused = !this.paused;
+      if (this.input.isPressed('KeyT')) {
+        this.parallax.toggle();
+      }
+
+      for (const ent of entities.view(['mario'])) {
+        if (this.input.isPressed('KeyH')) {
+          if (ent.mario) {
+            ent.mario.big = !ent.mario.big;
+            ent.mario.changedSize = true;
+          }
+        }
+        if (this.input.isPressed('KeyF')) {
+          if (ent.mario) {
+            ent.mario.powerup = ent.mario.powerup !== 'fire' ? 'fire' : undefined;
+          }
+        }
+        if (this.input.isPressed('KeyU')) {
+          if (ent.mario) {
+            ent.underwater = !ent.underwater;
+          }
+        }
+      }
     }
 
-    if (this.input.isPressed('KeyT')) {
-      this.parallax.toggle();
+    const pausedPrev = this.paused;
+    if (this.input.isPressed('KeyP') && entities.view(['finalCutscene']).length === 0) {
+      this.paused = !this.paused;
     }
 
     if (this.paused !== pausedPrev) {
@@ -446,25 +478,6 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
 
     deathZones(this.lowestY, display);
     entities.update();
-
-    for (const ent of entities.view(['mario'])) {
-      if (this.input.isPressed('KeyH')) {
-        if (ent.mario) {
-          ent.mario.big = !ent.mario.big;
-          ent.mario.changedSize = true;
-        }
-      }
-      if (this.input.isPressed('KeyF')) {
-        if (ent.mario) {
-          ent.mario.powerup = ent.mario.powerup !== 'fire' ? 'fire' : undefined;
-        }
-      }
-      if (this.input.isPressed('KeyU')) {
-        if (ent.mario) {
-          ent.underwater = !ent.underwater;
-        }
-      }
-    }
 
     for (const e of entities.view(['displace'])) {
       if (!e.displace) continue;
@@ -582,6 +595,7 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
     enemyActivator(dt, display, this.paused);
 
     this.parallax.update(display);
+    this.overlay.update(dt, this.paused);
 
     if (!this.paused) {
 
@@ -599,5 +613,3 @@ export default class Gameplay extends State<'editor', GameplayInit | null, Gamep
     return true;
   }
 }
-
-(window as any).getViewPopulation = () => entities.getViewPopulation();

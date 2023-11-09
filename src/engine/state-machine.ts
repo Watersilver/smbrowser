@@ -1,4 +1,7 @@
-type StateMachineUpdate = (dt: number) => void;
+type StateMachineUpdate = {
+  update: (dt: number) => void,
+  state: State<any, any, any> | null
+};
 
 export default abstract class State<ConnectionIDs extends string = string, Input = undefined, Output = undefined> {
   abstract onStart(i: Input): void;
@@ -15,18 +18,21 @@ export default abstract class State<ConnectionIDs extends string = string, Input
     let init = true;
     let state: State<any, any, any> | null = null;
 
-    return (dt: number) => {
-      if (!state) {
-        if (!init) return;
-        this.onStart(i);
-        i = null as any; // dunno if needed but delete for garbage collection purposes
-        state = this;
-      }
-      
-      const res = state.onUpdate(dt);
-
-      if (res === false) {
-        state = state.end();
+    return {
+      state,
+      update: (dt: number) => {
+        if (!state) {
+          if (!init) return;
+          this.onStart(i);
+          i = null as any; // dunno if needed but delete for garbage collection purposes
+          state = this;
+        }
+        
+        const res = state.onUpdate(dt);
+  
+        if (res === false) {
+          state = state.end();
+        }
       }
     }
   }

@@ -85,7 +85,16 @@ export type Entity = {
     surfaceFallGravity: number;
     surfaceJumpGravity: number;
   };
+  finalCutscene?: {
+    move?: boolean;
+    close?: Entity;
+    timeTillFinalScreen?: number;
+    fadingOut?: number;
+    creditsState?: number;
+    creditsScrollY?: number;
+  };
   mario?: {
+    noInput?: boolean;
     trampolinePropulsion?: boolean;
     dead?: boolean;
     cutscene?: boolean;

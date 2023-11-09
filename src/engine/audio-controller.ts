@@ -170,6 +170,7 @@ class MusicPlayer<T extends string> extends AudioContainer<T> {
         this.nextData = undefined;
 
         this.playCurrent();
+        this.readyListeners.forEach(l => l());
         this.state = "fadein";
       }
 
@@ -185,6 +186,23 @@ class MusicPlayer<T extends string> extends AudioContainer<T> {
         }
       }
     });
+  }
+
+  private readyListeners: (() => void)[] = [];
+  /**
+   * State when music changed and is about to start playing
+   */
+  onReadyState(listener: () => void) {
+    this.readyListeners.push(listener);
+
+    return () => this.offReadyState(listener);
+  }
+
+  offReadyState(listener: () => void) {
+    const i = this.readyListeners.indexOf(listener);
+    if (i !== -1) {
+      this.readyListeners.splice(i, 1);
+    }
   }
 
   private playCurrent() {

@@ -8,7 +8,7 @@ const ZoneRect = new Collidable();
 export default function marioPlayerInput(keyboard: Input, dt: number) {
   for (const e of entities.view(['marioInput', 'player'])) {
     const mi = e.marioInput;
-    if (mi) {
+    if (mi && !e.mario?.noInput) {
       mi.anyPressed = false;
       const i = mi.inputs;
       for (const key in i) {

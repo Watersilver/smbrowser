@@ -38,6 +38,8 @@ function deletePrevBowserfireZones(bruce: Entity) {
 
 entities.onPropChange('bruce', deletePrevBowserfireZones);
 
+let gameoverSound: Sound | null = null;
+
 export default function bruce(dt: number, display: Display) {
   for (const e of entities.view(['bruce'])) {
     if (!e.bruce || !e.smb1EnemiesAnimations || !e.dynamic) continue;
@@ -167,9 +169,23 @@ export default function bruce(dt: number, display: Display) {
     }
   }
 
+  const axes = [...entities.view(['axe'])].sort((a, b) => a.position.x - b.position.x);
+
   for (const e of entities.view(['axe', 'hits'])) {
-    if (e.hits?.filter(h => h.e.mario && h.normal.y < 0).length) {
-      entities.remove(e);
+
+    const axeID = axes.indexOf(e);
+    const finalAxe = axeID === 1;
+
+    const hitMarios = e.hits?.filter(h => h.e.mario && h.normal.y < 0);
+    if (hitMarios?.length) {
+      delete e.hits;
+      delete e.static;
+      delete e.smb1TilesAnimations;
+
+      hitMarios.forEach(({e}) => {
+        if (e.mario) e.mario.noInput = true;
+        e.finalCutscene = {};
+      });
 
       const {l,r,t,b} = display.getBoundingBox();
 
@@ -204,7 +220,14 @@ export default function bruce(dt: number, display: Display) {
           s = audio.sounds.play('breakblock');
           entities.remove(b);
           if (j === bb.length - 1) {
-            setTimeout(() => audio.sounds.play('stage_clear'), 1000);
+            setTimeout(() => {
+              audio.sounds.play(finalAxe ? 'world_clear' : 'stage_clear');
+              
+              hitMarios.forEach(({e}) => {
+                if (e.mario) e.mario.noInput = true;
+                e.finalCutscene = {move: true};
+              });
+            }, 1000);
             bruce.forEach(br => {
               audio.sounds.play('bowserfalls');
               br.goThrougWalls = true;
@@ -221,6 +244,38 @@ export default function bruce(dt: number, display: Display) {
       for (const u of worldGrid.grid.findNear(l,t,r-l,b-t)) {
         if (u.userData.smb1TilesSprites?.getFrame() === 'clutterCastleBridgeChain') {
           entities.remove(u.userData);
+        }
+      }
+    }
+  }
+
+  for (const e of entities.view(['marioInput', 'finalCutscene'])) {
+    if (!e.marioInput || !e.finalCutscene) continue;
+    if (e.finalCutscene.move && !e.finalCutscene.close) {
+      e.marioInput = {inputs: {right: true}};
+    } else {
+      e.marioInput = {inputs: {}};
+    }
+    if (e.finalCutscene.close) {
+      e.position.x = Math.min(e.position.x, e.finalCutscene.close.position.x - 16);
+
+      if (e.finalCutscene.timeTillFinalScreen === undefined) {
+        const p = e.finalCutscene.close.npc?.parsed;
+        if (p) {
+          if (p.t >= (p.text.at(-1)?.delay ?? 0)) {
+            e.finalCutscene.timeTillFinalScreen = 1;
+            gameoverSound = audio.sounds.play('gameover');
+          }
+        }
+      } else {
+        const prev = e.finalCutscene.timeTillFinalScreen;
+        if (!gameoverSound || !gameoverSound.playing()) e.finalCutscene.timeTillFinalScreen -= dt;
+        if (e.finalCutscene.timeTillFinalScreen <= 0) {
+          e.finalCutscene.timeTillFinalScreen = 0;
+
+          if (prev !== 0) {
+            e.finalCutscene.fadingOut = 0;
+          }
         }
       }
     }

@@ -46,6 +46,7 @@ class Display {
     backgroundColor: "#900C3F"
   });
   private stage = new Container();
+  private hud = new Container();
   private effects = new Container();
   private view = new Container();
 
@@ -149,6 +150,8 @@ class Display {
     if (!display) return;
 
     display.append(view);
+    this.hud.zIndex = 1;
+    this.stage.addChild(this.hud);
     this.stage.addChild(this.effects);
     this.effects.addChild(this.view);
 

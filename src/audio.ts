@@ -24,6 +24,7 @@ import vine from "./assets/sfx/smb_vine.mp3"
 import warning from "./assets/sfx/smb_warning.mp3"
 import world_clear from "./assets/sfx/smb_world_clear.mp3"
 import mustest from "./assets/physdemo.mp3"
+import smb3underwater from "./assets/bgm/smb3underwater.mp3"
 import { AudioController } from "./engine"
 
 let smbCache: any = null;
@@ -58,7 +59,8 @@ export function getSmb1Audio() {
     world_clear
   });
   const music = ac.createMusicPlayer({
-    mustest
+    mustest,
+    smb3underwater
   });
   
   const audio = {
@@ -70,6 +72,8 @@ export function getSmb1Audio() {
   smbCache = audio;
 
   ac.setVolume(0.5);
+  sounds.setVolume(0.80);
+  music.setVolume(0.80);
 
   return audio;
 }
