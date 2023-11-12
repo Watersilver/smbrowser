@@ -4,6 +4,9 @@ import entities from "../entities";
 import Collidable from "../utils/collidable";
 import zones from "../zones";
 
+// Preload views
+entities.view(['mario']);
+
 // Mario sky
 // #9290FF
 

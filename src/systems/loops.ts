@@ -3,6 +3,9 @@ import entities from "../entities";
 import Collidable from "../utils/collidable";
 import zones from "../zones";
 
+// Preload views
+entities.view(['mario']);
+
 const c1 = new Collidable();
 const c2 = new Collidable();
 

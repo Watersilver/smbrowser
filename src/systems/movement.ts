@@ -5,6 +5,10 @@ import entities from "../entities";
 import Collidable from "../utils/collidable";
 import worldGrid from "../world-grid";
 
+// Preload views
+entities.view(['dynamic', 'movement', 'hits']);
+entities.view(['movement']);
+
 const e1 = new Collidable();
 const e2 = new Collidable();
 

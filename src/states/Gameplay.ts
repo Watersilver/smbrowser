@@ -412,7 +412,7 @@ export default class Gameplay extends State<'editor' | 'title', GameplayInit | n
     }, Infinity);
 
     this.culling = new Culling();
-    this.culling.cullAll();
+    // this.culling.cullAll();
 
     if (this.overlay.destroyed()) this.overlay = new Overlay(display);
   }
@@ -423,6 +423,7 @@ export default class Gameplay extends State<'editor' | 'title', GameplayInit | n
     display.stopMoveTo();
     this.unloader.stop();
     this.overlay.destroy();
+    audio.music.setMusic({});
 
     for (const zoneGroup of Object.values(zones)) {
       zoneGroup.length = 0;
@@ -595,7 +596,7 @@ export default class Gameplay extends State<'editor' | 'title', GameplayInit | n
     enemyActivator(dt, display, this.paused);
 
     this.parallax.update(display);
-    this.overlay.update(dt, this.paused);
+    const canGoBackToTitle = this.overlay.update(dt, this.paused);
 
     if (!this.paused) {
 
@@ -609,6 +610,10 @@ export default class Gameplay extends State<'editor' | 'title', GameplayInit | n
     }
 
     this.unloader.unload();
+
+    if (canGoBackToTitle && this.input.isPressed('Enter')) {
+      return false;
+    }
 
     return true;
   }

@@ -6,6 +6,10 @@ import newFireball from "../entityFactories/newFireball";
 import Collidable from "../utils/collidable";
 import worldGrid from "../world-grid";
 
+// Preload views
+entities.view(['mario']);
+entities.view(['fireball']);
+
 const rect = {pos: new Vec2d(0, 0), size: new Vec2d(8, 8)};
 
 const audio = getSmb1Audio();

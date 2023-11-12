@@ -4,6 +4,9 @@ import newCoinFromBlock from "../entityFactories/newCoinFromBlock";
 import Collidable from "../utils/collidable";
 import worldGrid from "../world-grid";
 
+// Preload views
+entities.view(['player']);
+
 const collider = new Collidable();
 const collidee = new Collidable();
 

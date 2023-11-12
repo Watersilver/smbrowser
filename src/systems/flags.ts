@@ -9,6 +9,10 @@ import newFireball from "../entityFactories/newFireball";
 import Collidable from "../utils/collidable";
 import worldGrid from "../world-grid";
 
+// Preload views
+entities.view(['mario']);
+entities.view(['flagpole']);
+
 const audio = getSmb1Audio();
 
 let stage_clear_sound: Sound | null = null;

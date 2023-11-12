@@ -23,12 +23,13 @@ const audio = getSmb1Audio();
 audio.music.onReadyState(() => {
   const n = audio.music.getMusic()?.name;
   if (n) musicDisplayer.setNext(n);
+  else musicDisplayer.deleteData();
 });
 
 try {
   const v = localStorage.getItem('mst-vol');
   if (v) {
-    audio.sounds.setVolume(Number(v));
+    audio.controller.setVolume(Number(v));
   }
   const sv = localStorage.getItem('snd-vol');
   if (sv) {
@@ -155,6 +156,8 @@ class Game extends Loop {
   protected override onFrameDraw(): void {
     const v = document.getElementById('volume');
     if (v) v.style.display = 'none';
+    const f = document.getElementById('fullscreen');
+    if (f) f.style.display = 'none';
 
     this.input.update();
 
@@ -164,7 +167,8 @@ class Game extends Loop {
     display.update(clampedDT);
     this.sm.update(clampedDT);
 
-    const paused = this.sm.state instanceof Gameplay ? this.sm.state.isPaused() : false;
+    const s = this.sm.getState();
+    const paused = s instanceof Gameplay ? s.isPaused() : false;
     musicDisplayer.update(clampedDT, paused);
 
     display.render();

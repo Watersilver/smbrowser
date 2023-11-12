@@ -1,6 +1,20 @@
 import entities from "../entities";
 import systemUtils from "./utils";
 
+// Preload views
+entities.view(['smb1TilesAnimations', 'smb1TilesSpritesEditMode']);
+entities.view(['smb1TilesSprites', 'smb1TilesSpritesEditMode']);
+entities.view(['smb1TilesSprites', 'invisibleBlock']);
+entities.view(['smb1EnemiesAnimations', 'enemy']);
+entities.view(['mario']);
+entities.view(['smb1TilesAnimations']);
+entities.view(['smb1TilesSprites', 'brokenBrick']);
+entities.view(['collectedCoin']);
+entities.view(['smb1ObjectsAnimations']);
+entities.view(['smb1EnemiesAnimations']);
+entities.view(['fireballHit', 'smb1ObjectsAnimations']);
+entities.view(['platformConnection']);
+
 systemUtils.addRemoveRenderable('smb1MarioAnimations');
 systemUtils.addRemoveRenderable('smb1ObjectsSprites');
 systemUtils.addRemoveRenderable('smb1ObjectsAnimations');

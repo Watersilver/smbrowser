@@ -1,5 +1,9 @@
 import entities from "../entities";
 
+// Preload views
+entities.view(['mario', 'dynamic']);
+entities.view(['dynamic', 'floorSpeed']);
+
 export default function removeSpeedComponents() {
   for (const e of entities.view(['mario', 'dynamic'])) {
     const d = e.dynamic;

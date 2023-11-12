@@ -13,6 +13,18 @@ import smb1Sprites from "../sprites/smb1";
 import Collidable from "../utils/collidable";
 import worldGrid from "../world-grid";
 
+// Preload views
+entities.view(['mario']);
+entities.view(['bonked']);
+entities.view(['smash']);
+entities.view(['bonk']);
+entities.view(['smashCooldown']);
+entities.view(['bonkCooldown']);
+entities.view(['coinblockDeathTimer']);
+entities.view(['hitAnim']);
+entities.view(['grow']);
+entities.view(['brokenBrick']);
+
 function didHitHead(e: Entity) {
   const hits = e.hits;
   const prevHits = e.prevHits;

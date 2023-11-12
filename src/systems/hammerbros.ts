@@ -5,6 +5,10 @@ import newEnemy from "../entityFactories/newEnemy";
 import Collidable from "../utils/collidable";
 import worldGrid from "../world-grid";
 
+// Preload views
+entities.view(['nonspinningHammer']);
+entities.view(['hammerbro']);
+
 const c1 = new Collidable();
 const c2 = new Collidable();
 

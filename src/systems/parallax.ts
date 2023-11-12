@@ -2,6 +2,9 @@ import { Display } from "../display";
 import entities, { Entity } from "../entities";
 import worldGrid from "../world-grid";
 
+// Preload views
+entities.view(['distanceModifiers']);
+
 export default class Parallax {
   private prev: Set<Entity> = new Set();
   private enabled = true;

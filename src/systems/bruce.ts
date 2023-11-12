@@ -8,6 +8,14 @@ import Collidable from "../utils/collidable";
 import worldGrid from "../world-grid";
 import zones from "../zones";
 
+// Preload views
+entities.view(['mario']);
+entities.view(['bruce']);
+entities.view(['fireball']);
+entities.view(['marioInput', 'finalCutscene']);
+entities.view(['axe', 'hits']);
+entities.view(['axe']);
+
 const audio = getSmb1Audio();
 
 const c1 = new Collidable();
@@ -39,6 +47,8 @@ function deletePrevBowserfireZones(bruce: Entity) {
 entities.onPropChange('bruce', deletePrevBowserfireZones);
 
 let gameoverSound: Sound | null = null;
+let clearSound: Sound | null = null;
+let winSound: Sound | null = null;
 
 export default function bruce(dt: number, display: Display) {
   for (const e of entities.view(['bruce'])) {
@@ -221,7 +231,7 @@ export default function bruce(dt: number, display: Display) {
           entities.remove(b);
           if (j === bb.length - 1) {
             setTimeout(() => {
-              audio.sounds.play(finalAxe ? 'world_clear' : 'stage_clear');
+              clearSound = audio.sounds.play(finalAxe ? 'world_clear' : 'stage_clear');
               
               hitMarios.forEach(({e}) => {
                 if (e.mario) e.mario.noInput = true;
@@ -256,6 +266,12 @@ export default function bruce(dt: number, display: Display) {
     } else {
       e.marioInput = {inputs: {}};
     }
+    if (clearSound) {
+      if (!clearSound.playing()) {
+        clearSound = null;
+        winSound = audio.sounds.play('save_cake');
+      }
+    }
     if (e.finalCutscene.close) {
       e.position.x = Math.min(e.position.x, e.finalCutscene.close.position.x - 16);
 
@@ -264,6 +280,7 @@ export default function bruce(dt: number, display: Display) {
         if (p) {
           if (p.t >= (p.text.at(-1)?.delay ?? 0)) {
             e.finalCutscene.timeTillFinalScreen = 1;
+            winSound?.stop();
             gameoverSound = audio.sounds.play('gameover');
           }
         }

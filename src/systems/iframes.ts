@@ -1,5 +1,8 @@
 import entities from "../entities";
 
+// Preload views
+entities.view(['iframesSecs']);
+
 export default function iframes(dt: number) {
   for (const e of entities.view(['iframesSecs'])) {
     if (e.iframesSecs === undefined) continue;

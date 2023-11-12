@@ -5,6 +5,9 @@ import { Zone } from "../types";
 import Collidable from "../utils/collidable";
 import zones from "../zones";
 
+// Preload views
+entities.view(['followCam']);
+
 let z: {x: number; y: number; w: number; h: number} | null = null;
 
 const c1 = new Collidable();

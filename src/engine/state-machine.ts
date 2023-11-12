@@ -1,6 +1,6 @@
 type StateMachineUpdate = {
   update: (dt: number) => void,
-  state: State<any, any, any> | null
+  getState: () => State<any, any, any> | null
 };
 
 export default abstract class State<ConnectionIDs extends string = string, Input = undefined, Output = undefined> {
@@ -19,7 +19,7 @@ export default abstract class State<ConnectionIDs extends string = string, Input
     let state: State<any, any, any> | null = null;
 
     return {
-      state,
+      getState: () => state,
       update: (dt: number) => {
         if (!state) {
           if (!init) return;

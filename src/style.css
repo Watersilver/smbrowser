@@ -72,3 +72,24 @@ button.selected:hover {
   align-items: center;
   justify-content: space-between;
 }
+
+#fullscreen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 8px;
+  margin: 8px;
+  backdrop-filter: blur(4px);
+  background-color: rgba(82, 68, 204, 0.281);
+  border-radius: 7px;
+  display: grid;
+  font-size: 40px;
+  font-weight: bolder;
+  border: none;
+  line-height: 0;
+}
+
+#fullscreen {
+  fill: white;
+  stroke: white;
+}

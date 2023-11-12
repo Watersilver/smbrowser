@@ -1,6 +1,9 @@
 // import { getSmb1Audio } from "../audio";
 import entities from "../entities";
 
+// Preload views
+entities.view(['mario']);
+
 // const audio = getSmb1Audio();
 
 export default function marioPowerups(dt: number) {

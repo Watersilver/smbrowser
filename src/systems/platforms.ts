@@ -3,6 +3,10 @@ import { Vec2d } from "../engine";
 import entities from "../entities";
 import Collidable from "../utils/collidable";
 
+// Preload views
+entities.view(['platform']);
+entities.view(['platformConnection', 'platformConnectionIsConnected']);
+
 const routeSpeed = 75;
 
 const maxDescendSpeed = 100;

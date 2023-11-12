@@ -4,6 +4,9 @@ import { GlowFilter, MultiColorReplaceFilter } from "pixi-filters";
 import smb1Sprites from "../sprites/smb1";
 import display from "../display";
 
+// Preload views
+entities.view(['mario', 'smb1MarioAnimations']);
+
 const fmfRedStart = fireMarioFilterUniforms.red;
 let t = 0;
 let redIntensityMod = 0;

@@ -23,6 +23,7 @@ import stomp from "./assets/sfx/smb_stomp.mp3"
 import vine from "./assets/sfx/smb_vine.mp3"
 import warning from "./assets/sfx/smb_warning.mp3"
 import world_clear from "./assets/sfx/smb_world_clear.mp3"
+import save_cake from "./assets/sfx/save_cake.mp3"
 import mustest from "./assets/physdemo.mp3"
 import smb3underwater from "./assets/bgm/smb3underwater.mp3"
 import { AudioController } from "./engine"
@@ -56,7 +57,8 @@ export function getSmb1Audio() {
     stomp,
     vine,
     warning,
-    world_clear
+    world_clear,
+    save_cake
   });
   const music = ac.createMusicPlayer({
     mustest,

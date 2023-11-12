@@ -1,6 +1,10 @@
 import { Vec2d } from "../engine";
 import entities from "../entities";
 
+// Preload views
+entities.view(['firebarFireball']);
+entities.view(['firebar']);
+
 export default function firebar(dt: number) {
   for (const e of entities.view(['firebarFireball'])) {
     if (!e.firebarFireball?.parent.firebar) continue;

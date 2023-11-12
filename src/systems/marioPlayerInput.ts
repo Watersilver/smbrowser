@@ -3,6 +3,9 @@ import entities from "../entities";
 import Collidable from "../utils/collidable";
 import zones from "../zones";
 
+// Preload views
+entities.view(['marioInput', 'player']);
+
 const ZoneRect = new Collidable();
 
 export default function marioPlayerInput(keyboard: Input, dt: number) {

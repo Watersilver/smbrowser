@@ -1,7 +1,10 @@
 import { Vec2d } from "../engine";
 import { rectVsRect } from "../engine/aabb";
-import entities, { Entity } from "../entities";
+import entities from "../entities";
 import worldGrid from "../world-grid";
+
+// Preload views
+entities.view(['mario']);
 
 const collider = {pos: new Vec2d(0, 0), size: new Vec2d(0, 0), dr: new Vec2d(0, 0)};
 const collidee = {pos: new Vec2d(0, 0), size: new Vec2d(0, 0), dr: new Vec2d(0, 0)};

@@ -3,6 +3,9 @@ import { dynamicRectVsRect } from "../engine/aabb";
 import entities from "../entities";
 import worldGrid from "../world-grid";
 
+// Preload views
+entities.view(['mario', 'dynamic']);
+
 const small = 15;
 const big = small * 2;
 

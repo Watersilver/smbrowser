@@ -4,6 +4,11 @@ import entities from "../entities";
 import Collidable from "../utils/collidable";
 import zones from "../zones";
 
+// Preload views
+entities.view(['dynamic']);
+entities.view(['enemy', 'sensor']);
+entities.view(['deleteOutOfCam']);
+
 const rect = new Collidable();
 
 function* killables() {

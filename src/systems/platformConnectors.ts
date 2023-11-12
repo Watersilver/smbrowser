@@ -1,5 +1,8 @@
 import entities from "../entities";
 
+// Preload views
+entities.view(['platformConnection', 'platformConnectionIsConnected']);
+
 export default function platformConnections() {
   
   for (const e of entities.view(['platformConnection', 'platformConnectionIsConnected'])) {

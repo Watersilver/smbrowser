@@ -1,5 +1,14 @@
 import entities from "../entities";
 
+// Preload views
+entities.view(['touchingUp']);
+entities.view(['touchingRight']);
+entities.view(['touchingDown']);
+entities.view(['touchingLeft']);
+entities.view(['dynamic']);
+entities.view(['mario', 'player']);
+entities.view(['kinematic']);
+
 export default function resetStuff() {
   for (const ent of entities.view(['touchingUp'])) {
     if (ent.touchingUp) ent.touchingUp.length = 0;

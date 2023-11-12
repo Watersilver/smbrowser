@@ -1,5 +1,13 @@
 import entities, { Entity } from "../entities";
 
+// Preload views
+entities.view(['dynamic']);
+entities.view(['smash']);
+entities.view(['movement', 'touchingDown']);
+entities.view(['mushroom', 'touchingDown']);
+entities.view(['dynamic', 'movement']);
+entities.view(['kinematic']);
+
 export default function velocityChanges(dt: number) {
   // Add accel to velocity for dynamics 
   for (const e of entities.view(['dynamic'])) {

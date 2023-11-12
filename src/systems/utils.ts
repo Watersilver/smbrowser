@@ -2,6 +2,12 @@ import display from "../display";
 import { Vec2d } from "../engine";
 import entities from "../entities";
 
+// Preload views
+entities.view(['dynamic']);
+entities.view(['kinematic']);
+entities.view(['moving']);
+entities.view(['angVel']);
+
 type RenderProps =
 | 'smb1TilesSprites'
 | 'smb1ObjectsSprites'
@@ -37,7 +43,8 @@ const systemUtils = {
 
           a.container.filters = e.filters ?? null;
         }
-        display.add(cont);
+        // Don't add statics, culling system will do that
+        if (!e.static) display.add(cont);
       }
     });
     

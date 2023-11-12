@@ -1,5 +1,9 @@
 import entities from "../entities";
 
+// Preload views
+entities.view(['spring', 'touchingUp', 'hits']);
+entities.view(['spring']);
+
 const springSpeed = Math.PI * 1.5;
 
 entities.onAdding(['spring'], e => {

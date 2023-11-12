@@ -2,6 +2,13 @@ import { getSmb1Audio } from "../audio";
 import { Sound } from "../engine/audio-controller";
 import entities from "../entities";
 
+// Preload views
+entities.view(['mario']);
+entities.view(['mario', 'dynamic']);
+entities.view(['bonk']);
+entities.view(['smash']);
+entities.view(['vineStart']);
+
 const audio = getSmb1Audio();
 
 let coinTimer = Date.now();

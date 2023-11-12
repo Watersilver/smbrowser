@@ -79,7 +79,7 @@ export default class Title extends State<'gameplay', TitleIn | null, TitleOut | 
     if (ld.parsed.platformConnections) this.platformConnections = ld.parsed.platformConnections;
 
     this.culling = new Culling();
-    this.culling.cullAll();
+    // this.culling.cullAll();
 
     // Temp
     const m = entities.view(['mario'])[0];

@@ -2,6 +2,10 @@ import { Vec2d } from "../engine";
 import entities from "../entities";
 import systemUtils from "./utils";
 
+// Preload views
+entities.view(['mario', 'dynamic']);
+entities.view(['dynamic', 'floorSpeed']);
+
 function addXComponent(velocity: Vec2d, x: number) {
   const hSpeedPrev = velocity.x;
   velocity.x += x;

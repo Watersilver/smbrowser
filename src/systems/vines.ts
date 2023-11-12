@@ -4,6 +4,10 @@ import newClutter from "../entityFactories/newClutter";
 import Collidable from "../utils/collidable";
 import worldGrid from "../world-grid";
 
+// Preload views
+entities.view(['mario']);
+entities.view(['vine', 'moving']);
+
 const collider = new Collidable();
 const collidee = new Collidable();
 

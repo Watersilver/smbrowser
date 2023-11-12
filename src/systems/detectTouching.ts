@@ -3,6 +3,12 @@ import { dynamicRectVsRect } from "../engine/aabb";
 import entities from "../entities";
 import worldGrid from "../world-grid";
 
+// Preload views
+entities.view(['touchingDown']);
+entities.view(['touchingUp']);
+entities.view(['touchingRight']);
+entities.view(['touchingLeft']);
+
 const collider = {pos: new Vec2d(0, 0), size: new Vec2d(0, 0), dr: new Vec2d(0, 0)};
 const collidee = {pos: new Vec2d(0, 0), size: new Vec2d(0, 0)};
 

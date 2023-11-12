@@ -2,6 +2,10 @@ import { Text } from "pixi.js";
 import { Display } from "../display";
 import entities from "../entities";
 
+// Preload views
+entities.view(['npc']);
+entities.view(['mario']);
+
 entities.onPropChange('npc', (_, prev) => {
   if (prev?.parsed) {
     prev.parsed.text.forEach(t => t.part.removeFromParent());

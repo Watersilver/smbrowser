@@ -7,6 +7,13 @@ import worldGrid from "../world-grid";
 import { Display } from "../display";
 import universal from "../universal";
 
+// Preload views
+entities.view(['mario']);
+entities.view(['enemy', 'gotHit']);
+entities.view(['enemy', 'hits', 'prevHits']);
+entities.view(['spiny', 'hits']);
+entities.view(['enemy']);
+
 const audio = getSmb1Audio();
 
 const e1 = new Collidable();

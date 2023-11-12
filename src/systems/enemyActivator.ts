@@ -5,6 +5,9 @@ import universal from "../universal";
 import Collidable from "../utils/collidable";
 import worldGrid from "../world-grid";
 
+// Preload views
+entities.view(['enemy']);
+
 const rect = new Collidable();
 
 const enemyGravity = universal.enemyGravity;

@@ -4,6 +4,12 @@ import Collidable from "../utils/collidable";
 import worldGrid from "../world-grid";
 import zones from "../zones";
 
+// Preload views
+entities.view(['marioInput',
+'marioMovementConfig',
+'dynamic',
+'mario']);
+
 const collider = new Collidable();
 const collidee = new Collidable();
 

@@ -8,6 +8,21 @@ import universal from "../universal";
 import Collidable from "../utils/collidable";
 import zones from "../zones";
 
+// Preload views
+entities.view(['mario']);
+entities.view(['piranhaPlant']);
+entities.view(['blooper']);
+entities.view(['cheep']);
+entities.view(['billShooter']);
+entities.view(['bill']);
+entities.view(['billSwarm']);
+entities.view(['fire']);
+entities.view(['jumpcheep']);
+entities.view(['lakitu']);
+entities.view(['spiny']);
+entities.view(['lavabubble']);
+entities.view(['lavabubbleinstance']);
+
 const audio = getSmb1Audio();
 
 const c1 = new Collidable();

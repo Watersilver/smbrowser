@@ -1,5 +1,9 @@
 import entities from "../entities";
 
+// Preload views
+entities.view(['touchingDown', 'dynamic', 'floorSpeed']);
+entities.view(['touchingDown', 'dynamic', 'floorSpeedY']);
+
 export default function detectFloorSpeedY() {
   for (const component of ['floorSpeed', 'floorSpeedY'] as ('floorSpeed' | 'floorSpeedY')[]) {
     for (const e of entities.view(['touchingDown', 'dynamic', component])) {

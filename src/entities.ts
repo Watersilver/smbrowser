@@ -92,6 +92,7 @@ export type Entity = {
     fadingOut?: number;
     creditsState?: number;
     creditsScrollY?: number;
+    timeTillRestartPossible?: number;
   };
   mario?: {
     noInput?: boolean;
@@ -455,5 +456,7 @@ export function newEntity(init?: Partial<Entity>): Entity {
 const entities = new Ecs<Entity>();
 
 entities.onAdding([], e => e.justAdded = true);
+
+(window as any).getViewPopulation = () => entities.getViewPopulation();
 
 export default entities;

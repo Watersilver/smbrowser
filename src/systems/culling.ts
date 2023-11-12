@@ -1,18 +1,18 @@
 import { Display } from "../display";
-import entities, { Entity } from "../entities";
+import { Entity } from "../entities";
 import worldGrid from "../world-grid";
 
 export default class Culling {
   private current: Set<Entity> = new Set();
   private prev: Set<Entity> = new Set();
 
-  cullAll() {
-    for (const e of entities.view(['static'])) {
-      const s = e.smb1TilesSprites || e.smb1TilesAnimations;
-      if (!s) continue;
-      s.container.removeFromParent();
-    }
-  }
+  // cullAll() {
+  //   for (const e of entities.view(['static'])) {
+  //     const s = e.smb1TilesSprites || e.smb1TilesAnimations;
+  //     if (!s) continue;
+  //     s.container.removeFromParent();
+  //   }
+  // }
 
   update(display: Display) {
     const {l,t,w,h} = display.getBoundingBox();

@@ -4,6 +4,10 @@ import Collidable from "../utils/collidable";
 import worldGrid from "../world-grid";
 import zones from "../zones";
 
+// Preload views
+entities.view(['pipe']);
+entities.view(['mario']);
+
 const collider = new Collidable();
 const collidee = new Collidable();
 const noPipeZone = new Collidable();

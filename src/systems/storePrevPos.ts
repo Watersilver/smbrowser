@@ -1,5 +1,10 @@
 import entities from "../entities";
 
+// Preload views
+entities.view(['moving']);
+entities.view(['dynamic']);
+entities.view(['kinematic']);
+
 entities.onAdding([], e => {
   e.positionPrev.x = e.position.x;
   e.positionPrev.y = e.position.y;

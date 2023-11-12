@@ -1005,7 +1005,7 @@ export default class LevelEditor extends State<'gameplay', LevelEditorInit | nul
     this.disableSave = saveListen();
 
     this.culling = new Culling();
-    this.culling.cullAll();
+    // this.culling.cullAll();
   }
 
   override onEnd(): [output: LevelEditorOut | null, next: 'gameplay'] {

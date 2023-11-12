@@ -3,6 +3,9 @@ import { Vec2d } from "../engine";
 import entities from "../entities";
 import newDeadMario from "../entityFactories/newDeadMario";
 
+// Preload views
+entities.view(['mario']);
+
 const audio = getSmb1Audio();
 
 export default function deathAndRespawn(dt: number, props: {respawnTimer?: number}) {

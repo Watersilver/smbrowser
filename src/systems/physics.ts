@@ -4,6 +4,9 @@ import entities, { Entity } from "../entities";
 import worldGrid from "../world-grid";
 import storePrevHits from "./storePrevHits";
 
+// Preload views
+entities.view(['sensor', 'moving']);
+
 const collider = {pos: new Vec2d(0, 0), size: new Vec2d(0, 0), dr: new Vec2d(0, 0)};
 const collidee = {pos: new Vec2d(0, 0), size: new Vec2d(0, 0), dr: new Vec2d(0, 0)};
 
