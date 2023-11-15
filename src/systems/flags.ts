@@ -66,7 +66,7 @@ export default function flags(dt: number, display: Display) {
 
     if (f.id === undefined) {
       const fp = [...entities.view(['flagpole'])];
-      fp.sort((a, b) => b.position.y - a.position.x);
+      fp.sort((a, b) => a.position.x - b.position.x);
       f.id = fp.findIndex(flagpole => flagpole === e) + 1;
     }
 
