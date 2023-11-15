@@ -193,6 +193,7 @@ export default function blockhit(dt: number) {
               }
             }
           } else {
+            e.smb1TilesSprites?.setFrame('brick1');
             newCoinFromBlock(e.position.x, e.position.y);
             if (e.player) e.player.coins++;
 

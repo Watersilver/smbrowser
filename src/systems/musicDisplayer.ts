@@ -10,14 +10,28 @@ for (const img of [nobledemon]) {
   document.body.append(preloader);
 }
 
+const root = document.createElement('div');
+// root.style.pointerEvents = 'none';
+root.style.position = 'fixed';
+root.style.left = '0';
+root.style.bottom = '0';
+let mousingOverMusic = false;
+root.onmouseover = () => {
+  mousingOverMusic = true;
+};
+root.onmouseleave = () => {
+  mousingOverMusic = false;
+};
+document.body.append(root);
+
 const div = document.createElement('div');
 div.style.pointerEvents = 'none';
-div.style.position = 'fixed';
-div.style.left = '0';
-div.style.bottom = '0';
+// div.style.position = 'fixed';
+// div.style.left = '0';
+// div.style.bottom = '0';
 div.style.transform = 'TranslateY(100%)';
 div.style.padding = '24px';
-document.body.append(div);
+root.append(div);
 
 const card = document.createElement('a');
 card.target = '_blank';
@@ -50,6 +64,7 @@ text.style.color = 'black';
 card.append(text);
 
 const audio = getSmb1Audio();
+(window as any).audio = audio;
 
 type MusicName = NonNullable<NonNullable<ReturnType<(typeof audio.music.getMusic)>>['name']>;
 
@@ -60,11 +75,6 @@ const authorMap: {
     name: string;
   }
 } = {
-  'mustest': {
-    link: 'hello',
-    img: 'ass',
-    name: 'My Ass'
-  },
   'smb3underwater': {
     'link': 'https://www.youtube.com/watch?v=QfaMmbUivqk',
     'img': nobledemon,
@@ -73,16 +83,12 @@ const authorMap: {
 }
 
 // TODOS:
-// bill shooters should shoot more frequently
+// BUG: Flag work opposite in chrome...
 // Make music zones
 // - set music zone
 // - stop music zone
-// Loading screen should have loaders (percentages) and be black until loaded
-// make entity that teleports camera
-// Title screen should also start black and wait a few secs for level to load
 // Then wait a bit before "press enter to start playing appears"
 // when enter pressed delete entity that forces camera to it and camera will go to mario
-// initialize views before filling entities
 // Memory issues... :(
 
 const showStep1Dur = 0.6;
@@ -218,7 +224,7 @@ class MusicDisplayer {
       this.hide();
     }
 
-    if (paused) {
+    if (paused || mousingOverMusic) {
       this.hideTime = 1;
       this.show();
     } else {

@@ -337,6 +337,7 @@ export type Entity = {
     lifetime: number;
   };
   followCam?: boolean;
+  forceCam?: boolean;
   pipe?: {
     path: Points;
     from: "u" | "d" | "l" | "r";

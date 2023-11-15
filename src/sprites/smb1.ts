@@ -1,5 +1,6 @@
 import mario from "./loaders/smb1/mario"
 import tiles from "./loaders/smb1/tiles"
+import title from "./loaders/smb1/title"
 import animTiles from "./loaders/smb1/animated-tiles"
 import objects from "./loaders/smb1/objects"
 import animObjects from "./loaders/smb1/animated-objects"
@@ -12,7 +13,8 @@ const smb1Sprites = new SpriteWrapperIndustrialComplex({
   animTiles,
   objects,
   animObjects,
-  enemies
+  enemies,
+  title
 });
 
 export default smb1Sprites;

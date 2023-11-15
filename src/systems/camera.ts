@@ -48,4 +48,15 @@ export default function camera(display: Display) {
 
     if (z) display.moveToClamp(cx, cy, 0.1, z.x, z.y, z.w, z.h);
   }
+
+  let forcing: Entity | null = null;
+  for (const e of entities.view(['forceCam'])) {
+    forcing = e;
+  }
+
+  if (forcing) {
+    const cx = forcing.position.x, cy = forcing.position.y + forcing.size.y * 0.5 - 16;
+    display.setScale(3);
+    display.setCenter(cx, cy);
+  }
 }

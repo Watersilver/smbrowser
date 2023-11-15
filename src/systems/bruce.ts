@@ -192,7 +192,7 @@ export default function bruce(dt: number, display: Display) {
       delete e.static;
       delete e.smb1TilesAnimations;
 
-      hitMarios.forEach(({e}) => {
+      if (finalAxe) hitMarios.forEach(({e}) => {
         if (e.mario) e.mario.noInput = true;
         e.finalCutscene = {};
       });
@@ -232,8 +232,9 @@ export default function bruce(dt: number, display: Display) {
           if (j === bb.length - 1) {
             setTimeout(() => {
               clearSound = audio.sounds.play(finalAxe ? 'world_clear' : 'stage_clear');
+              if (!finalAxe) clearSound = null;
               
-              hitMarios.forEach(({e}) => {
+              if (finalAxe) hitMarios.forEach(({e}) => {
                 if (e.mario) e.mario.noInput = true;
                 e.finalCutscene = {move: true};
               });

@@ -127,7 +127,7 @@ export default class Overlay {
   }
 
   private fullscreenPrev: boolean | null = null;
-  update(dt: number, paused: boolean) {
+  update(dt: number, paused: boolean, hud?: boolean) {
     // // To avoid weird zoom in effect
     // const {l, t} = this.display.getBoundingBox();
     // // Set position to top left
@@ -146,12 +146,16 @@ export default class Overlay {
     this.pauseText.pivot.x = - this.display.baseWidth / 2;
     this.pauseText.pivot.y = - this.display.baseHeight / 2;
     this.pauseText.scale.set(1 / this.display.getScale());
-    if (paused) {
-      this.pauseText.visible = true;
+
+    if (paused || hud) {
       const v = document.getElementById('volume');
       if (v) v.style.display = "unset";
       const f = document.getElementById('fullscreen');
       if (f) f.style.display = 'unset';
+    }
+
+    if (paused) {
+      this.pauseText.visible = true;
     } else {
       this.pauseText.visible = false;
     }

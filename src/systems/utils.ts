@@ -43,8 +43,10 @@ const systemUtils = {
 
           a.container.filters = e.filters ?? null;
         }
-        // Don't add statics, culling system will do that
-        if (!e.static) display.add(cont);
+        // Don't add statics if out of camera, culling system will do that
+        if (!e.static || display.containsBroad(e.position) || e.spring) {
+          display.add(cont);
+        }
       }
     });
     

@@ -296,12 +296,13 @@ function billshooter(dt: number, display: Display) {
       )
     ) continue;
 
-    if (b.cooldownCounter === undefined) b.cooldownCounter = Math.random() * 2 + 1.5;
+    if (b.cooldownCounter === undefined) b.cooldownCounter = Math.random();
+    if (b.cooldownCounter === 0) b.cooldownCounter = Math.random() * 2 + 1;
 
     b.cooldownCounter -= dt;
 
     if (b.cooldownCounter <= 0) {
-      delete b.cooldownCounter;
+      b.cooldownCounter = 0;
       const bill = newBill(e.position.x, e.position.y, e);
       if (bill.smb1EnemiesAnimations) {
         bill.smb1EnemiesAnimations.container.zIndex = -1;
