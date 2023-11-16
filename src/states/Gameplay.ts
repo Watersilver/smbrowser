@@ -63,6 +63,9 @@ import bruce from "../systems/bruce";
 import bgColor from "../systems/bgColor";
 import loops from "../systems/loops";
 import Overlay from "../systems/overlay";
+import music from "../systems/music";
+
+const c1 = new Collidable();
 
 const audio = getSmb1Audio();
 
@@ -189,6 +192,17 @@ export default class Gameplay extends State<'editor' | 'title', GameplayInit | n
           zones.underwater.push(...init.zones.underwaterZones); break;
         case 'whirlpool':
           zones.whirlpool.push(...init.zones.whirlpoolZones); break;
+      }
+    }
+
+    for (const as of zones.angrySun) {
+      c1.setToZone(as);
+      for (const e of entities.view(['npc'])) {
+        if (e.npc?.text.includes('<music>') && aabb.pointVsRect(e.position, c1)) {
+          as.music = e.npc.text.replace('<music>', '').trim();
+          entities.remove(e);
+          break;
+        }
       }
     }
 
@@ -503,6 +517,8 @@ export default class Gameplay extends State<'editor' | 'title', GameplayInit | n
     if (!this.paused) {
 
       loops();
+
+      music();
 
       flags(dt, display);
 

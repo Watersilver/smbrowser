@@ -1,15 +1,10 @@
 type Zone = {x: number; y: number; w: number; h: number;};
 
-// TODO:
-// Worlds:
-
-// TODO: lavabubbles
-// TODO: shaders for flower && star
-// TODO: bg zones implementation
-// TODO: music zones?
-// TODO: checkpoints
-// TODO: reset fallen platforms
-// TODO: level end
+// TODOS:
+// Make music zones
+// - set music zone
+// - stop music zone
+// Memory issues... :(
 
 const zones: {
   camera: Zone[];
@@ -24,7 +19,7 @@ const zones: {
   lakitu: Zone[];
   bill: Zone[];
   fire: Zone[];
-  angrySun: Zone[];
+  angrySun: (Zone & {music?: string;})[];
   medusaHead: Zone[];
   mask: Zone[];
   loop: Zone[];

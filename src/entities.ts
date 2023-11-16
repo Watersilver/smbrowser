@@ -458,6 +458,6 @@ const entities = new Ecs<Entity>();
 
 entities.onAdding([], e => e.justAdded = true);
 
-(window as any).getViewPopulation = () => entities.getViewPopulation();
+// (window as any).getViewPopulation = () => entities.getViewPopulation();
 
 export default entities;

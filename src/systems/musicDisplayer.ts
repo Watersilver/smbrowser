@@ -64,7 +64,7 @@ text.style.color = 'black';
 card.append(text);
 
 const audio = getSmb1Audio();
-(window as any).audio = audio;
+// (window as any).audio = audio;
 
 type MusicName = NonNullable<NonNullable<ReturnType<(typeof audio.music.getMusic)>>['name']>;
 
@@ -81,15 +81,6 @@ const authorMap: {
     'name': 'Super Mario Bros. 3: Underwater Orchestral Arrangement'
   }
 }
-
-// TODOS:
-// BUG: Flag work opposite in chrome...
-// Make music zones
-// - set music zone
-// - stop music zone
-// Then wait a bit before "press enter to start playing appears"
-// when enter pressed delete entity that forces camera to it and camera will go to mario
-// Memory issues... :(
 
 const showStep1Dur = 0.6;
 const showStep2Dur = 0.4;

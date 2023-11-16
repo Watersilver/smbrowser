@@ -61,7 +61,7 @@ export default function dynamicCollisions() {
             e.player.lives++;
           }
         } else if (other.star) {
-          e.mario.star = 30;
+          e.mario.star = 10;
         }
       }
     }

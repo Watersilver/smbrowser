@@ -1,5 +1,9 @@
+import { MultiColorReplaceFilter } from "pixi-filters";
 import entities from "../entities";
 import systemUtils from "./utils";
+import smb1Sprites from "../sprites/smb1";
+import display from "../display";
+import hslToRgb from "../utils/hslToRgb";
 
 // Preload views
 entities.view(['smb1TilesAnimations', 'smb1TilesSpritesEditMode']);
@@ -23,6 +27,48 @@ systemUtils.addRemoveRenderable('smb1TilesAnimations');
 systemUtils.addRemoveRenderable('smb1TilesSprites');
 systemUtils.addRemoveRenderable('smb1TilesSpritesEditMode');
 
+const powerupFilter = new MultiColorReplaceFilter(
+  [
+    [0xfffeff, 0x0000ff], // white
+    [0xe69c21, 0xff0000], // yellow
+    [0xb53120, 0x00ff00], // red
+  ],
+  0.1
+);
+const powerupFilterList = [powerupFilter];
+const starFilter = new MultiColorReplaceFilter(
+  [
+    [0xe69c21, 0xff0000], // yellow
+    [0xb53120, 0x00ff00], // red
+  ],
+  0.1
+);
+const starFilterList = [starFilter];
+
+// Do this weid ass thing here because for some reason
+// these filters cause some stutter first time they're
+// applied.
+// Apply them here first so stutter is during loading.
+const m = smb1Sprites.getFactory('objects').new();
+m.container.filters = [powerupFilter];
+display.add(m.container);
+setTimeout(() => {
+  m.container.filters = [starFilter];
+  setTimeout(() => {
+    m.container.removeFromParent();
+  });
+});
+
+entities.onAdding(['star'], e => {
+  e.filters = starFilterList;
+});
+
+entities.onAdding(['powerup'], e => {
+  if (!e.mushroom) {
+    e.filters = powerupFilterList;
+  }
+});
+
 entities.onRemoving(['invisibleBlock'], e => {
   if (e.smb1TilesSprites?.container) {
     e.smb1TilesSprites.container.visible = true;
@@ -31,8 +77,28 @@ entities.onRemoving(['invisibleBlock'], e => {
 
 let timing = 0;
 let editModePrev: boolean | undefined = undefined;
+let t = 0;
 
 export default function renderSmb1Stuff(dt: number, editMode?: boolean) {
+
+  const prevT = t;
+  t = (t + dt) % 0.4;
+  if (prevT > t) {
+    let i = 0;
+    for (const col of powerupFilter.replacements) {
+      col[1] = hslToRgb(Math.random(), (3 - i) / 3, (3 - i) / 3.5).map(v => v / 255);
+      i++;
+    }
+    powerupFilter.refresh();
+
+    i = 0;
+    for (const col of starFilter.replacements) {
+      col[1] = hslToRgb(Math.random(), (3 - i) / 3, (3 - i) / 3.5).map(v => v / 255);
+      i++;
+    }
+    starFilter.refresh();
+  }
+
   if (editModePrev === undefined || editModePrev !== !!editMode) {
     editModePrev = !!editMode;
 

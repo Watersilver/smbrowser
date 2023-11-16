@@ -21,15 +21,6 @@ const ep = new Collidable();
 const u1 = new Collidable();
 const up = new Collidable();
 
-const text8000 = new Text('8000', {
-  fontFamily: "Mario",
-  fill: 'white'
-});
-const tAR = text8000.width / text8000.height;
-text8000.width = 18;
-text8000.height = text8000.width / tAR;
-text8000.updateText(false);
-
 const texts: {s: Sprite, life: number}[] = [];
 
 function *dynamicsAndSensors(c: Collidable) {
@@ -283,6 +274,16 @@ export default function stuffVsEnemies(dt: number, display: Display) {
             // Shell kick and stop logic
             if (kickShell && isStillShell) {
               if (!uu.touchingDown?.length || (uu.enemy?.shellTimer !== undefined && uu.enemy.shellTimer < 0.05)) {
+
+                const text8000 = new Text('8000', {
+                  fontFamily: "Mario",
+                  fill: 'white'
+                });
+                const tAR = text8000.width / text8000.height;
+                text8000.width = 18;
+                text8000.height = text8000.width / tAR;
+                text8000.updateText(false);
+
                 const text = new Sprite(text8000.texture);
                 text.position.x = uu.position.x;
                 text.position.y = uu.position.y;
