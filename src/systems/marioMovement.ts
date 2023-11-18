@@ -117,10 +117,11 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
           dynamic.acceleration.y = 50 / dt;
         }
 
+        e.position.x = mario.climbing.position.x;
+
         // Prevent facing change to make you end up in static block
-        // Somehow this works. Yes it sucks balls
         if (prevFacing !== mario.facing) {
-          dynamic.velocity.x = e.size.x * mario.facing * 2 / dt;
+          dynamic.velocity.x = (- mario.facing * e.size.x / 2) / dt;
           dynamic.velocity.y = dynamic.acceleration.y * dt;
           collider.set(e, dt);
           collider.computeBoundingBox();
@@ -129,7 +130,9 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
           for (const u of worldGrid.statics.findNear(bb.l, bb.t, bb.w, bb.h)) {
             collidee.set(u.userData);
             const [hit] = aabb.dynamicRectVsRect(collider, collidee);
-            if (hit) mario.facing = prevFacing;
+            if (hit) {
+              mario.facing = prevFacing;
+            }
           }
 
           dynamic.velocity.x = 0;

@@ -210,7 +210,7 @@ class MusicPlayer<T extends string> extends AudioContainer<T> {
     if (!a) return;
     a.loop = true;
     if (this.currentData?.loopStart !== undefined) a.loopStart = this.currentData.loopStart;
-    a.loopEnd = a.buffer?.duration ?? this.currentData?.loopEnd ?? 0;
+    a.loopEnd = this.currentData?.loopEnd ?? a.buffer?.duration ?? 0;
     a.start();
   }
 

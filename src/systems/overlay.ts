@@ -30,16 +30,16 @@ const f = document.getElementById('fullscreen');
 if (f) f.onclick = fullscreenTrigger;
 
 const credits = `
-Test
+Credits
 
-  Erty
-  verty
-    ferty
-    Varda
-    farda
+Not ready yet
 
-Test2
-  ok then
+Nope
+
+
+Still no
+
+
 
 
 
@@ -232,7 +232,7 @@ export default class Overlay {
       } else if (fc.finalCutscene.creditsState === 2) {
         if (this.credits) {
           this.credits.position.x = l + w * 0.5;
-          this.credits.position.y -= dt * 60;
+          this.credits.position.y -= dt * 6;
           const credBottom = this.credits.position.y + this.credits.height;
           if (credBottom <= t + h * 0.5) {
             this.credits.position.y = t + h * 0.5 - this.credits.height;

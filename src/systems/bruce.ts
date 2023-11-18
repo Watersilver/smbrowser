@@ -191,6 +191,7 @@ export default function bruce(dt: number, display: Display) {
       delete e.hits;
       delete e.static;
       delete e.smb1TilesAnimations;
+      audio.music.setMusic({});
 
       if (finalAxe) hitMarios.forEach(({e}) => {
         if (e.mario) e.mario.noInput = true;

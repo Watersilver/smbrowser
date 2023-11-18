@@ -541,9 +541,9 @@ function lakitu(dt: number, display: Display) {
         }
       } else {
         // Attack
-        if (entities.view(['spiny']).length < 5) {
+        if (entities.view(['spiny']).length < 3) {
           if (lak.spinyCooldown < 0) {
-            lak.spinyCooldown = Math.random() * 1.5 + 0.5;
+            lak.spinyCooldown = Math.random() * 1.5 + 1.5;
           }
 
           lak.spinyCooldown -= dt;
@@ -568,7 +568,7 @@ function lakitu(dt: number, display: Display) {
           if (a.position.distance(e.position) > c.position.distance(e.position)) return c;
           return a;
         }, undefined);
-        const maxDist = 7 * 16;
+        const maxDist = 6 * 16;
         if (!closest) {
           delete lak.move.circle;
         } else if (closest.dynamic && Math.abs(closest.dynamic.velocity.x) > 50) {

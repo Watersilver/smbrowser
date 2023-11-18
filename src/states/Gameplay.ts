@@ -141,6 +141,10 @@ export default class Gameplay extends State<'editor' | 'title', GameplayInit | n
   override onStart(init: GameplayInit | null): void {
     this.paused = false;
 
+    display.setBGColor(
+      '#9290ff'
+    );
+
     this.lowestY = entities.view().reduce((a, c) => {
       const l = c.position.y;
       if (l > a) return l;

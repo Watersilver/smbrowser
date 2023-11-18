@@ -1,5 +1,9 @@
 import { getSmb1Audio } from "../audio"
 import nobledemon from '../assets/avatars/nobledemon.png'
+import qumu from '../assets/avatars/qumu.png'
+import bluebrewmusic from '../assets/avatars/bluebrewmusic.png'
+import ryanz from '../assets/avatars/ryanz.png'
+import retrogamingmusichq from '../assets/avatars/retrogamingmusichq.png'
 
 // Preload artist avatars
 for (const img of [nobledemon]) {
@@ -75,10 +79,60 @@ const authorMap: {
     name: string;
   }
 } = {
+  'smb1overworld': {
+    'link': 'https://www.youtube.com/watch?v=BkluiXUDy6o',
+    'img': qumu,
+    'name': 'Super Mario Bros. - Overworld (Main Theme) [Remix]'
+  },
+  'smb2overworld': {
+    'link': 'https://www.youtube.com/watch?v=ZyX0C-zRVZU',
+    'img': qumu,
+    'name': 'Super Mario Bros. 2 - Overworld [Remix]'
+  },
+  'smb3overworld': {
+    'link': 'https://www.youtube.com/watch?v=mS9isgwVBrM',
+    'img': qumu,
+    'name': 'Super Mario Bros. 3 - Overworld [Remix]'
+  },
+  'smwoverworld': {
+    'link': 'https://www.youtube.com/watch?v=XiSipmNEFo0',
+    'img': nobledemon,
+    'name': 'Super Mario World: Overworld Arrangement'
+  },
+  'smb1castle': {
+    'link': 'https://www.youtube.com/watch?v=m4NauBkF-KQ',
+    'img': retrogamingmusichq,
+    'name': 'Super Mario Bros - Castle Theme [NES] Remake HQ Music'
+  },
+  'smb1underground': {
+    'link': 'https://www.youtube.com/watch?v=XIB3mkA5LvU',
+    'img': bluebrewmusic,
+    'name': 'Super Mario Bros. - Underground Theme [Cover]'
+  },
+  'smb1underwater': {
+    'link': 'https://www.youtube.com/watch?v=9HimHmFp0og',
+    'img': ryanz,
+    'name': "Underwater Theme but it's a little much.. - Super Mario Bros. Piano Cover"
+  },
   'smb3underwater': {
     'link': 'https://www.youtube.com/watch?v=QfaMmbUivqk',
     'img': nobledemon,
     'name': 'Super Mario Bros. 3: Underwater Orchestral Arrangement'
+  },
+  'sml2athletic': {
+    'link': 'https://www.youtube.com/watch?v=vMwoQYlfjfs',
+    'img': nobledemon,
+    'name': 'Super Mario Land 2: Athletic Theme'
+  },
+  'smwathletic': {
+    'link': 'https://www.youtube.com/watch?v=W9urNCVWnh8',
+    'img': qumu,
+    'name': "Super Mario World - Athletic Theme [Remix]"
+  },
+  'bowser': {
+    'link': 'https://www.youtube.com/watch?v=kYa346v-kc8',
+    'img': nobledemon,
+    'name': "Super Mario All-Stars: Battle With Bowser Arrangement"
   }
 }
 

@@ -102,6 +102,7 @@ export default function flags(dt: number, display: Display) {
             m.smb1MarioAnimations.loopsPerSecond = 4;
           }
           m.position.x = e.position.x - 8;
+          audio.music.setMusic({});
           if (f.id === 1) {
             audio.sounds.play('flagpole');
             f.fall = {};

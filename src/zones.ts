@@ -1,7 +1,6 @@
 type Zone = {x: number; y: number; w: number; h: number;};
 
 // TODOS:
-// Make music zones
 // - set music zone
 // - stop music zone
 // Memory issues... :(

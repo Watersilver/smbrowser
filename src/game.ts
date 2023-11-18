@@ -180,6 +180,7 @@ if (isEditMode) {
   loadingState.connect(levelEditor, 'loaded');
   levelEditor.connect(gameplay, 'gameplay');
   gameplay.connect(levelEditor, 'editor');
+  gameplay.setEditMode(true);
 } else {
   const title = new Title();
   loadingState.connect(title, 'loaded');
