@@ -15,8 +15,6 @@ entities.view(['flagpole']);
 
 const audio = getSmb1Audio();
 
-let stage_clear_sound: Sound | null = null;
-
 const flagpole = new Collidable();
 const mario = new Collidable();
 
@@ -93,6 +91,7 @@ export default function flags(dt: number, display: Display) {
         // Flagpole is printed with offset, so compensate here
         flagpole.pos.y = flagpole.pos.y - flagpole.size.y * 0.5;
         if (aabb.rectVsRect(mario, flagpole)) {
+          if (m.smb1MarioAnimations) m.smb1MarioAnimations.container.scale.x = 1;
           f.mario = m;
           m.mario.cutscene = true;
           delete m.dynamic;
@@ -105,12 +104,14 @@ export default function flags(dt: number, display: Display) {
           audio.music.setMusic({});
           if (f.id === 1) {
             audio.sounds.play('flagpole');
+            setTimeout(() => audio.sounds.play('smb1overworld_end'), 1000);
             f.fall = {};
             f.flag.dynamic = {velocity: new Vec2d(0, 0), acceleration: new Vec2d(0, 0)};
             f.flag.goThrougWalls = true;
             f.flag.gravity = 200;
           } else if (f.id === 2) {
-            audio.sounds.play('flagpole');
+            audio.sounds.play('smw_course_clear');
+            setTimeout(() => audio.sounds.play('smwoverworld_end'), 1000);
             f.fireworks = {};
             f.descendFlag = true;
             f.flag.moving = true;
@@ -137,14 +138,13 @@ export default function flags(dt: number, display: Display) {
           if (manim) {
             manim.loopsPerSecond = 0;
             manim.setFrame(0);
-            manim.container.scale.x = -manim.container.scale.x;
+            manim.container.scale.x = -1;
             f.mario.position.x += 16;
           }
         }
       } else if (f.fall.timebeforecrash) {
         f.fall.timebeforecrash -= dt;
         if (f.fall.timebeforecrash <= 0) {
-          audio.sounds.play('bowserfalls');
           delete f.fall.timebeforecrash;
           f.fall.angvel = 0.5;
           f.fall.angle = 0;
@@ -163,7 +163,6 @@ export default function flags(dt: number, display: Display) {
           e.dynamic = {velocity: new Vec2d(0, 0), acceleration: new Vec2d(0, 0)};
           e.gravity = 100;
           e.surviveDeathzone = true;
-          audio.sounds.play('mariodieend');
           audio.sounds.play('breakblock');
           audio.sounds.play('bowserfire');
 
@@ -275,7 +274,7 @@ export default function flags(dt: number, display: Display) {
           if (manim) {
             manim.loopsPerSecond = 0;
             manim.setFrame(0);
-            manim.container.scale.x = -manim.container.scale.x;
+            manim.container.scale.x = -1;
             f.mario.position.x += 16;
           }
         }
@@ -299,7 +298,6 @@ export default function flags(dt: number, display: Display) {
           fireball.smb1ObjectsAnimations?.setAnimation('firework');
           fireball.fireballHitEnemy = true;
           audio.sounds.play('fireworks');
-          stage_clear_sound?.stop();
           f.fireworks.marioInTheAir = true;
         }
       } else if (f.fireworks.fireworksFired !== undefined && f.fireworks.timeBeforeNextFirework !== undefined) {
@@ -315,7 +313,6 @@ export default function flags(dt: number, display: Display) {
         }
 
         if (f.fireworks.timeBeforeNextFirework <= 0) {
-          if (!stage_clear_sound?.playing()) stage_clear_sound = audio.sounds.play('stage_clear');
           if (!rapidFire) f.fireworks.fireworksFired++;
           f.fireworks.timeBeforeNextFirework = 1 - (1 - 1 / f.fireworks.fireworksFired);
           const {l, w, t} = display.getBoundingBox();

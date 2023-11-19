@@ -112,6 +112,7 @@ export default class Gameplay extends State<'editor' | 'title', GameplayInit | n
   unloader = new Unloader();
   culling = new Culling();
   overlay = new Overlay(display);
+  firstRender = false;
 
   mouseX = 0;
   mouseY = 0;
@@ -139,6 +140,7 @@ export default class Gameplay extends State<'editor' | 'title', GameplayInit | n
   private checkpoints: Set<Zone & {spawnpoint: {x: number; y: number;}}> = new Set();
 
   override onStart(init: GameplayInit | null): void {
+    this.firstRender = true;
     this.paused = false;
 
     display.setBGColor(
@@ -516,7 +518,7 @@ export default class Gameplay extends State<'editor' | 'title', GameplayInit | n
 
     this.graphics.clear();
 
-    bgColor(dt, display);
+    bgColor(dt, display, this.firstRender);
 
     if (!this.paused) {
 
@@ -630,6 +632,8 @@ export default class Gameplay extends State<'editor' | 'title', GameplayInit | n
     }
 
     this.unloader.unload();
+
+    this.firstRender = false;
 
     if (canGoBackToTitle && this.input.isPressed('Enter')) {
       return false;

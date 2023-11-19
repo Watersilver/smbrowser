@@ -4,6 +4,7 @@ import { GlowFilter, MultiColorReplaceFilter } from "pixi-filters";
 import smb1Sprites from "../sprites/smb1";
 import display from "../display";
 import hslToRgb from "../utils/hslToRgb";
+import { getSmb1Audio } from "../audio";
 
 // Preload views
 entities.view(['mario', 'smb1MarioAnimations']);
@@ -62,6 +63,10 @@ setTimeout(() => {
   });
 });
 
+let maxStar = 1;
+let prevStar: number | undefined = undefined;
+const audio = getSmb1Audio();
+
 export default function renderSmb1Mario(dt: number) {
 
   t = (t + dt * Math.PI) % (Math.PI * 2);
@@ -81,6 +86,18 @@ export default function renderSmb1Mario(dt: number) {
   }
 
   for (const e of entities.view(['mario', 'smb1MarioAnimations'])) {
+
+    if (e.mario?.star) {
+      if (!prevStar) {
+        maxStar = e.mario.star;
+        audio.sounds.play('star');
+      }
+      sg.outerStrength = 4 * e.mario.star / maxStar;
+      fsg.outerStrength = 4 * e.mario.star / maxStar;
+      fsg.innerStrength = e.mario.star / maxStar;
+    }
+    prevStar = e.mario?.star;
+
     const a = e.smb1MarioAnimations;
     const mario = e.mario;
     const v = e.dynamic?.velocity;

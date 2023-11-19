@@ -17,6 +17,7 @@ export default function music() {
       return aabb.pointVsRect(m.position, c1);
     });
     if (isIn) {
+      audio.sounds.get('stage_clear').forEach(s => s.stop());
       if (musicZone.music === 'smb1overworld') {
         audio.music.setMusic({
           name: 'smb1overworld',

@@ -206,6 +206,10 @@ class Display {
     this.renderer.background.backgroundColor.setValue(c);
   }
 
+  getBGColor() {
+    return this.renderer.background.backgroundColor.toHex();
+  }
+
   setBGAlpha(alpha: number) {
     this.renderer.background.alpha = alpha;
   }

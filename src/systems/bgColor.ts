@@ -29,7 +29,6 @@ let targetR = currentR;
 let targetG = currentG;
 let targetB = currentB;
 
-const c1 = new Collidable();
 const c2 = new Collidable();
 
 function getBGCol() {
@@ -46,7 +45,17 @@ function getBGCol() {
 
 let currentCol = getBGCol();
 
-export default function bgColor(dt: number, display: Display) {
+export default function bgColor(dt: number, display: Display, initialize?: boolean) {
+  if (initialize) {
+    const col = display.getBGColor().replace("#", "").replace('0x', "");
+    const r = col.slice(0, 2);
+    const g = col.slice(2, 4);
+    const b = col.slice(4, 6);
+
+    currentR = Number('0x' + r);
+    currentG = Number('0x' + g);
+    currentB = Number('0x' + b);
+  }
 
   const dark = entities.view(['mario']).some(m => zones.darkbg.some(z => aabb.pointVsRect(m.position, c2.setToZone(z))));
 

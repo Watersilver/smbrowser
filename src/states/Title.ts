@@ -37,6 +37,7 @@ export default class Title extends State<'gameplay', TitleIn | null, TitleOut | 
   input?: Input;
   mario?: Container;
   title?: Container;
+  instructions?: Text;
   text?: Text;
   zones: LevelEditor['zones'] = {
     camZones: [],
@@ -90,11 +91,26 @@ export default class Title extends State<'gameplay', TitleIn | null, TitleOut | 
     }
     this.input = i?.input;
     entities.clear();
+    entities.update();
     const ld = parseLevel(level as any);
     entities.update();
     for (const [key, val] of Object.entries(this.zones)) {
       val.length = 0;
       val.push(...((ld.parsed as any)[key] || []))
+    }
+
+    if (!this.instructions) {
+      this.instructions = new Text("Arrow keys to move\n[X]: jump, [C]: run/attack\n[F]: fullscreen, [P]: pause", {
+        fontFamily: "Mario",
+        fill: '#ffccc5',
+        fontSize: 64,
+        align: 'center',
+        lineHeight: 64
+      });
+      this.instructions.scale.set(0.12);
+      this.instructions.anchor.set(0.5, 0.5);
+      this.instructions.position.set(this.text?.position.x ?? 0, (this.text?.position.y ?? 0) + 24);
+      display.add(this.instructions);
     }
 
     if (ld.parsed.pipes) this.pipes = ld.parsed.pipes;

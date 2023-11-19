@@ -21,9 +21,13 @@ import powerup_appears from "./assets/sfx/smb_powerup_appears.mp3"
 import stage_clear from "./assets/sfx/smb_stage_clear.mp3"
 import stomp from "./assets/sfx/smb_stomp.mp3"
 import vine from "./assets/sfx/smb_vine.mp3"
+import star from "./assets/sfx/star.mp3"
 import warning from "./assets/sfx/smb_warning.mp3"
 import world_clear from "./assets/sfx/smb_world_clear.mp3"
 import save_cake from "./assets/sfx/save_cake.mp3"
+import smwoverworld_end from "./assets/sfx/smwoverworld_end.mp3"
+import smb1overworld_end from "./assets/sfx/smb1overworld_end.mp3"
+import smw_course_clear from "./assets/sfx/smw_course_clear.mp3"
 import smb1overworld from "./assets/bgm/smb1overworld.mp3"
 import smb2overworld from "./assets/bgm/smb2overworld.mp3"
 import smb3overworld from "./assets/bgm/smb3overworld.mp3"
@@ -67,7 +71,11 @@ export function getSmb1Audio() {
     vine,
     warning,
     world_clear,
-    save_cake
+    save_cake,
+    star,
+    smwoverworld_end,
+    smb1overworld_end,
+    smw_course_clear
   });
   const music = ac.createMusicPlayer({
     smb1overworld,

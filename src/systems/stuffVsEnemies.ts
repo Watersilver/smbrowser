@@ -412,6 +412,9 @@ export default function stuffVsEnemies(dt: number, display: Display) {
           e.movement.bounceOnce = true;
         }
       }
+    } else if (e.gotHit.by === 'star' && e.bruce) {
+      e.bruce.health = -1;
+      audio.sounds.play('kick');
     } else if (e.gotHit.by !== 'soft-bonk') {
       // Die by hit
       audio.sounds.play('kick');

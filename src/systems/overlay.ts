@@ -14,15 +14,19 @@ const createShrinkIcon = () => `<svg xmlns="http://www.w3.org/2000/svg" height="
 
 const g = document.getElementById('game');
 function fullscreenTrigger() {
-  if (document.fullscreenElement) {
-    document.exitFullscreen();
-  } else {
-    g?.requestFullscreen();
+  try {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      g?.requestFullscreen();
+    }
+  } catch (err) {
+    console.error(err);
   }
 }
 
 window.addEventListener('keydown', e => {
-  if (e.code === 'Escape') {
+  if (e.code === 'KeyF') {
     fullscreenTrigger();
   }
 });

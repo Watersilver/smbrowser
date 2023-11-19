@@ -26,7 +26,7 @@ root.onmouseover = () => {
 root.onmouseleave = () => {
   mousingOverMusic = false;
 };
-document.body.append(root);
+document.getElementById('game')?.append(root);
 
 const div = document.createElement('div');
 div.style.pointerEvents = 'none';
