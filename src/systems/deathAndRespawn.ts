@@ -31,6 +31,7 @@ export default function deathAndRespawn(dt: number, props: {respawnTimer?: numbe
   } else {
     for (const e of entities.view(['mario'])) {
       if (e.mario?.dead) {
+        e.mario.deathCounter += 1;
         if (e.player) {
           e.player.lives -= 1;
         }

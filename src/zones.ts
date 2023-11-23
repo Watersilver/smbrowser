@@ -1,10 +1,5 @@
 type Zone = {x: number; y: number; w: number; h: number;};
 
-// TODOS:
-// - set music zone
-// - stop music zone
-// Memory issues... :(
-
 const zones: {
   camera: Zone[];
   preserveCamera: Zone[];

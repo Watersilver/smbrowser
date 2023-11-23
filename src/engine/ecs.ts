@@ -8,11 +8,9 @@ type View<Entity> = {
   entToIndex: Map<Entity, number>;
 }
 
-// Design problems:
-// - Iterating but always checking if component exists is annoying
-// - OnDeleting getting called after component is gone cause problems because info for cleanup is deleted
-
-
+// Warning:
+// Do not use for anything serious. This implementation is just so I can test the feel of the design patter.
+// I probably didn't use it all that well either. Felt cumbersome.
 export default class Ecs<Entity extends {
   [componentName: string | symbol]: unknown;
 }> {

@@ -33,23 +33,112 @@ window.addEventListener('keydown', e => {
 const f = document.getElementById('fullscreen');
 if (f) f.onclick = fullscreenTrigger;
 
+
 const credits = `
-Credits
-
-Not ready yet
-
-Nope
+~Credits~
 
 
-Still no
+Audio
+
+  Remixes
+
+    Blue Brew Music
+
+    RetroGamingMusic HQ
+
+    Ryan Z 'Piano Guy'
+
+    The Noble Demon
+
+    Qumu
+  
+  Sound-rips
+
+    https://themushroomkingdom.net
+
+
+Graphics
+
+  Super Mario Bros. NES Font
+
+    TheWolfBunny64
+
+  Sprite-rips
+
+    SuperJustinBros
+
+    Murphmario
+
+
+Original Team
+  https://www.mariowiki.com
+  /List_of_Super_Mario_Bros._staff
+
+  Director
+
+    Shigeru Miyamoto
+
+  Assistant Director
+
+    Takashi Tezuka
+
+  Sound Department
+
+    Koji Kondo
+
+  Original Music
+
+    Koji Kondo
+
+  Designers
+
+    Shigeru Miyamoto
+    Takashi Tezuka
+
+  Programmers
+
+    Toshihiko Nakago
+    Kazuaki Morita
+
+  Producer
+
+    Shigeru Miyamoto
+
+  Executive Producer
+
+    Hiroshi Yamauchi
+
+
+  Original Music from other games
+
+    Kazumi Totaka
+
+
+Special Thanks
+
+  Pixi.js team
+    for the great rendering library
+
+  Nintendo
+    for not having
+    cease-and-desist'd this (yet)
+
+  https://nesmaps.com
+    for amazing map guides
+
+  Jdaster64
+    for the exhaustive
+    smb1 Physics Guide
+
+
+  and You for playing!
 
 
 
 
 
 
-
-we're done
+  Stats:
 `
 function createCredits(text: string) {
   const c = new Container();
@@ -130,6 +219,10 @@ export default class Overlay {
     this.overlay.destroy();
   }
 
+  setRestartText(t: string) {
+    this.restartText.text = t;
+  }
+
   private fullscreenPrev: boolean | null = null;
   update(dt: number, paused: boolean, hud?: boolean) {
     // // To avoid weird zoom in effect
@@ -182,10 +275,14 @@ export default class Overlay {
       fc = e;
     }
 
+    if (!fc) {
+      entities.view(['mario']).forEach(m => m.mario && (m.mario.timer += dt));
+    }
+
     this.restartText.position.x = l;
-    this.restartText.position.y = t;
+    this.restartText.position.y = t - this.restartText.height;
     this.restartText.pivot.x = - this.display.baseWidth / 2;
-    this.restartText.pivot.y = - (this.display.baseHeight / 2) * 1.3;
+    this.restartText.pivot.y = - this.display.baseHeight;
     this.restartText.scale.set(1 / this.display.getScale());
     this.restartText.visible = false;
 
@@ -228,7 +325,91 @@ export default class Overlay {
       if (fc.finalCutscene.creditsState === 1) {
         audio.music.setMusic({name: 'smb3underwater'});
         fc.finalCutscene.creditsState = 2;
-        this.credits = createCredits(credits);
+        // final ranks:
+        // skill:
+        // Untouchable (never got hit)
+        // Unkillable (hit but not lost a life)
+        // Undead (have negative lves)
+        // Determined (lost less than four lives but still has lives)
+        // Bruised (lost less than ten lives but still has lives)
+        // Battered (lost at least 10 lives but still has lives)
+        // state:
+        // Fiery Hunk (big fire)
+        // Small Fire (small fire)
+        // little guy (small)
+        // Total Chad (big mario no fire)
+        // time:
+        // the scenery (slow, more than 18 mins)
+        // a steady pace (normal, between extremes)
+        // pizza and coke (fast, less than 13 mins)
+        // also show time explicitly
+        const player = entities.view(['player']).at(-1)?.player;
+        const mario = entities.view(['mario']).at(-1)?.mario;
+        const timeInSecs = mario?.timer ?? 0;
+        const timeInMins = timeInSecs / 60;
+        const minsFloor = Math.floor(timeInMins);
+        const remainingSecs = timeInSecs - minsFloor * 60;
+
+        let skill = "";
+
+        let state = "";
+
+        let time = "";
+
+        if (mario && player) {
+          if (mario.damageCounter === 0) {
+            skill = 'Untouchable';
+          } else if (mario.deathCounter === 0) {
+            skill = 'Unkillable';
+          } else if (player.lives < 0) {
+            skill = 'Undead';
+          } else if (mario.deathCounter < 4) {
+            skill = 'Determined';
+          } else if (mario.deathCounter < 10) {
+            skill = 'Bruised';
+          } else if (mario.deathCounter >= 10) {
+            skill = 'Battered';
+          }
+
+          if (mario.big && mario.powerup === 'fire') {
+            state = "Fiery Hunk";
+          } else if (mario.big) {
+            state = "Chad";
+          } else if (mario.powerup === 'fire') {
+            state = "Small Fire";
+          } else {
+            state = "little guy";
+          }
+
+          if (timeInMins > 18) {
+            time = "Enjoyed the scenery :)";
+          } else if (timeInMins > 13) {
+            time = "Steady pace!";
+          } else {
+            time = "Pizza and Coke!!";
+          }
+        }
+
+        const extendedCreds = credits
+        + (player?.kicks8k
+        ? '    8000 kicks: ' + player?.kicks8k : "")
+        + '\n'
+        + '    coins: ' + player?.coins
+        + '\n'
+        + '    lives: ' + player?.lives
+        + '\n'
+        + '    deaths: ' + mario?.deathCounter
+        + '\n'
+        + '    damage: ' + mario?.damageCounter
+        + '\n'
+        + '    Final State: ' + skill + " " + state
+        + '\n'
+        + '\n'
+        + '    time: ' + minsFloor + ":" + remainingSecs.toPrecision(4)
+        + '\n'
+        + '    Speed Rank: ' + time;
+
+        this.credits = createCredits(extendedCreds);
         this.credits.zIndex = 100;
         this.overlay.addChild(this.credits);
         this.credits.position.x = l + w * 0.5;
@@ -238,8 +419,9 @@ export default class Overlay {
           this.credits.position.x = l + w * 0.5;
           this.credits.position.y -= dt * 6;
           const credBottom = this.credits.position.y + this.credits.height;
-          if (credBottom <= t + h * 0.5) {
-            this.credits.position.y = t + h * 0.5 - this.credits.height;
+          const bottomLimit = t + h * 0.7;
+          if (credBottom <= bottomLimit) {
+            this.credits.position.y = bottomLimit - this.credits.height;
             fc.finalCutscene.creditsState = 3;
             fc.finalCutscene.timeTillRestartPossible = 3;
           }

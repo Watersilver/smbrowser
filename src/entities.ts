@@ -147,6 +147,10 @@ export type Entity = {
       spring: Entity;
       vx: number;
     };
+
+    timer: number;
+    damageCounter: number;
+    deathCounter: number;
   };
   fireball?: {
     parent?: Entity;

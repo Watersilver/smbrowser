@@ -126,6 +126,8 @@ export default class Gameplay extends State<'editor' | 'title', GameplayInit | n
 
   parallax = new Parallax();
 
+  deathTimer = -1;
+
   // Lowest point for dynamics before they are destroyed
   lowestY = Infinity;
 
@@ -636,7 +638,13 @@ export default class Gameplay extends State<'editor' | 'title', GameplayInit | n
     this.firstRender = false;
 
     if (canGoBackToTitle && this.input.isPressed('Enter')) {
-      return false;
+      this.overlay.setRestartText("Loading...");
+      if (this.deathTimer < 0) this.deathTimer = 0.2;
+    }
+
+    if (this.deathTimer > 0) {
+      this.deathTimer -= dt;
+      if (this.deathTimer <= 0) return false;
     }
 
     return true;

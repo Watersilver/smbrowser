@@ -66,6 +66,9 @@ export default function newMario(x: number, y: number) {
     },
     mario: {
       facing: 1,
+      damageCounter: 0,
+      deathCounter: 0,
+      timer: 0
     },
     floorSpeed: 0,
     gravity: 0,

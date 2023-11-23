@@ -289,8 +289,8 @@ function billshooter(dt: number, display: Display) {
         m => Math.abs(m.position.x - e.position.x) > 20
       ).some(
         m =>
-        // Mario lowest point is below my highest
-        m.position.y + m.size.y * 0.5 > e.position.y - e.size.y * 0.5
+        // Mario lowest point is below my highest - 32
+        m.position.y + m.size.y * 0.5 > e.position.y - e.size.y * 0.5 - 32
         // Mario highest point is above my lowest + 32
         && m.position.y - m.size.y * 0.5 < e.position.y + e.size.y * 0.5 + 32
       )
@@ -303,9 +303,13 @@ function billshooter(dt: number, display: Display) {
 
     if (b.cooldownCounter <= 0) {
       b.cooldownCounter = 0;
-      const bill = newBill(e.position.x, e.position.y, e);
-      if (bill.smb1EnemiesAnimations) {
-        bill.smb1EnemiesAnimations.container.zIndex = -1;
+      // count 8000
+      // Add bill spawns
+      if (entities.view(['bill']).length < 2) {
+        const bill = newBill(e.position.x, e.position.y, e);
+        if (bill.smb1EnemiesAnimations) {
+          bill.smb1EnemiesAnimations.container.zIndex = -1;
+        }
       }
     }
   }
@@ -489,7 +493,7 @@ function newSpiny(x: number, y: number) {
     horizontal: -universal.enemySpeed,
     flipEachOther: true,
   };
-  e.gravity = universal.enemyGravity;
+  e.gravity = universal.enemyGravity * 0.7;
   e.maxSpeed = 300;
   e.deleteOutOfCam = true;
   e.spiny = true;

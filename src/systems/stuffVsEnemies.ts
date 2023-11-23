@@ -48,8 +48,6 @@ export default function stuffVsEnemies(dt: number, display: Display) {
     }
   }
 
-  const now = performance.now();
-
   // See if mario hit
   for (const e of entities.view(['mario'])) {
     const m = e.mario;
@@ -257,6 +255,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
               kickShell = true;
               if (!e.iframesSecs && !isStillShell && !e.enemy?.harmless) {
                 e.iframesSecs = 3;
+                m.damageCounter += 1;
 
                 if (m.big) {
                   m.big = false;
