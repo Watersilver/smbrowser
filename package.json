@@ -1,6 +1,6 @@
 {
   "name": "smbrowser",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "smb1 for browser",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

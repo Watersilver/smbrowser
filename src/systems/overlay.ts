@@ -130,6 +130,10 @@ Special Thanks
     for the exhaustive
     smb1 Physics Guide
 
+  Javidx9
+    for the great aabb
+    physics system guide
+
 
   and You for playing!
 
