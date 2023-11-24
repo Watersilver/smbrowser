@@ -10,7 +10,6 @@ entities.view(['nonspinningHammer']);
 entities.view(['hammerbro']);
 
 const c1 = new Collidable();
-const c2 = new Collidable();
 
 export default function hammerbros(dt: number, display: Display) {
 
@@ -31,6 +30,7 @@ export default function hammerbros(dt: number, display: Display) {
     c1.set(e);
     if (!display.overlapsRectBroad(c1)) {
       if (e.dynamic) e.dynamic.velocity.x = 0;
+      if (e.goThrougWalls) delete e.goThrougWalls;
       continue;
     }
 
@@ -48,11 +48,11 @@ export default function hammerbros(dt: number, display: Display) {
     if (e.hammerbro.hammerTelegraphTimer < 0 && e.hammerbro.hammertime < 0) {
       const choice = Math.random();
       if (choice < 0.05) {
-        e.hammerbro.hammertime = 1.8;
+        e.hammerbro.hammertime = 2.5;
       } else if (choice < 0.25) {
-        e.hammerbro.hammertime = 1.2;
+        e.hammerbro.hammertime = 1.8;
       } else {
-        e.hammerbro.hammertime = 0.66;
+        e.hammerbro.hammertime = 0.99;
       }
     }
 
@@ -133,7 +133,6 @@ export default function hammerbros(dt: number, display: Display) {
         let canJumpDown = true;
         let height: number | null = null;
         for (const u of worldGrid.statics.findNear(c1.l, c1.t + c1.h, c1.w, c1.h)) {
-          c2.set(u.userData);
           if (height === null) {
             height = u.userData.position.y;
           } else if (height !== u.userData.position.y) {

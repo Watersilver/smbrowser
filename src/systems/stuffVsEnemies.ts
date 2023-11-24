@@ -104,6 +104,14 @@ export default function stuffVsEnemies(dt: number, display: Display) {
               if (isStillShell) {
                 kickShell = true;
               } else {
+                m.chain += 1;
+                // 100, 200, 400, 500, 800, 1,000, 2,000, 4,000, 5,000, 8,000, and then all 1-Ups
+                // Do 8 instead of 11 because 11 seems impossible legitimatelly
+                if (m.chain >= 8 && e.player) {
+                  audio.sounds.play('oneUp');
+                  e.player.lives += 1;
+                }
+
                 stopShell = true;
 
                 // Mario moves out of enemy as much as possible because of stomp, unless something solid is blocking
@@ -298,7 +306,10 @@ export default function stuffVsEnemies(dt: number, display: Display) {
                   uu.smb1EnemiesAnimations.loopsPerSecond = 0;
                   uu.smb1EnemiesAnimations.setFrame(0);
                 }
-                uu.enemy.isMovingShell = true;
+                uu.enemy.isMovingShell = {
+                  kicker: e.player,
+                  chain: 0
+                };
                 uu.enemy.isStillShell = false;
                 delete uu.enemy.shellTimer;
                 uu.enemy.harmless = 0.05;
@@ -311,7 +322,7 @@ export default function stuffVsEnemies(dt: number, display: Display) {
               audio.sounds.play('kick');
             } else if (stopShell && isMovingShel) {
               if (uu.enemy) {
-                uu.enemy.isMovingShell = false;
+                delete uu.enemy.isMovingShell;
                 uu.enemy.isStillShell = true;
                 uu.enemy.shellTimer = 5;
               }
@@ -565,6 +576,15 @@ export default function stuffVsEnemies(dt: number, display: Display) {
             // Got hit by shell
             u.userData.fireballHitEnemy = true;
             e.gotHit = {x: u.userData.position.x, y: u.userData.position.y, by: 'shell'};
+            u.userData.enemy.isMovingShell.chain += 1;
+
+            // 500, 800, 1,000, 2,000, 4,000, 5,000, 8,000, and then all 1-Ups
+            if (u.userData.enemy.isMovingShell.chain >= 8) {
+              if (u.userData.enemy.isMovingShell.kicker) {
+                u.userData.enemy.isMovingShell.kicker.lives += 1;
+                audio.sounds.play('oneUp');
+              }
+            }
           }
         }
       }

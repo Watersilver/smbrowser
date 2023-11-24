@@ -5,6 +5,7 @@ type MusicInput<T extends string> = {
   name?: T | null;
   loopStart?: number;
   loopEnd?: number;
+  noLoop?: boolean;
 };
 
 type ReadonlyMusicInput<T extends string> = {
@@ -14,7 +15,10 @@ type ReadonlyMusicInput<T extends string> = {
   readonly name?: T | null;
   readonly loopStart?: number;
   readonly loopEnd?: number;
+  readonly noLoop?: boolean;
 };
+
+function emptyFunc() {};
 
 function connectNodes(first: AudioNode, ...nodes: AudioNode[]) {
   let current = first;
@@ -208,9 +212,11 @@ class MusicPlayer<T extends string> extends AudioContainer<T> {
   private playCurrent() {
     const a = this.setActiveAudio(this.currentData?.name);
     if (!a) return;
-    a.loop = true;
-    if (this.currentData?.loopStart !== undefined) a.loopStart = this.currentData.loopStart;
-    a.loopEnd = this.currentData?.loopEnd ?? a.buffer?.duration ?? 0;
+    if (!this.currentData?.noLoop) {
+      a.loop = true;
+      if (this.currentData?.loopStart !== undefined) a.loopStart = this.currentData.loopStart;
+      a.loopEnd = this.currentData?.loopEnd ?? a.buffer?.duration ?? 0;
+    }
     a.start();
   }
 
@@ -300,7 +306,7 @@ class SoundPlayer<T extends string> extends AudioContainer<T> {
     volume.gain.value = this.getFinalVolume();
     connectNodes(newActiveSound, volume, this.context.destination);
     let stop = () => {
-      stop = () => {};
+      stop = emptyFunc;
       this.playing.delete(newActiveSound);
       newActiveSound.disconnect();
       newActiveSound.onended = null;
@@ -338,7 +344,7 @@ export default class AudioController {
   }
 
   private resetLoaded() {
-    this.loaded = Promise.all(this.containers.map(l => l.loadingDone())).then(() => {});
+    this.loaded = Promise.all(this.containers.map(l => l.loadingDone())).then(emptyFunc);
   }
 
   init() {

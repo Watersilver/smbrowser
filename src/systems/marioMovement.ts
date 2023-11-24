@@ -54,6 +54,8 @@ export default function marioMovement(dt: number, parameters?: {conservationOfMo
       const jumped = (underwater || downBlocked || mario.climbing) && i.jump && !mario.jumpCooldown;
       const grounded = downBlocked && !jumped && !mario.jumpCooldown;
 
+      if (grounded) mario.chain = 0;
+
       e.gravity = e.gravity || config.initFallGravity;
 
       mario.jumped = false;

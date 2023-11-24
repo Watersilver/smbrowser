@@ -71,7 +71,7 @@ Graphics
 
 
 Original Team
-  https://www.mariowiki.com
+  via https://www.mariowiki.com
   /List_of_Super_Mario_Bros._staff
 
   Director
@@ -124,7 +124,7 @@ Special Thanks
     cease-and-desist'd this (yet)
 
   https://nesmaps.com
-    for amazing map guides
+    for the amazing map guides
 
   Jdaster64
     for the exhaustive
@@ -323,7 +323,10 @@ export default class Overlay {
       this.fade.endFill();
 
       if (fc.finalCutscene.creditsState === 1) {
-        audio.music.setMusic({name: 'smb3underwater'});
+        audio.music.setMusic({
+          name: 'smb3underwater',
+          noLoop: true
+        });
         fc.finalCutscene.creditsState = 2;
         // final ranks:
         // skill:

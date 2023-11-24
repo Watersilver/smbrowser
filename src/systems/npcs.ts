@@ -54,7 +54,7 @@ export default function npcs(dt: number, display: Display) {
         part.scale.set(0.2);
         part.zIndex = 100;
         part.position.x = e.position.x;
-        part.position.y = e.position.y - e.size.y * 0.5 - 8 - (split.length - 1 - i) * part.height;
+        part.position.y = e.position.y - e.size.y * 0.5 - 12 - (split.length - 1 - i) * part.height;
         part.anchor.set(0.5, 1);
         display.add(part);
 

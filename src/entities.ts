@@ -132,6 +132,8 @@ export type Entity = {
     // Use same mechanism for wind and whirlpools
     wind?: number;
 
+    chain: number;
+
     inPipe?: {
       path: Points;
       from: "u" | "d" | "l" | "r";
@@ -233,7 +235,10 @@ export type Entity = {
     star: boolean;
     shell: boolean;
     isStillShell?: boolean;
-    isMovingShell?: boolean;
+    isMovingShell?: {
+      kicker?: {lives: number;}
+      chain: number;
+    };
     lookTowards?: "direction" | "mario";
     harmless?: number;
     shellTimer?: number;
