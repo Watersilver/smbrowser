@@ -11,9 +11,7 @@ import gameover from "./assets/sfx/smb_gameover.mp3"
 import jumpSmall from "./assets/sfx/smb_jump-small.mp3"
 import jumpBig from "./assets/sfx/smb_jump-super.mp3"
 import kick from "./assets/sfx/smb_kick.mp3"
-import mariodie from "./assets/sfx/smb_mariodie.mp3"
 import mariodiestart from "./assets/sfx/smb_mariodiestart.mp3"
-import mariodieend from "./assets/sfx/smb_mariodieend.mp3"
 import pause from "./assets/sfx/smb_pause.mp3"
 import pipe from "./assets/sfx/smb_pipe.mp3"
 import powerup from "./assets/sfx/smb_powerup.mp3"
@@ -22,7 +20,6 @@ import stage_clear from "./assets/sfx/smb_stage_clear.mp3"
 import stomp from "./assets/sfx/smb_stomp.mp3"
 import vine from "./assets/sfx/smb_vine.mp3"
 import star from "./assets/sfx/star.mp3"
-import warning from "./assets/sfx/smb_warning.mp3"
 import world_clear from "./assets/sfx/smb_world_clear.mp3"
 import save_cake from "./assets/sfx/save_cake.mp3"
 import smwoverworld_end from "./assets/sfx/smwoverworld_end.mp3"
@@ -47,7 +44,6 @@ export function getSmb1Audio() {
   const ac = new AudioController();
   const sounds = ac.createSoundPlayer({
     mariodiestart,
-    mariodieend,
     oneUp,
     bowserfalls,
     bowserfire,
@@ -61,7 +57,6 @@ export function getSmb1Audio() {
     jumpSmall,
     jumpBig,
     kick,
-    mariodie,
     pause,
     pipe,
     powerup,
@@ -69,7 +64,6 @@ export function getSmb1Audio() {
     stage_clear,
     stomp,
     vine,
-    warning,
     world_clear,
     save_cake,
     star,
