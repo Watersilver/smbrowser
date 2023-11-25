@@ -38,90 +38,28 @@ const credits = `
 ~Credits~
 
 
+Art
+
+  ProsciuttoMan
+
 Audio
-
-  Remixes
-
-    Blue Brew Music
-
-    RetroGamingMusic HQ
-
-    Ryan Z 'Piano Guy'
-
-    The Noble Demon
-
-    Qumu
   
-  Sound-rips
+  Pending
 
-    https://themushroomkingdom.net
+Font
 
+  TheWolfBunny64
 
-Graphics
+Programming
 
-  Super Mario Bros. NES Font
+  all of it
 
-    TheWolfBunny64
-
-  Sprite-rips
-
-    SuperJustinBros
-
-    Murphmario
-
-
-Original Team
-  via https://www.mariowiki.com
-  /List_of_Super_Mario_Bros._staff
-
-  Director
-
-    Shigeru Miyamoto
-
-  Assistant Director
-
-    Takashi Tezuka
-
-  Sound Department
-
-    Koji Kondo
-
-  Original Music
-
-    Koji Kondo
-
-  Designers
-
-    Shigeru Miyamoto
-    Takashi Tezuka
-
-  Programmers
-
-    Toshihiko Nakago
-    Kazuaki Morita
-
-  Producer
-
-    Shigeru Miyamoto
-
-  Executive Producer
-
-    Hiroshi Yamauchi
-
-
-  Original Music from other games
-
-    Kazumi Totaka
-
+    WaterSilverC
 
 Special Thanks
 
   Pixi.js team
     for the great rendering library
-
-  Nintendo
-    for not having
-    cease-and-desist'd this (yet)
 
   https://nesmaps.com
     for the amazing map guides
