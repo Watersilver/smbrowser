@@ -14,7 +14,6 @@ import smb1tilesanimationsFactory from './sprites/loaders/smb1/animated-tiles';
 import smb1enemiesanimationsFactory from './sprites/loaders/smb1/enemies';
 import smb1objectsanimationsFactory from './sprites/loaders/smb1/animated-objects';
 import Title from './states/Title';
-import musicDisplayer from './systems/musicDisplayer';
 
 display.setBGColor('#000000');
 // display.countFps();
@@ -23,8 +22,6 @@ display.setBGColor('#000000');
 const audio = getSmb1Audio();
 audio.music.onReadyState(() => {
   const n = audio.music.getMusic()?.name;
-  if (n) musicDisplayer.setNext(n);
-  else musicDisplayer.deleteData();
 });
 
 try {
@@ -262,7 +259,6 @@ class Game extends Loop {
 
     const s = this.sm.getState();
     const paused = s instanceof Gameplay ? s.isPaused() : false;
-    musicDisplayer.update(clampedDT, paused);
 
     display.render();
   }

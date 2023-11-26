@@ -110,7 +110,7 @@ export default function flags(dt: number, display: Display) {
             f.flag.goThrougWalls = true;
             f.flag.gravity = 200;
           } else if (f.id === 2) {
-            audio.sounds.play('smw_course_clear');
+            audio.sounds.play('flagpole');
             setTimeout(() => audio.sounds.play('smwoverworld_end'), 1000);
             f.fireworks = {};
             f.descendFlag = true;

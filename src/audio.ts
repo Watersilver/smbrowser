@@ -24,7 +24,6 @@ import world_clear from "./assets/sfx/smb_world_clear.mp3"
 import save_cake from "./assets/sfx/save_cake.mp3"
 import smwoverworld_end from "./assets/sfx/smwoverworld_end.mp3"
 import smb1overworld_end from "./assets/sfx/smb1overworld_end.mp3"
-import smw_course_clear from "./assets/sfx/smw_course_clear.mp3"
 import smb1overworld from "./assets/bgm/smb1overworld.mp3"
 import smb2overworld from "./assets/bgm/smb2overworld.mp3"
 import smb3overworld from "./assets/bgm/smb3overworld.mp3"
@@ -69,7 +68,6 @@ export function getSmb1Audio() {
     star,
     smwoverworld_end,
     smb1overworld_end,
-    smw_course_clear
   });
   const music = ac.createMusicPlayer({
     smb1overworld,
