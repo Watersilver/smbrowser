@@ -10,9 +10,12 @@ entities.view(['mario']);
 // Mario sky
 // #9290FF
 
-let skyR = 0x92;
-let skyG = 0x90;
-let skyB = 0xFF;
+// New Sky
+// #9880F0
+
+let skyR = 0x98;
+let skyG = 0x80;
+let skyB = 0xF0;
 
 // Dark
 // #051525

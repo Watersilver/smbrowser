@@ -1,3 +1,4 @@
+import { getSmb1Audio } from "../audio";
 import { aabb } from "../engine";
 import entities from "../entities";
 import Collidable from "../utils/collidable";
@@ -8,6 +9,7 @@ entities.view(['mario']);
 
 const c1 = new Collidable();
 const c2 = new Collidable();
+const a = getSmb1Audio();
 
 export default function loops() {
   for (const e of entities.view(['mario'])) {
@@ -18,6 +20,7 @@ export default function loops() {
 
     if (inside.length > 1) {
       e.position.x = inside[0]?.x ?? e.position.x;
+      a.sounds.play('buzzer');
     }
   }
 }

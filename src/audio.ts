@@ -20,6 +20,7 @@ import stage_clear from "./assets/sfx/smb_stage_clear.mp3"
 import stomp from "./assets/sfx/smb_stomp.mp3"
 import vine from "./assets/sfx/smb_vine.mp3"
 import star from "./assets/sfx/star.mp3"
+import buzzer from "./assets/sfx/buzzer.mp3"
 import world_clear from "./assets/sfx/smb_world_clear.mp3"
 import save_cake from "./assets/sfx/save_cake.mp3"
 import smwoverworld_end from "./assets/sfx/smwoverworld_end.mp3"
@@ -68,6 +69,7 @@ export function getSmb1Audio() {
     star,
     smwoverworld_end,
     smb1overworld_end,
+    buzzer
   });
   const music = ac.createMusicPlayer({
     smb1overworld,
