@@ -48,7 +48,6 @@ entities.onPropChange('bruce', deletePrevBowserfireZones);
 
 let gameoverSound: Sound | null = null;
 let clearSound: Sound | null = null;
-let winSound: Sound | null = null;
 
 export default function bruce(dt: number, display: Display) {
   for (const e of entities.view(['bruce'])) {
@@ -119,7 +118,7 @@ export default function bruce(dt: number, display: Display) {
             const random = Math.random();
             newBowserfire(
               e.position.x - e.smb1EnemiesAnimations.container.scale.x * 21,
-              e.position.y - 8,
+              e.position.y + 8,
               (e.bruce.zone?.b ?? (e.positionStart.y + 8)) - 16 * (random < 0.33 ? 2 : random < 0.66 ? 1 : 0) - 8
             );
           }
@@ -232,7 +231,7 @@ export default function bruce(dt: number, display: Display) {
           entities.remove(b);
           if (j === bb.length - 1) {
             setTimeout(() => {
-              clearSound = audio.sounds.play(finalAxe ? 'world_clear' : 'stage_clear');
+              clearSound = audio.sounds.play(finalAxe ? 'save_cake' : 'stage_clear');
               if (!finalAxe) clearSound = null;
               
               if (finalAxe) hitMarios.forEach(({e}) => {
@@ -271,7 +270,6 @@ export default function bruce(dt: number, display: Display) {
     if (clearSound) {
       if (!clearSound.playing()) {
         clearSound = null;
-        winSound = audio.sounds.play('save_cake');
       }
     }
     if (e.finalCutscene.close) {
@@ -282,8 +280,6 @@ export default function bruce(dt: number, display: Display) {
         if (p) {
           if (p.t >= (p.text.at(-1)?.delay ?? 0)) {
             e.finalCutscene.timeTillFinalScreen = 1;
-            winSound?.stop();
-            gameoverSound = audio.sounds.play('gameover');
           }
         }
       } else {
