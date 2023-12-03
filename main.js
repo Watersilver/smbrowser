@@ -9,7 +9,8 @@ const createWindow = () => {
 
   Menu.setApplicationMenu(null);
 
-  win.loadFile('./build/index.html');
+  // Make sure dist folder exists by running: npm run build
+  win.loadFile('./dist/index.html');
 }
 
 app.whenReady().then(() => {
