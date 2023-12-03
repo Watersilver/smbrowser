@@ -120,7 +120,8 @@ Special Thanks
     for the great rendering library
 
   Nintendo
-    for leaving this game alone (for now)
+    for leaving this
+    game be (for now)
 
   https://nesmaps.com
     for the amazing map guides
@@ -331,24 +332,6 @@ export default class Overlay {
           noLoop: true
         });
         fc.finalCutscene.creditsState = 2;
-        // final ranks:
-        // skill:
-        // Untouchable (never got hit)
-        // Unkillable (hit but not lost a life)
-        // Undead (have negative lves)
-        // Determined (lost less than four lives but still has lives)
-        // Bruised (lost less than ten lives but still has lives)
-        // Battered (lost at least 10 lives but still has lives)
-        // state:
-        // Fiery Hunk (big fire)
-        // Small Fire (small fire)
-        // little guy (small)
-        // Total Chad (big mario no fire)
-        // time:
-        // the scenery (slow, more than 18 mins)
-        // a steady pace (normal, between extremes)
-        // pizza and coke (fast, less than 13 mins)
-        // also show time explicitly
         const player = entities.view(['player']).at(-1)?.player;
         const mario = entities.view(['mario']).at(-1)?.mario;
         const timeInSecs = mario?.timer ?? 0;
@@ -380,7 +363,7 @@ export default class Overlay {
           if (mario.big && mario.powerup === 'fire') {
             state = "Fiery Hunk";
           } else if (mario.big) {
-            state = "Chad";
+            state = "Gigachad";
           } else if (mario.powerup === 'fire') {
             state = "Small Fire";
           } else {
