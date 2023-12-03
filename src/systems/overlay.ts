@@ -52,7 +52,7 @@ Audio
 
     Qumu
   
-  Sound-rips
+  Sounds
 
     https://themushroomkingdom.net
 
@@ -63,7 +63,7 @@ Graphics
 
     TheWolfBunny64
 
-  Sprite-rips
+  Sprites
 
     SuperJustinBros
 
@@ -120,8 +120,7 @@ Special Thanks
     for the great rendering library
 
   Nintendo
-    for not having
-    cease-and-desist'd this (yet)
+    for leaving this game alone (for now)
 
   https://nesmaps.com
     for the amazing map guides
