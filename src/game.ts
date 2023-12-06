@@ -41,7 +41,7 @@ try {
   console.error(err);
 }
 
-type LoadingOut = LevelEditorInit & {mario?: Container; title?: Container; text?: Text} | null;
+type LoadingOut = LevelEditorInit & {title?: Container; text?: Text} | null;
 class Loading extends State<'loaded', LevelEditorInit | null, LoadingOut> {
   g: LevelEditorInit | null = null;
   gzInit: any;
@@ -57,7 +57,6 @@ class Loading extends State<'loaded', LevelEditorInit | null, LoadingOut> {
   });
   t = 0.2;
 
-  mario: Container | null = null;
   title: Container | null = null;
   text: Text | null = null;
 
@@ -89,13 +88,8 @@ class Loading extends State<'loaded', LevelEditorInit | null, LoadingOut> {
     const tParent = new Container();
     tParent.addChild(t.container);
     display.add(tParent);
-    tParent.position.set(this.o.position.x - 48, this.o.position.y - 64);
+    tParent.position.set(this.o.position.x, this.o.position.y - 64);
     this.title = t.container;
-    const m = smb1titleFactory.new();
-    m.setFrame('marioface');
-    display.add(m.container);
-    m.container.position.set(this.o.position.x + 128, this.o.position.y - 64);
-    this.mario = m.container;
     this.text = new Text("Press ENTER to start the game", {
       fontFamily: "Mario",
       fill: '#be0000',
@@ -157,7 +151,6 @@ class Loading extends State<'loaded', LevelEditorInit | null, LoadingOut> {
     return [this.g ? {
       graphics: this.g.graphics,
       input: this.g.input,
-      mario: this.mario ?? undefined,
       title: this.title ?? undefined,
       text: this.text ?? undefined
     } : null, "loaded"];

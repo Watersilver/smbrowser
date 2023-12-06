@@ -30,7 +30,7 @@ import smb2overworld from "./assets/bgm/smb2overworld.mp3"
 import smb3overworld from "./assets/bgm/smb3overworld.mp3"
 import smwoverworld from "./assets/bgm/smwoverworld.mp3"
 import smb1underground from "./assets/bgm/smb1underground.mp3"
-import smb3underwater from "./assets/bgm/smb3underwater.mp3"
+import Hes_my_bird_tapper from "./assets/bgm/Hes_my_bird_tapper.mp3"
 import smb1underwater from "./assets/bgm/smb1underwater.mp3"
 import smb1castle from "./assets/bgm/smb1castle.mp3"
 import sml2athletic from "./assets/bgm/sml2athletic.mp3"
@@ -78,7 +78,7 @@ export function getSmb1Audio() {
     smwoverworld,
     smb1underground,
     smb1underwater,
-    smb3underwater,
+    Hes_my_bird_tapper,
     smb1castle,
     sml2athletic,
     smwathletic,

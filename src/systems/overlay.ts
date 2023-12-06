@@ -266,7 +266,7 @@ export default class Overlay {
 
       if (fc.finalCutscene.creditsState === 1) {
         audio.music.setMusic({
-          name: 'smb3underwater',
+          name: 'Hes_my_bird_tapper',
           noLoop: true
         });
         fc.finalCutscene.creditsState = 2;

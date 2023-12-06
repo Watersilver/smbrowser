@@ -5,8 +5,7 @@ import SpritesheetWrapper from "../../../../spriteUtils/spritesheet-wrapper";
 // https://www.html5gamedevs.com/topic/49927-textures-from-spritesheet-include-edges-of-other-sprites/
 const titleSmb1Json = {
   frames: {
-    board: {x:40,y:32,w:201,h:97},
-    marioface: {x:0,y:163,w:77,h:64}
+    board: {x:40,y:32,w:201,h:97}
   },
 
   transparency: [

@@ -15,7 +15,7 @@ import { getSmb1Audio } from "../audio";
 export type TitleIn = {
   graphics: Graphics;
   input: Input;
-  mario?: Container; title?: Container; text?: Text
+  title?: Container; text?: Text
 } | null;
 
 export type TitleOut = {
@@ -35,7 +35,6 @@ const audio = getSmb1Audio();
 export default class Title extends State<'gameplay', TitleIn | null, TitleOut | null> {
   graphics?: Graphics;
   input?: Input;
-  mario?: Container;
   title?: Container;
   instructions?: Text;
   text?: Text;
@@ -82,7 +81,6 @@ export default class Title extends State<'gameplay', TitleIn | null, TitleOut | 
   override onStart(i: TitleIn): void {
     this.overlay = new Overlay(display);
     this.graphics = i?.graphics;
-    if (i?.mario) this.mario = i.mario;
     if (i?.title) this.title = i.title;
     if (i?.text) this.text = i.text;
     if (this.graphics) {
@@ -141,10 +139,6 @@ export default class Title extends State<'gameplay', TitleIn | null, TitleOut | 
     if (this.title) {
       this.title.position.y = Math.sin(this.t) * 7;
       this.title.angle = Math.sin(this.t * 0.61803398) * 5;
-      if (this.mario) {
-        this.mario.angle = Math.sin(this.t * Math.PI * 0.5) * 4;
-        this.mario.position.y = this.title.parent.position.y + Math.sin(this.t * Math.PI * 0.161803398 + 2) * 14;
-      }
 
       if (!this.timer && this.text) {
         this.t2 += dt;
