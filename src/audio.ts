@@ -25,17 +25,17 @@ import world_clear from "./assets/sfx/smb_world_clear.mp3"
 import save_cake from "./assets/sfx/save_cake.mp3"
 import smwoverworld_end from "./assets/sfx/smwoverworld_end.mp3"
 import smb1overworld_end from "./assets/sfx/smb1overworld_end.mp3"
-import smb1overworld from "./assets/bgm/smb1overworld.mp3"
-import smb2overworld from "./assets/bgm/smb2overworld.mp3"
-import smb3overworld from "./assets/bgm/smb3overworld.mp3"
-import smwoverworld from "./assets/bgm/smwoverworld.mp3"
-import smb1underground from "./assets/bgm/smb1underground.mp3"
+import overworld_tune1 from "./assets/bgm/overworld tune1.mp3"
+import mushroom1 from "./assets/bgm/mushroom1.mp3"
+import overworld2 from "./assets/bgm/overworld2.mp3"
+import overworld3 from "./assets/bgm/overworld3.mp3"
+import underground from "./assets/bgm/underground.mp3"
 import Hes_my_bird_tapper from "./assets/bgm/Hes_my_bird_tapper.mp3"
-import smb1underwater from "./assets/bgm/smb1underwater.mp3"
-import smb1castle from "./assets/bgm/smb1castle.mp3"
-import sml2athletic from "./assets/bgm/sml2athletic.mp3"
-import smwathletic from "./assets/bgm/smwathletic.mp3"
-import bowser from "./assets/bgm/bowser.mp3"
+import underwater from "./assets/bgm/underwater.mp3"
+import CASTLE_THEME_1 from "./assets/bgm/CASTLE THEME 1.mp3"
+import mushroom2 from "./assets/bgm/mushroom2.mp3"
+import overworld4 from "./assets/bgm/overworld4.mp3"
+import final_castle from "./assets/bgm/final castle.mp3"
 import { AudioController } from "./engine"
 
 let smbCache: any = null;
@@ -72,17 +72,17 @@ export function getSmb1Audio() {
     buzzer
   });
   const music = ac.createMusicPlayer({
-    smb1overworld,
-    smb2overworld,
-    smb3overworld,
-    smwoverworld,
-    smb1underground,
-    smb1underwater,
+    overworld_tune1,
+    mushroom1,
+    overworld2,
+    overworld3,
+    underground,
+    underwater,
     Hes_my_bird_tapper,
-    smb1castle,
-    sml2athletic,
-    smwathletic,
-    bowser
+    CASTLE_THEME_1,
+    mushroom2,
+    overworld4,
+    final_castle
   });
   
   const audio = {

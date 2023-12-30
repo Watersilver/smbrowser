@@ -20,57 +20,43 @@ export default function music() {
       audio.sounds.get('stage_clear').forEach(s => s.stop());
       if (musicZone.music === 'smb1overworld') {
         audio.music.setMusic({
-          name: 'smb1overworld',
-          loopStart: 26.036,
-          loopEnd: 156.037
+          name: 'overworld_tune1'
         });
       } else if (musicZone.music === 'smb2overworld') {
         audio.music.setMusic({
-          name: 'smb2overworld',
-          loopStart: 11.313,
-          loopEnd: 127.061
+          name: 'mushroom1'
         });
       } else if (musicZone.music === 'smb3overworld') {
         audio.music.setMusic({
-          name: 'smb3overworld',
-          loopStart: 0,
-          loopEnd: 219.05
+          name: 'overworld2'
         });
       } else if (musicZone.music === 'smwoverworld') {
         audio.music.setMusic({
-          name: 'smwoverworld',
-          loopStart: 66.247,
-          loopEnd: 183.591
+          name: 'overworld3'
+        });
+      } else if (musicZone.music === 'smb1underwater') {
+        audio.music.setMusic({
+          name: 'underwater'
         });
       } else if (musicZone.music === 'smb1underground') {
         audio.music.setMusic({
-          name: 'smb1underground',
-          loopStart: 0,
-          loopEnd: 160.731
+          name: 'underground'
         });
       } else if (musicZone.music === 'smb1castle') {
         audio.music.setMusic({
-          name: 'smb1castle',
-          loopStart: 26.222 -10.5270,
-          loopEnd: 101.866 -10.5270
+          name: "CASTLE_THEME_1"
         });
       } else if (musicZone.music === 'sml2athletic') {
         audio.music.setMusic({
-          name: 'sml2athletic',
-          loopStart: 53.236,
-          loopEnd: 104.434
+          name: 'mushroom2'
         });
       } else if (musicZone.music === 'smwathletic') {
         audio.music.setMusic({
-          name: 'smwathletic',
-          loopStart: 38.164,
-          loopEnd: 149.663
+          name: 'overworld4'
         });
       } else if (musicZone.music === 'bowser') {
         audio.music.setMusic({
-          name: 'bowser',
-          loopStart: 59.816,
-          loopEnd: 115.874
+          name: 'final_castle'
         });
       } else if (!musicZone.music) {
         audio.music.setMusic({
